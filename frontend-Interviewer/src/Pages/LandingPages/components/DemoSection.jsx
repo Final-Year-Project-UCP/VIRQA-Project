@@ -1,4 +1,3 @@
-"use client";
 
 import { motion } from "framer-motion";
 
@@ -16,7 +15,7 @@ export default function DemoSection() {
       className="relative py-20 px-6 sm:px-8 bg-linear-to-br from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-        {/* ───── LEFT SIDE ───── */}
+      
         <motion.div
           className="space-y-7"
           initial={{ opacity: 0, x: -60 }}
@@ -32,7 +31,7 @@ export default function DemoSection() {
             in Action
           </h2>
           <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Watch AI analyze your voice, tone, and confidence in real-time — with instant,
+            Watch AI analyze your voice, tone, and confidence in real-time with instant,
             actionable insights.
           </p>
 
@@ -63,7 +62,6 @@ export default function DemoSection() {
           </ul>
         </motion.div>
 
-        {/* ───── RIGHT SIDE ───── */}
         <motion.div
           className="relative"
           initial={{ opacity: 0, y: 60 }}
@@ -73,10 +71,10 @@ export default function DemoSection() {
         >
           <div className="bg-white/70 backdrop-blur-2xl rounded-3xl p-1 shadow-2xl border border-gray-200/50 hover:shadow-gray-400/40 transition-all duration-500">
             <div className="bg-linear-to-br from-zinc-900 via-gray-800 to-gray-900 rounded-3xl p-6 md:p-8 relative overflow-hidden">
-              {/* Gradient glow ring */}
+            
               <div className="absolute inset-0 rounded-3xl bg-linear-to-tr from-indigo-600/20 via-cyan-400/10 to-pink-500/20 blur-3xl"></div>
 
-              {/* Colored header dots */}
+             
               <div className="flex items-center gap-2 mb-6 relative z-10">
                 <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
                 <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"></div>
@@ -84,10 +82,9 @@ export default function DemoSection() {
                 <div className="ml-3 flex-1 h-px bg-linear-to-r from-gray-500 to-transparent opacity-30"></div>
               </div>
 
-              {/* Terminal content */}
+           
               <div className="space-y-6 relative z-10 text-sm font-mono">
-                {/* Confidence box */}
-                <div className="text-center pb-4 border-b border-gray-700">
+                 <div className="text-center pb-4 border-b border-gray-700">
                   <motion.p
                     className="text-3xl font-bold text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]"
                     initial={{ scale: 0.9 }}
@@ -106,7 +103,7 @@ export default function DemoSection() {
                   </p>
                 </div>
 
-                {/* Q&A */}
+              
                 <div className="space-y-5">
                   <div className="bg-linear-to-r from-gray-800 to-gray-700 rounded-xl p-4 text-gray-300 border border-gray-600">
                     <p className="text-xs text-gray-400 mb-1">Question:</p>
@@ -122,7 +119,7 @@ export default function DemoSection() {
                     <p className="text-xs">Analyzing speech patterns, tone, and clarity...</p>
                   </motion.div>
 
-                  {/* Voice waveform */}
+              
                   <div className="flex gap-1 items-end h-16 justify-center">
                     {[0.6, 1.2, 1.8, 1.4, 2.1, 1.6, 1.0, 0.8].map((h, i) => (
                       <motion.div
@@ -148,11 +145,9 @@ export default function DemoSection() {
         </motion.div>
       </div>
 
-      {/* Ambient Glows */}
       <div className="absolute top-1/3 -right-20 w-96 h-96 bg-gradient-radial from-cyan-400/20 via-transparent to-transparent blur-3xl -z-10 animate-pulse"></div>
       <div className="absolute bottom-10 -left-20 w-80 h-80 bg-gradient-radial from-pink-400/15 via-transparent to-transparent blur-3xl -z-10 animate-pulse"></div>
 
-      {/* Custom keyframes */}
       <style jsx>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.4; }

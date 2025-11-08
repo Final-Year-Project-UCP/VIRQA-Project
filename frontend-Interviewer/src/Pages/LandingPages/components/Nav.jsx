@@ -1,4 +1,4 @@
-'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Mic, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ const Nav = () => {
     { name: 'Features', id: 'features' },
     { name: 'How-It-Works', id: 'how-it-works' },
     { name: 'Demo', id: 'demo' },
+    { name: 'FAQs', id: 'faqs' },
   ];
 
   // Scroll effect for navbar
