@@ -22,12 +22,12 @@ export default function HeroSection() {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
-            <button className="group bg-linear-to-r from-gray-900 to-gray-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2">
+            <button className="group bg-linear-to-r cursor-pointer from-gray-900 to-gray-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2">
               Try a Demo Interview
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200 hover:font-extrabold" />
             </button>
 
-            <button className="group border-2 border-gray-400 text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg hover:border-gray-800 hover:text-gray-900 hover:scale-105 transition-all flex items-center justify-center gap-2">
+            <button className="group border-2 cursor-pointer border-gray-400 text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg hover:border-gray-800 hover:text-gray-900 hover:scale-105 transition-all flex items-center justify-center gap-2">
               <Play className="w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors" />
               Watch How It Works
             </button>
