@@ -115,7 +115,7 @@ const Nav = () => {
               >
                 <button
                   onClick={() => handleClick(item.id)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer ${
                     activeItem === item.id
                       ? 'bg-white/10 text-white'
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -136,7 +136,7 @@ const Nav = () => {
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
-                className="bg-white text-gray-900 px-6 py-2.5 rounded-full font-semibold text-sm shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200 border border-white/20"
+                className="bg-white text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm shadow-lg hover:shadow-xl cursor-pointer hover:bg-gray-50 transition-all duration-200 border border-white/20"
               >
                 Login
               </motion.button>

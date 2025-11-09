@@ -34,7 +34,7 @@ export default function FaqSection() {
   return (
     <section
       id="faqs"
-      className="relative py-20 px-6 sm:px-8 bg-gradient-to-b from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden"
+      className="relative py-20 px-6 sm:px-8 bg-linear-to-b from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden"
     >
       <div className="max-w-5xl mx-auto">
         {/* Header */}
@@ -45,7 +45,7 @@ export default function FaqSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-800 via-gray-900 to-zinc-800 bg-clip-text text-transparent animate-gradient-x">
+          <h2 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-gray-800 via-gray-900 to-zinc-800 bg-clip-text text-transparent animate-gradient-x">
             Frequently Asked Questions
           </h2>
           <p className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
@@ -54,20 +54,20 @@ export default function FaqSection() {
         </motion.div>
 
         {/* FAQ Accordion */}
-        <div className="max-w-3xl mx-auto space-y-5">
+        <div className="max-w-3xl mx-auto space-y-5 ">
           {faqs.map((item, i) => {
             const isOpen = openIndex === i;
 
             return (
               <motion.div
                 key={i}
-                className="group"
+                className="group "
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.1, ease: "easeOut" }}
               >
-                <div className="bg-white/80 backdrop-blur-xl border border-gray-200/70 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-400">
+                <div className="bg-white/80 backdrop-blur-xl border  border-gray-200/70 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-400">
                   {/* Question Button */}
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : i)}
@@ -75,7 +75,7 @@ export default function FaqSection() {
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${i}`}
                   >
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-gray-800 transition-colors pr-4">
+                    <h3 className="text-base cursor-pointer sm:text-lg font-semibold text-gray-900 group-hover:text-gray-800 transition-colors pr-4">
                       {item.q}
                     </h3>
 
@@ -83,11 +83,11 @@ export default function FaqSection() {
                     <motion.div
                       animate={{ rotate: isOpen ? 180 : 0 }}
                       transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                      className="flex-shrink-0"
+                      className="shrink-0"
                     >
                       <ChevronDown
                         size={22}
-                        className="text-gray-600 group-hover:text-gray-800 transition-colors"
+                        className="text-gray-600 group-hover:text-gray-800 transition-colors cursor-pointer"
                       />
                     </motion.div>
                   </button>

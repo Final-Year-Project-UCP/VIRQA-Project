@@ -11,6 +11,7 @@ import DemoSection from './components/DemoSection';
 import WhoItsFor from './components/WhoItsFor';
 import Footer from './components/Footer';
 import FaqSection from './components/FAQs';
+import TermsSection from './components/Term&Condition';
 
 const LandingPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -39,6 +40,7 @@ const LandingPage = () => {
         <WhoItsFor />
         <FaqSection />
         <Footer />
+    
       </div>
 
    
