@@ -1,30 +1,10 @@
-
-import React from 'react';
-import LandingPage from "./Pages/LandingPages/LandingPage";
-
-
-const App=()=>{
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/Approutes.jsx";
+const App = () => {
   return (
-
-    <div>
-      <LandingPage />
-    
-    
-    </div>
-  )
-}
-
-
+    <BrowserRouter>
+    < AppRoutes/>
+    </BrowserRouter>
+  );
+};
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-

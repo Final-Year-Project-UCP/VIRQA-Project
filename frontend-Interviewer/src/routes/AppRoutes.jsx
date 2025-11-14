@@ -8,6 +8,7 @@ const AppRoutes = () => {
         {/* Pages without layout */}
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/login" element={<Login/>} />
+        <Route path="/login" element={<h1>Login</h1>} />
         <Route path="/institute-register" element={<LandingPage />} />
 
         {/* Pages with layout */}
