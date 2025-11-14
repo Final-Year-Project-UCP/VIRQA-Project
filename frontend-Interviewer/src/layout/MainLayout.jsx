@@ -1,3 +1,4 @@
+import { Outlet } from "react-router-dom"
 const MainLayout=()=>{
 return<>
    <header style={{ padding: "20px", background: "#f4f4f4" }}>

@@ -11,7 +11,7 @@ const AppRoutes = () => {
         <Route path="/institute-register" element={<LandingPage />} />
 
         {/* Pages with layout */}
-        <Route path="/api/v1" element={<MainLayout />}>
+        <Route path="/api/v1/" element={<MainLayout />}>
           <Route path="home" element={<h1>Home</h1>} />
         </Route>
 
