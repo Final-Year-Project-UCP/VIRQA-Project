@@ -1,11 +1,13 @@
 import {  Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout.jsx"
 import LandingPage from "../Pages/LandingPages/LandingPage.jsx"
+import Login from "../Pages/LoginPages/Login.jsx";
 const AppRoutes = () => {
   return (
       <Routes>
         {/* Pages without layout */}
         <Route path="/landing-page" element={<LandingPage />} />
+        <Route path="/login" element={<Login/>} />
         <Route path="/login" element={<h1>Login</h1>} />
         <Route path="/institute-register" element={<LandingPage />} />
 
