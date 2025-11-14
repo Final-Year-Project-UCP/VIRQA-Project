@@ -2,7 +2,7 @@
 import { NavLink } from 'react-router-dom';
 import  { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
-import RoleTabSwitcher from "../../components/other/RoleTabSwitcher.jsx";
+import RoleTabSwitcher from "../../components/other/LoginPage/RoleTabSwitcher.jsx";
 import InputField from '../../components/common/InputField.jsx';
 import Button from '../../components/common/Button.jsx';
 

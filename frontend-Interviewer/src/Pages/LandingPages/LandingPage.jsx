@@ -3,15 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import Hero from '../../components/Hero';
-import Nav from '../../components/Nav';
-import Feature from '../../components/Feature';
-import HowItWorks from '../../components/HowItWorks';
-import DemoSection from '../../components/DemoSection';
-import WhoItsFor from '../../components/WhoItsFor';
-import Footer from '../../components/Footer';
-import FaqSection from '../../components/FAQs';
-import TermsSection from '../../components/Term&Condition';
+import Hero from '../../components/other/LandingPage/Hero';
+import Nav from '../../components/other/LandingPage/Nav';
+import Feature from '../../components/other/LandingPage/Feature';
+import HowItWorks from '../../components/other/LandingPage/HowItWorks';
+import DemoSection from '../../components/other/LandingPage/DemoSection';
+import WhoItsFor from '../../components/other/LandingPage/WhoItsFor';
+import Footer from '../../components/other/LandingPage/Footer';
+import FaqSection from '../../components/other/LandingPage/FAQs';
+import TermsSection from '../../components/other/LandingPage/Term&Condition';
 
 const LandingPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
