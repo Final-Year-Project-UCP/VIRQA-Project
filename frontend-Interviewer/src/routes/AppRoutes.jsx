@@ -2,6 +2,7 @@ import {  Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout.jsx"
 import LandingPage from "../Pages/LandingPages/LandingPage.jsx"
 import Login from "../Pages/LoginPages/Login.jsx";
+import ForgotPasswordStageOne from "../Pages/LoginPages/ForgetPassword.jsx";
 const AppRoutes = () => {
   return (
       <Routes>
@@ -9,6 +10,7 @@ const AppRoutes = () => {
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/institute-register" element={<LandingPage />} />
+        <Route path="/forget-password" element={<ForgotPasswordStageOne/>} />
 
         {/* Pages with layout */}
         <Route path="/api/v1/" element={<MainLayout />}>
