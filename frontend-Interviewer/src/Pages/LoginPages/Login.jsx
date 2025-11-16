@@ -51,7 +51,7 @@ const Login = () => {
 
           <div className="text-right">
            <NavLink 
-                to="#" 
+                to="/forget-password" 
                 className="text-blue-600 hover:text-blue-700 font-semibold text-sm cursor-pointer"
             >
              Forgot Password
