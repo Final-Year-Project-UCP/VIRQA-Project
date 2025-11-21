@@ -240,7 +240,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                     <span className="text-sm font-medium text-gray-800">Jane Doe</span>
                     <span className="text-xs text-gray-500">Administrator</span>
                   </div>
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
                     JD
                   </div>
                 </div>
