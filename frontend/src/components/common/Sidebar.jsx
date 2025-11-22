@@ -88,7 +88,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
         )}
       >
         {/* Header */}
-        <div className="p-2 sm:p-4 border-b border-gray-200 flex items-center justify-between min-h-16">
+        <div className="p-2 sm:p-3 border-b border-gray-200 flex items-center justify-between min-h-16">
           <div className={clsx('flex items-center', isOpen ? 'gap-2 sm:gap-3' : 'justify-center w-full')}>
             <div className={clsx(
               'flex items-center justify-center rounded-lg shrink-0 text-white font-bold text-sm sm:text-lg',
