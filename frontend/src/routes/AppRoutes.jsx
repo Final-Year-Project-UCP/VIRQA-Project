@@ -11,6 +11,7 @@ import Results from "../Pages/CandidatesPages/Results/Results.jsx";
 // Import other page components
 import EmployeesLayout from "../layout/EmployeeLayout.jsx";
 import EmployeeDashboard from "../Pages/EmployerPages/Dashboard/Dashboard.jsx";
+import ProfileSettings from "../Pages/EmployerPages/Profile/Profile.jsx";
 const AppRoutes = () => {
   return (
       <Routes>
@@ -32,7 +33,7 @@ const AppRoutes = () => {
 
           <Route path="/api/v1/employee" element={<EmployeesLayout />}>
            <Route path="dashboard" element={<EmployeeDashboard/>} />
-           <Route path="profile" element={<h1>Proifile</h1>} />
+           <Route path="profile" element={<ProfileSettings/>} />
         </Route>
 
       </Routes>

@@ -1,7 +1,7 @@
 import {  Menu, ArrowLeft} from "lucide-react";
 import NotificationDropdown from "./NotificationDropDown.jsx";
 export const Header = ({ sidebarOpen, toggleSidebar, notifications }) => (
-  <header className="fixed top-0 left-0 right-0 h-16 bg-indigo-800 shadow flex items-center justify-between px-4 z-50 text-white">
+  <header className="fixed top-0 left-0 right-0 h-16 bg-[#1a56db]   shadow flex items-center justify-between px-4 z-50 text-white">
     <div className="flex items-center gap-4">
       <button onClick={toggleSidebar} className="p-2 lg:hidden">
         {sidebarOpen ? <ArrowLeft size={24} /> : <Menu size={24} />}
