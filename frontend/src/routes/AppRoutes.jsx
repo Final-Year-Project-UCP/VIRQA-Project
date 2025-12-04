@@ -12,6 +12,7 @@ import Results from "../Pages/CandidatesPages/Results/Results.jsx";
 import EmployeesLayout from "../layout/EmployeeLayout.jsx";
 import EmployeeDashboard from "../Pages/EmployerPages/Dashboard/Dashboard.jsx";
 import ProfileSettings from "../Pages/EmployerPages/Profile/Profile.jsx";
+import ErrorPage from "../Pages/ErrorPages/ErrorPage.jsx";
 const AppRoutes = () => {
   return (
       <Routes>
@@ -28,13 +29,14 @@ const AppRoutes = () => {
           <Route path="profile" element={<h1>Profile</h1>} />
           <Route path="join" element={<JoinInterview />} />
           <Route path="results" element={<Results />} />
-          
+
         </Route>
 
           <Route path="/api/v1/employee" element={<EmployeesLayout />}>
            <Route path="dashboard" element={<EmployeeDashboard/>} />
            <Route path="profile" element={<ProfileSettings/>} />
         </Route>
+         <Route path="*" element={<ErrorPage />} />
 
       </Routes>
   );
