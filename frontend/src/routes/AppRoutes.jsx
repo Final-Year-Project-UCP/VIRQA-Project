@@ -14,6 +14,8 @@ import EmployeeDashboard from "../Pages/EmployerPages/Dashboard/Dashboard.jsx";
 import ProfileSettings from "../Pages/EmployerPages/Profile/Profile.jsx";
 import ErrorPage from "../Pages/ErrorPages/ErrorPage.jsx";
 
+import CreateInterviewForm from "../Pages/EmployerPages/Interview/CreateInterview.jsx";
+import InterviewHistory from "../Pages/EmployerPages/Interview/InterviewHistory.jsx";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -33,13 +35,14 @@ const AppRoutes = () => {
         <Route path="results" element={<Results />} />
       </Route>
 
-      {/* Employee routes with layout */}
       <Route path="/api/v1/employee" element={<EmployeesLayout />}>
         <Route path="dashboard" element={<EmployeeDashboard />} />
         <Route path="profile" element={<ProfileSettings />} />
+        <Route path="create-interview" element={<CreateInterviewForm />} />
+        <Route path="history" element={<InterviewHistory />} />
       </Route>
 
-      {/* Fallback */}
+      {/* If route is not found */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
