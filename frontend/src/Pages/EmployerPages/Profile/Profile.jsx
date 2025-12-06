@@ -1,4 +1,5 @@
 import { useState, memo } from "react";
+import { toast } from "react-toastify";
 import { Eye, EyeOff, User, Mail, Briefcase, Lock, Upload, Save } from "lucide-react";
 
 
@@ -159,7 +160,7 @@ const ProfileSettings = () => {
       return;
     }
 
-    alert("Profile Updated Successfully!");
+    toast.success("Profile Updated Successfully!");
   };
 
   return (
