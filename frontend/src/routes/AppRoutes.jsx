@@ -13,9 +13,10 @@ import EmployeesLayout from "../layout/EmployeeLayout.jsx";
 import EmployeeDashboard from "../Pages/EmployerPages/Dashboard/Dashboard.jsx";
 import ProfileSettings from "../Pages/EmployerPages/Profile/Profile.jsx";
 import ErrorPage from "../Pages/ErrorPages/ErrorPage.jsx";
-
+import CandidateNotificationsPage from "../Pages/CandidatesPages/Notification/Candidatenotification.jsx";
 import CreateInterviewForm from "../Pages/EmployerPages/Interview/CreateInterview.jsx";
 import InterviewHistory from "../Pages/EmployerPages/Interview/InterviewHistory.jsx";
+import EmployeeNotificationsPage from "../Pages/EmployerPages/Notification/EmployeeNotfiication.jsx";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -28,7 +29,7 @@ const AppRoutes = () => {
       {/* Candidate routes with layout */}
       <Route path="/api/v1/candidates" element={<MainLayout />}>
         <Route path="home" element={<Dashboard />} />
-        <Route path="notifications" element={<Notification />} />
+        <Route path="notifications" element={<CandidateNotificationsPage/>} />
         <Route path="notifications/:id" element={<NotificationDetails />} />
         <Route path="profile" element={<Profile />} />
         <Route path="join" element={<JoinInterview />} />
@@ -40,6 +41,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<ProfileSettings />} />
         <Route path="create-interview" element={<CreateInterviewForm />} />
         <Route path="history" element={<InterviewHistory />} />
+        <Route path="notifications" element={< EmployeeNotificationsPage/>} />
       </Route>
 
       {/* If route is not found */}

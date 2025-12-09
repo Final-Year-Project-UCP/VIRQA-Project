@@ -1,6 +1,3 @@
-'use client';
-
-import React from 'react';
 import NotificationItem from './NotificationItem';
 
 const NotificationList = ({ notifications, onNotificationClick, onMarkAsRead }) => {
@@ -10,7 +7,6 @@ const NotificationList = ({ notifications, onNotificationClick, onMarkAsRead }) 
         <NotificationItem
           key={notification.id}
           data={notification}
-          onClick={onNotificationClick}
           onMarkAsRead={onMarkAsRead}
         />
       ))}

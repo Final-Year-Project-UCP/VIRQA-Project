@@ -3,8 +3,19 @@ import { Bell, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import { useNotifications } from '../../hooks/useNotificationHook';
 
-const NotificationDropdown = () => {
+// Accept icon styling options as props
+const NotificationDropdown = ({
+  iconColor = 'text-gray-600',
+  iconHoverColor = 'text-gray-800',
+  iconBg = 'bg-gray-100',
+  iconBorder = 'border-none',
+  iconSize = 18,
+}) => {
+  const { data, markAsRead } = useNotifications();
+  const notifications = data?.pages.flatMap(p => p.data) || [];
+
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('all');
   const dropdownRef = useRef(null);
@@ -20,25 +31,30 @@ const NotificationDropdown = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const notifications = [
-    { id: 1, title: 'Interview Completed', message: 'Your interview for Senior React Developer has ended.', time: '2 min ago', unread: true, bgImage: '/images/interview-bg.jpg' },
-    { id: 2, title: 'New Feedback Available', message: 'You have new feedback on your last interview.', time: '15 min ago', unread: true, bgImage: '/images/feedback-bg.jpg' },
-    { id: 3, title: 'Scorecard Updated', message: 'Your scorecard is now ready to view.', time: '1 hour ago', unread: false, bgImage: '/images/scorecard-bg.jpg' },
-    { id: 4, title: 'Reminder', message: 'You have an interview scheduled tomorrow at 3 PM.', time: '3 hours ago', unread: false, bgImage: '/images/reminder-bg.jpg' },
-  ];
+  const filteredNotifications = notifications.filter(
+    (n) => filter === 'all' || (filter === 'unread' && !n.read)
+  );
 
-  const filteredNotifications = notifications.filter(n => filter === 'all' || (filter === 'unread' && n.unread));
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleNotificationClick = (id) => {
+    markAsRead(id);
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 group"
+        className={`relative p-2 rounded-lg hover:${iconBg} transition-all duration-200 group`}
         aria-label="Notifications"
       >
-        <Bell size={18} className="text-gray-600 group-hover:text-gray-800 transition-colors" strokeWidth={2} />
+        <Bell
+          size={iconSize}
+          className={`${iconColor} group-hover:${iconHoverColor} transition-colors ${iconBorder}`}
+          strokeWidth={2}
+        />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-3 h-3 px-1 text-[8px] font-bold text-white bg-red-500 rounded-full border-2 border-white shadow-sm animate-pulse">
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -105,22 +121,22 @@ const NotificationDropdown = () => {
                     <li
                       key={notif.id}
                       className={clsx(
-                        'relative p-2 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer last:border-b-0 rounded-md overflow-hidden',
-                        notif.unread && 'bg-blue-50/50'
+                        'relative p-2 border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer last:border-b-0 rounded-md overflow-hidden',
+                        !notif.read && 'bg-blue-50/50'
                       )}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => handleNotificationClick(notif.id)}
                     >
                       <div
                         className="absolute inset-0 bg-cover bg-center blur-sm opacity-20 rounded-md"
-                        style={{ backgroundImage: `url(${notif.bgImage})` }}
+                        style={{ backgroundImage: `url(${notif.bgImage || '/images/default-bg.jpg'})` }}
                       ></div>
 
                       <div className="relative flex items-start gap-2">
-                        {notif.unread && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1 shrink-0"></div>}
+                        {!notif.read && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1 shrink-0"></div>}
                         <div className="flex-1 min-w-0">
                           <p className="text-[8px] sm:text-[10px] font-semibold text-gray-900">{notif.title}</p>
                           <p className="text-[7px] sm:text-[9px] text-gray-600 mt-0.5 line-clamp-2">{notif.message}</p>
-                          <p className="text-[6px] sm:text-[8px] text-gray-400 mt-0.5">{notif.time}</p>
+                          <p className="text-[6px] sm:text-[8px] text-gray-400 mt-0.5">{notif.timestamp}</p>
                         </div>
                       </div>
                     </li>
