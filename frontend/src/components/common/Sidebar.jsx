@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  X, 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
+import {
+  X,
+  LayoutDashboard,
+  Users,
+  FileText,
   Bell,
   CheckSquare,
   BarChart3,
@@ -14,7 +14,9 @@ import {
   DollarSign,
   Shield,
   Folder,
-  LogOut
+  LogOut,
+  KeyRound,
+
 } from 'lucide-react';
 import clsx from 'clsx';
 import NavButton from './NavButton.jsx';
@@ -39,9 +41,9 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
       id: 'interview-tools',
       title: 'Interview Tools',
       items: [
-        { icon: FileText, label: 'Transcription', id: 'transcription', path: '/api/v1/candidates/transcription' },
-        { icon: Target, label: 'Topic Coverage', id: 'topic-coverage', path: '/api/v1/candidates/topic-coverage' },
-        { icon: DollarSign, label: 'Scorecard', id: 'scorecard', path: '/api/v1/candidates/scorecard' },
+        { icon: FileText, label: 'Transcription', id: 'transcription', path: '/api/v1/candidates/comingsoon/transcription' },
+        { icon: Target, label: 'Topic Coverage', id: 'topic-coverage', path: '/api/v1/candidates/comingsoon/coverage' },
+
         { icon: Folder, label: 'Interview History', id: 'interview-history', path: '/api/v1/candidates/interview-history' },
       ]
     },
@@ -49,8 +51,10 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
       id: 'support',
       title: 'Support Tools',
       items: [
-        { icon: Folder, label: 'Files', id: 'files', path: '/api/v1/candidates/files' },
-        { icon: Shield, label: 'Security', id: 'security', path: '/api/v1/candidates/security' },
+
+        { icon: KeyRound, label: 'Password Reset', id: 'password-reset', path: '/api/v1/candidates/passwordreset' },
+        { icon: Folder, label: 'Files', path: '/api/v1/candidates/comingsoon/files' },
+        { icon: Shield, label: 'Security', path: '/api/v1/candidates/comingsoon/security' },
       ]
     }
   ];
@@ -65,12 +69,12 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   return (
     <>
       {/* Mobile Overlay */}
-     {isMobile && isOpen && (
-  <div
-    className="fixed inset-0 bg-transparent z-40 lg:hidden"
-    onClick={() => setIsOpen(false)}
-  />
-)}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 bg-transparent z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
       <aside
@@ -82,8 +86,8 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
               ? 'w-40 sm:w-48 translate-x-0' // small width on mobile
               : 'w-64 translate-x-0'
             : isMobile
-            ? 'w-16 -translate-x-full'
-            : 'w-20 -translate-x-full',
+              ? 'w-16 -translate-x-full'
+              : 'w-20 -translate-x-full',
           'lg:translate-x-0' // always visible on desktop
         )}
       >
