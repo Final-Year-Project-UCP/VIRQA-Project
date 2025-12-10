@@ -17,6 +17,8 @@ import CandidateNotificationsPage from "../Pages/CandidatesPages/Notification/Ca
 import CreateInterviewForm from "../Pages/EmployerPages/Interview/CreateInterview.jsx";
 import InterviewHistory from "../Pages/EmployerPages/Interview/InterviewHistory.jsx";
 import EmployeeNotificationsPage from "../Pages/EmployerPages/Notification/EmployeeNotfiication.jsx";
+import ResetPassword from "../Pages/CandidatesPages/ResetPassword/Reset.jsx";
+import ComingSoon from "../Pages/ComingSoon/ComingSoon.jsx";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -34,6 +36,11 @@ const AppRoutes = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="join" element={<JoinInterview />} />
         <Route path="results" element={<Results />} />
+          <Route path="passwordreset" element={<ResetPassword/>}/>
+          <Route path="comingsoon/files" element={<ComingSoon/>}/>
+              <Route path="comingsoon/security" element={<ComingSoon/>}/>
+              <Route path="comingsoon/transcription" element={<ComingSoon/>}/>
+              <Route path="comingsoon/coverage" element={<ComingSoon/>}/>
       </Route>
 
       <Route path="/api/v1/employee" element={<EmployeesLayout />}>
@@ -42,10 +49,12 @@ const AppRoutes = () => {
         <Route path="create-interview" element={<CreateInterviewForm />} />
         <Route path="history" element={<InterviewHistory />} />
         <Route path="notifications" element={< EmployeeNotificationsPage/>} />
+      
       </Route>
 
       {/* If route is not found */}
       <Route path="*" element={<ErrorPage />} />
+      
     </Routes>
   );
 };
