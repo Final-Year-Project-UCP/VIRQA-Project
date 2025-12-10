@@ -33,7 +33,6 @@ const NotificationDetails = ({ notification, onClose, onNavigate }) => {
     };
   };
 
-  // ✅ NOW safe to use notification.type
   const { Icon, color } = getNotificationIcon(notification.type);
 
   const handleAction = () => {
