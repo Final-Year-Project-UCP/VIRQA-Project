@@ -1,64 +1,107 @@
-import { Video, CheckCircle, AlertCircle, Clock, Circle } from 'lucide-react';
+import { Video, CheckCircle, AlertCircle, Clock, Circle, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const NotificationItem = ({ data }) => {
+const NotificationItem = ({ data, onMarkAsRead }) => {
   // Map notification type to icon and colors
   const typeMap = {
-    interview: { Icon: Video, bg: 'bg-blue-100', text: 'text-blue-600' },
-    results: { Icon: CheckCircle, bg: 'bg-green-100', text: 'text-green-600' },
-    system: { Icon: AlertCircle, bg: 'bg-orange-100', text: 'text-orange-600' },
-    reminders: { Icon: Clock, bg: 'bg-purple-100', text: 'text-purple-600' }
+    interview: {
+      Icon: Video,
+      bg: 'bg-blue-500',
+      gradient: 'from-blue-500 to-blue-600',
+      lightBg: 'bg-blue-50',
+      text: 'text-blue-600'
+    },
+    results: {
+      Icon: CheckCircle,
+      bg: 'bg-emerald-500',
+      gradient: 'from-emerald-500 to-teal-600',
+      lightBg: 'bg-emerald-50',
+      text: 'text-emerald-600'
+    },
+    system: {
+      Icon: AlertCircle,
+      bg: 'bg-orange-500',
+      gradient: 'from-orange-500 to-red-600',
+      lightBg: 'bg-orange-50',
+      text: 'text-orange-600'
+    },
+    reminders: {
+      Icon: Clock,
+      bg: 'bg-violet-500',
+      gradient: 'from-violet-500 to-purple-600',
+      lightBg: 'bg-violet-50',
+      text: 'text-violet-600'
+    }
   };
 
-  const { Icon, bg, text } = typeMap[data.type] || {
+  const { Icon, gradient, lightBg, text } = typeMap[data.type] || {
     Icon: AlertCircle,
-    bg: 'bg-gray-100',
+    gradient: 'from-gray-500 to-gray-600',
+    lightBg: 'bg-gray-50',
     text: 'text-gray-600'
   };
 
   return (
-    <div
-      className={`flex items-start gap-4 p-4 border rounded-xl transition-all duration-200
-        ${data.read ? 'bg-white border-gray-200' : 'bg-blue-50 border-blue-200'}
-        hover:bg-blue-200 cursor-pointer`} // blue hover for all cards
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+      onClick={() => !data.read && onMarkAsRead(data.id)}
+      className={`group relative flex items-start gap-4 p-5 rounded-2xl transition-all duration-300 border
+        ${data.read
+          ? 'bg-white/80 border-transparent hover:border-gray-200 hover:bg-white hover:shadow-lg hover:shadow-gray-200/50'
+          : 'bg-white border-blue-100 shadow-md shadow-blue-500/5'
+        }
+      `}
     >
+      {/* Unread Indicator Glow */}
+      {!data.read && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-l-2xl" />
+      )}
+
       {/* Icon */}
-      <div className={`p-3 rounded-lg shrink-0 ${bg} ${text}`}>
-        <Icon size={20} />
+      <div className={`relative shrink-0 p-3 rounded-xl overflow-hidden ${lightBg}`}>
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-current ${text}`} />
+        <Icon size={22} className={text} />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
-        {/* Title + New badge */}
-        <div className="flex items-start justify-between mb-2">
+      <div className="flex-1 min-w-0 pt-1">
+        <div className="flex items-start justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900">{data.title}</h3>
+            <h3 className={`font-semibold text-base ${data.read ? 'text-gray-700' : 'text-gray-900'}`}>
+              {data.title}
+            </h3>
             {!data.read && (
-              <div className="flex items-center gap-1">
-                <Circle size={8} className={`fill-current ${text}`} />
-                <span className={`text-xs font-medium ${text}`}>New</span>
-              </div>
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider"
+              >
+                New
+              </motion.span>
             )}
           </div>
-          <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
+          <span className="text-xs font-medium text-gray-400 whitespace-nowrap">
             {data.timestamp}
           </span>
         </div>
 
-        {/* Message */}
-        <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">
+        <p className={`text-sm leading-relaxed ${data.read ? 'text-gray-500' : 'text-gray-600'}`}>
           {data.message}
         </p>
 
-        {/* Type badge */}
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            data.read ? 'bg-gray-100 text-gray-600' : 'bg-blue-100 text-blue-700'
-          }`}
-        >
-          {data.type.charAt(0).toUpperCase() + data.type.slice(1)}
-        </span>
+        {/* Action hint on hover */}
+        {!data.read && (
+          <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+            <span>Mark as read</span>
+            <ArrowRight size={12} />
+          </div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

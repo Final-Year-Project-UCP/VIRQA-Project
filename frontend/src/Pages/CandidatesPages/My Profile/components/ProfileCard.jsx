@@ -32,7 +32,7 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
           <div className="w-24 h-24 lg:w-36 lg:h-36 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center text-white text-xl lg:text-3xl font-bold shadow-lg">
             {getInitials(profile.name)}
           </div>
-          
+
           {/* Camera Upload Button */}
           {isEditing && (
             <>
@@ -52,7 +52,7 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
             </>
           )}
         </div>
-        
+
         {/* Name and Job Title */}
         <div className="text-center mt-4 lg:mt-6 space-y-1 lg:space-y-2 w-full">
           {isEditing ? (
@@ -77,12 +77,12 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
             </div>
           ) : (
             <div className="space-y-1 lg:space-y-2">
-              <h2 className="text-lg lg:text-2xl font-bold text-gray-900 leading-tight wrap-break-word">
+              <h2 className="text-lg lg:text-2xl font-bold text-gray-900 leading-tight break-words">
                 {profile.name || 'Your Name'}
               </h2>
               <div className="flex items-center justify-center gap-1 lg:gap-2 text-gray-600">
                 <Briefcase size={14} className="lg:size-4" />
-                <p className="text-sm lg:text-lg font-medium wrap-break-word">
+                <p className="text-sm lg:text-lg font-medium break-words">
                   {profile.jobTitle || 'Job Title'}
                 </p>
               </div>
@@ -96,7 +96,7 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
         <h3 className="text-xs lg:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 lg:mb-4 border-b border-gray-100 pb-2">
           Contact Information
         </h3>
-        
+
         {/* Email */}
         <div className="flex items-center gap-3 lg:gap-4 p-2 lg:p-3 rounded-lg lg:rounded-xl hover:bg-gray-50 transition-colors group">
           <div className="p-1.5 lg:p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors shrink-0">

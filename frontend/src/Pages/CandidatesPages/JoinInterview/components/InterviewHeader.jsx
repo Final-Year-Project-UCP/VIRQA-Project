@@ -15,7 +15,7 @@ const InterviewHeader = ({ role, company, interviewer, currentTime, totalTime })
   return (
     <div className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-left justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{role}</h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-600">

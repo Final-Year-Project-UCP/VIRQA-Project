@@ -16,6 +16,7 @@ import {
   Folder,
   LogOut,
   KeyRound,
+  PhoneCall,
 
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -55,6 +56,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
         { icon: KeyRound, label: 'Password Reset', id: 'password-reset', path: '/api/v1/candidates/passwordreset' },
         { icon: Folder, label: 'Files', path: '/api/v1/candidates/comingsoon/files' },
         { icon: Shield, label: 'Security', path: '/api/v1/candidates/comingsoon/security' },
+          { icon: PhoneCall, label: 'ContactUs', path: '/api/v1/candidates/contactus' },
       ]
     }
   ];

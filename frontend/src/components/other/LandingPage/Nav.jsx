@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Mic, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mic, Menu, X, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Nav = () => {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState('');
@@ -65,9 +67,8 @@ const Nav = () => {
     <>
       {/* Navbar */}
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-2xl border-b transition-all duration-300 ${
-          scrolled ? 'bg-black/60 border-white/20' : 'border-white/10'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-2xl border-b transition-all duration-300 ${scrolled ? 'bg-black/60 border-white/20' : 'border-white/10'
+          }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -115,16 +116,16 @@ const Nav = () => {
               >
                 <button
                   onClick={() => handleClick(item.id)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer ${
-                    activeItem === item.id
-                      ? 'bg-white/10 text-white'
-                      : 'text-gray-300 hover:text-white hover:bg-white/5'
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer ${activeItem === item.id
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    }`}
                 >
                   {item.name}
                 </button>
               </motion.div>
             ))}
+
 
             <motion.div
               custom={3}
@@ -136,6 +137,7 @@ const Nav = () => {
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
+                onClick={() => navigate('/login')}
                 className="bg-white text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm shadow-lg hover:shadow-xl cursor-pointer hover:bg-gray-50 transition-all duration-200 border border-white/20"
               >
                 Login
@@ -192,11 +194,10 @@ const Nav = () => {
                   <motion.button
                     key={item.id}
                     onClick={() => handleClick(item.id)}
-                    className={`block w-full text-left px-4 py-3 rounded-xl font-medium text-lg transition-all duration-200 ${
-                      activeItem === item.id
-                        ? 'bg-white/10 text-white'
-                        : 'text-white/90 hover:text-white hover:bg-white/5'
-                    }`}
+                    className={`block w-full text-left px-4 py-3 rounded-xl font-medium text-lg transition-all duration-200 ${activeItem === item.id
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/90 hover:text-white hover:bg-white/5'
+                      }`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0, transition: { delay: i * 0.1 + 0.1, duration: 0.3 } }}
                     whileHover={{ x: 5 }}
@@ -210,6 +211,7 @@ const Nav = () => {
                   animate={{ opacity: 1, y: 0, transition: { delay: 0.4, duration: 0.3 } }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/login')}
                 >
                   Login
                 </motion.button>
