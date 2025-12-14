@@ -33,7 +33,7 @@ const AppRoutes = () => {
 
       {/* Candidate routes with layout */}
       <Route path="/api/v1/candidates" element={<MainLayout />}>
-        <Route path="home" element={<Dashboard />} />
+        <Route index element={<Dashboard />} />
         <Route path="notifications" element={<CandidateNotificationsPage />} />
         <Route path="notifications/:id" element={<NotificationDetails />} />
         <Route path="profile" element={<Profile />} />

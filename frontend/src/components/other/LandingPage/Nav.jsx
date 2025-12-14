@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, Menu, X, List } from 'lucide-react';
+import { Menu, X, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../../common/Logo';
 
 const Nav = () => {
   const navigate = useNavigate();
@@ -81,25 +82,12 @@ const Nav = () => {
             initial="initial"
             animate="animate"
             whileHover="hover"
-            className="flex items-center space-x-3 cursor-pointer"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
               setActiveItem('');
             }}
           >
-            <motion.div
-              className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20"
-              whileHover={{ rotate: 5 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Mic className="w-5 h-5 text-white" />
-            </motion.div>
-            <motion.span
-              className="text-xl font-bold text-white tracking-tight bg-linear-to-r from-white to-gray-300 bg-clip-text"
-              whileHover={{ scale: 1.02 }}
-            >
-              VIRQA
-            </motion.span>
+            <Logo theme="light" />
           </motion.div>
 
           {/* Desktop Nav */}
