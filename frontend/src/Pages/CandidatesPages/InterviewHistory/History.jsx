@@ -56,7 +56,7 @@ const InterviewHistory = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
         <div className="max-w-8xl mx-auto">
 
           {/* Header */}
@@ -135,8 +135,8 @@ const InterviewHistory = () => {
 
                     <div className="flex justify-between items-center mb-5 mt-auto">
                       <span className={`px-3 py-1.5 text-xs font-semibold rounded-full ${interview.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                          interview.status === 'Scheduled' ? 'bg-amber-100 text-amber-700' :
-                            'bg-red-100 text-red-700'
+                        interview.status === 'Scheduled' ? 'bg-amber-100 text-amber-700' :
+                          'bg-red-100 text-red-700'
                         }`}>
                         {interview.status === 'Scheduled' ? 'Pending' : interview.status}
                       </span>
@@ -156,8 +156,8 @@ const InterviewHistory = () => {
                         onClick={() => downloadReport(interview.reportUrl, interview.title)}
                         disabled={!interview.reportUrl}
                         className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition ${interview.reportUrl
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                           }`}
                       >
                         <Download size={16} /> Report
@@ -211,8 +211,8 @@ const InterviewHistory = () => {
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
                     className={`w-10 h-10 rounded-xl text-sm font-medium transition ${currentPage === i + 1
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
                       }`}
                   >
                     {i + 1}

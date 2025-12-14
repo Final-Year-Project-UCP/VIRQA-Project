@@ -86,9 +86,9 @@ const MyProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-12 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 lg:p-6 font-sans">
       {/* Professional Header Banner */}
-      <div className="h-48 lg:h-64 bg-gradient-to-r from-slate-500 to-white-900 w-full relative overflow-hidden">
+      <div className="h-48 lg:h-64 bg-gradient-to-r from-slate-500 to-white-900 w-full relative overflow-hidden rounded-2xl">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
         <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]"></div>
 
@@ -97,7 +97,7 @@ const MyProfile = () => {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative -mt-20 z-10">
+      <div className="max-w-8xl mx-auto relative -mt-20 z-10">
 
         <motion.div
           className="mb-8"

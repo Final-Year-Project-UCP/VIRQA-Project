@@ -276,7 +276,7 @@ const Results = () => {
   // --- Main List View ---
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12 ">
+    <div className="min-h-screen bg-slate-50 font-sans p-4 lg:p-6 pb-12">
 
       {/* Shared Header (Visible on List View, Hidden/Changed on Detail View handled nicely via transitions) */}
       {!selectedInterview && (

@@ -38,8 +38,8 @@ const ScheduledInterviews = ({ onJoin }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-slate-50 p-4 lg:p-6 font-sans">
+            <div className="max-w-8xl mx-auto">
 
                 {/* Header */}
                 <div className="mb-10 text-center md:text-left">
@@ -63,8 +63,8 @@ const ScheduledInterviews = ({ onJoin }) => {
                                 <div className="flex-1">
                                     <div className="flex items-start justify-between md:hidden mb-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${interview.status === 'ready'
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : 'bg-slate-100 text-slate-600'
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : 'bg-slate-100 text-slate-600'
                                             }`}>
                                             {interview.status === 'ready' ? 'Ready to Join' : 'Upcoming'}
                                         </span>
@@ -96,8 +96,8 @@ const ScheduledInterviews = ({ onJoin }) => {
                                 {/* Right: Action */}
                                 <div className="flex flex-col items-center md:items-end gap-3 min-w-[140px]">
                                     <span className={`hidden md:inline-block px-3 py-1 rounded-full text-xs font-medium ${interview.status === 'ready'
-                                            ? 'bg-emerald-100 text-emerald-700'
-                                            : 'bg-slate-100 text-slate-600'
+                                        ? 'bg-emerald-100 text-emerald-700'
+                                        : 'bg-slate-100 text-slate-600'
                                         }`}>
                                         {interview.status === 'ready' ? 'Ready to Join' : 'Upcoming'}
                                     </span>
@@ -106,8 +106,8 @@ const ScheduledInterviews = ({ onJoin }) => {
                                         onClick={() => interview.status === 'ready' && onJoin(interview)}
                                         disabled={interview.status !== 'ready'}
                                         className={`w-full md:w-auto px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${interview.status === 'ready'
-                                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 hover:scale-[1.02]'
-                                                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                            ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 hover:scale-[1.02]'
+                                            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                             }`}
                                     >
                                         {interview.status === 'ready' ? 'Join Lobby' : 'Not Started'}
