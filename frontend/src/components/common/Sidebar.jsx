@@ -17,6 +17,7 @@ import {
   LogOut,
   KeyRound,
   PhoneCall,
+  MessageSquare,
 
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -26,38 +27,100 @@ import Logo from './Logo.jsx';
 const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const menuSections = [
     {
       id: 'main',
       title: 'Main Menu',
       items: [
-        { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard', path: '/api/v1/candidates' },
-        { icon: Users, label: 'My Profile', id: 'profile', path: '/api/v1/candidates/profile' },
-        { icon: CheckSquare, label: 'Join Interview', id: 'join-interview', path: '/api/v1/candidates/join' },
-        { icon: BarChart3, label: 'Results', id: 'results', path: '/api/v1/candidates/results' },
-        { icon: Bell, label: 'Notifications', id: 'notifications', path: '/api/v1/candidates/notifications' },
+        {
+          icon: LayoutDashboard,
+          label: 'Dashboard',
+          id: 'dashboard',
+          path: '/api/v1/candidates'
+        },
+        {
+          icon: Users,
+          label: 'My Profile',
+          id: 'profile',
+          path: '/api/v1/candidates/profile'
+        },
+        {
+          icon: CheckSquare,
+          label: 'Join Interview',
+          id: 'join-interview',
+          path: '/api/v1/candidates/join'
+        },
+        {
+          icon: BarChart3,
+          label: 'Results',
+          id: 'results',
+          path: '/api/v1/candidates/results'
+        },
+        {
+          icon: Bell,
+          label: 'Notifications',
+          id: 'notifications',
+          path: '/api/v1/candidates/notifications'
+        }
       ]
     },
+
     {
       id: 'interview-tools',
       title: 'Interview Tools',
       items: [
-        { icon: FileText, label: 'Transcription', id: 'transcription', path: '/api/v1/candidates/comingsoon/transcription' },
-        { icon: Target, label: 'Topic Coverage', id: 'topic-coverage', path: '/api/v1/candidates/comingsoon/coverage' },
+        {
+          icon: Folder,
+          label: 'Interview History',
+          id: 'interview-history',
+          path: '/api/v1/candidates/interview-history'
+        },
 
-        { icon: Folder, label: 'Interview History', id: 'interview-history', path: '/api/v1/candidates/interview-history' },
+        {
+          icon: FileText,
+          label: 'Transcription',
+          id: 'transcription',
+          path: '/api/v1/candidates/comingsoon/transcription'
+        },
+        {
+          icon: Target,
+          label: 'Topic Coverage',
+          id: 'topic-coverage',
+          path: '/api/v1/candidates/comingsoon/coverage'
+        }
       ]
     },
+
     {
       id: 'support',
       title: 'Support Tools',
       items: [
+        {
+          icon: KeyRound,
+          label: 'Password Reset',
+          id: 'password-reset',
+          path: '/api/v1/candidates/passwordreset'
+        },
+        {
+          icon: PhoneCall,
+          label: 'Contact Us',
+          id: 'contact-us',
+          path: '/api/v1/candidates/contactus'
+        },
+        {
+          icon: MessageSquare,
+          label: 'Feedback',
+          id: 'feedback',
+          path: '/api/v1/candidates/feedback'
+        },
 
-        { icon: KeyRound, label: 'Password Reset', id: 'password-reset', path: '/api/v1/candidates/passwordreset' },
-        { icon: Folder, label: 'Files', path: '/api/v1/candidates/comingsoon/files' },
-        { icon: Shield, label: 'Security', path: '/api/v1/candidates/comingsoon/security' },
-        { icon: PhoneCall, label: 'ContactUs', path: '/api/v1/candidates/contactus' },
+        // ⏳ Coming Soon (at end)
+        {
+          icon: Shield,
+          label: 'Security',
+          id: 'security',
+          path: '/api/v1/candidates/comingsoon/security'
+        }
       ]
     }
   ];

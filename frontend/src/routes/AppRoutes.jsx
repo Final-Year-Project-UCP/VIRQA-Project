@@ -21,6 +21,7 @@ import ResetPassword from "../Pages/CandidatesPages/ResetPassword/Reset.jsx";
 import ComingSoon from "../Pages/ComingSoon/ComingSoon.jsx";
 import ContactUs from "../Pages/CandidatesPages/ContactUs/Contactus.jsx";
 import History from '../Pages/CandidatesPages/InterviewHistory/History.jsx'
+import Feedback from "../Pages/CandidatesPages/Feedback/Feedback.jsx";
 
 const AppRoutes = () => {
   return (
@@ -46,6 +47,7 @@ const AppRoutes = () => {
         <Route path="comingsoon/transcription" element={<ComingSoon />} />
         <Route path="comingsoon/coverage" element={<ComingSoon />} />
         <Route path="contactus" element={<ContactUs />} />
+        <Route path="feedback" element={<Feedback />} />
 
       </Route>
 
