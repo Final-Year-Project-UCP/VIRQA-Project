@@ -44,9 +44,8 @@ const ProfileCompletionCard = () => {
         >
           <ChevronDown
             size={18}
-            className={`text-gray-600 transition-transform ${
-              isExpanded ? 'rotate-180' : ''
-            }`}
+            className={`text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''
+              }`}
           />
         </button>
       </div>
@@ -99,12 +98,12 @@ const ProfileCompletionCard = () => {
 
       {/* Button */}
       <div className="mt-4">
-       <a href="/api/v1/candidates/profile"> 
- <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 md:py-2.5 rounded-lg text-sm md:text-sm font-medium transition">
-          Complete Profile
-        </button>
+        <a href="/api/v1/candidates/profile">
+          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 md:py-2.5 rounded-lg text-sm md:text-sm font-medium transition">
+            Complete Profile
+          </button>
 
-       </a>
+        </a>
       </div>
     </div>
   );

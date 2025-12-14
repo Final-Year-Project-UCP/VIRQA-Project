@@ -8,21 +8,24 @@ let SharedNotifications = () => {
   const notifications = data?.pages.flatMap(p => p.data) || [];
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  return (
-    <div className="max-w-4xl mx-auto p-4 lg:p-6">
-      <NotificationHeader unreadCount={unreadCount} onMarkAllAsRead={markAllAsRead} />
-      <NotificationList notifications={notifications} onMarkAsRead={markAsRead} />
 
-      {hasNextPage && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={fetchNextPage}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-          >
-            Load More
-          </button>
-        </div>
-      )}
+  return (
+    <div className="max-w-8xl mx-auto p-4 lg:p-8">
+      <div className="bg-white/50 backdrop-blur-xl rounded-2xl shadow-sm p-6 sm:p-8 border border-white/20">
+        <NotificationHeader unreadCount={unreadCount} onMarkAllAsRead={markAllAsRead} />
+        <NotificationList notifications={notifications} onMarkAsRead={markAsRead} />
+
+        {hasNextPage && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={fetchNextPage}
+              className="px-6 py-2.5 bg-white border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm"
+            >
+              Load Previous Notifications
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

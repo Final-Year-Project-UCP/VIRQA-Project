@@ -31,7 +31,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <div>
+      <div className="w-full overflow-x-hidden relative bg-gray-50">
         <Nav />
         <Hero />
         <Feature />
@@ -40,18 +40,17 @@ const LandingPage = () => {
         <WhoItsFor />
         <FaqSection />
         <Footer />
-    
       </div>
 
-   
+
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ 
-              duration: 0.4, 
+            transition={{
+              duration: 0.4,
               ease: 'easeOut',
               type: 'spring',
               stiffness: 300,
@@ -71,39 +70,39 @@ const LandingPage = () => {
               overflow-hidden
               transition-all duration-300
             "
-            whileHover={{ 
+            whileHover={{
               scale: 1.15,
               boxShadow: '0 0 30px rgba(255, 255, 255, 0.3)',
             }}
             whileTap={{ scale: 0.95 }}
           >
-     
+
             <div className="absolute inset-0 rounded-full bg-linear-to-tr from-white/10 via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          
+
             <motion.div
               animate={{ y: [0, -4, 0] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity, 
-                ease: 'easeInOut' 
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut'
               }}
               className="relative z-10"
             >
               <ArrowUp className="w-6 h-6 text-white drop-shadow-md" />
             </motion.div>
 
-         
+
             <motion.div
               className="absolute inset-0 rounded-full border border-white/30"
-              animate={{ 
-                scale: [1, 1.4], 
-                opacity: [0.5, 0] 
+              animate={{
+                scale: [1, 1.4],
+                opacity: [0.5, 0]
               }}
-              transition={{ 
-                duration: 1.8, 
-                repeat: Infinity, 
-                ease: 'easeOut' 
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: 'easeOut'
               }}
             />
           </motion.button>

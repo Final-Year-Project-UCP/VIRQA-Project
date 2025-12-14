@@ -19,28 +19,36 @@ import InterviewHistory from "../Pages/EmployerPages/Interview/InterviewHistory.
 import EmployeeNotificationsPage from "../Pages/EmployerPages/Notification/EmployeeNotfiication.jsx";
 import ResetPassword from "../Pages/CandidatesPages/ResetPassword/Reset.jsx";
 import ComingSoon from "../Pages/ComingSoon/ComingSoon.jsx";
+import ContactUs from "../Pages/CandidatesPages/ContactUs/Contactus.jsx";
+import History from '../Pages/CandidatesPages/InterviewHistory/History.jsx'
+import Feedback from "../Pages/CandidatesPages/Feedback/Feedback.jsx";
+
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Pages without layout */}
-      <Route path="/landing-page" element={<LandingPage />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/institute-register" element={<LandingPage />} />
       <Route path="/forget-password" element={<ForgotPasswordStageOne />} />
 
       {/* Candidate routes with layout */}
       <Route path="/api/v1/candidates" element={<MainLayout />}>
-        <Route path="home" element={<Dashboard />} />
-        <Route path="notifications" element={<CandidateNotificationsPage/>} />
+        <Route index element={<Dashboard />} />
+        <Route path="notifications" element={<CandidateNotificationsPage />} />
         <Route path="notifications/:id" element={<NotificationDetails />} />
         <Route path="profile" element={<Profile />} />
         <Route path="join" element={<JoinInterview />} />
+        <Route path="interview-history" element={<History />} />
         <Route path="results" element={<Results />} />
-          <Route path="passwordreset" element={<ResetPassword/>}/>
-          <Route path="comingsoon/files" element={<ComingSoon/>}/>
-              <Route path="comingsoon/security" element={<ComingSoon/>}/>
-              <Route path="comingsoon/transcription" element={<ComingSoon/>}/>
-              <Route path="comingsoon/coverage" element={<ComingSoon/>}/>
+        <Route path="passwordreset" element={<ResetPassword />} />
+        <Route path="comingsoon/files" element={<ComingSoon />} />
+        <Route path="comingsoon/security" element={<ComingSoon />} />
+        <Route path="comingsoon/transcription" element={<ComingSoon />} />
+        <Route path="comingsoon/coverage" element={<ComingSoon />} />
+        <Route path="contactus" element={<ContactUs />} />
+        <Route path="feedback" element={<Feedback />} />
+
       </Route>
 
       <Route path="/api/v1/employee" element={<EmployeesLayout />}>
@@ -48,13 +56,13 @@ const AppRoutes = () => {
         <Route path="profile" element={<ProfileSettings />} />
         <Route path="create-interview" element={<CreateInterviewForm />} />
         <Route path="history" element={<InterviewHistory />} />
-        <Route path="notifications" element={< EmployeeNotificationsPage/>} />
-      
+        <Route path="notifications" element={< EmployeeNotificationsPage />} />
+
       </Route>
 
       {/* If route is not found */}
       <Route path="*" element={<ErrorPage />} />
-      
+
     </Routes>
   );
 };

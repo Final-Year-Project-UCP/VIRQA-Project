@@ -66,28 +66,28 @@ const EducationSection = ({ isEditing, tempProfile, onChange }) => {
                     placeholder="Degree"
                     value={edu.degree}
                     onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
-                    className="border p-2 rounded w-full"
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                   <input
                     type="text"
                     placeholder="Institution"
                     value={edu.institution}
                     onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
-                    className="border p-2 rounded w-full"
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                   <input
                     type="text"
                     placeholder="Location"
                     value={edu.location}
                     onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
-                    className="border p-2 rounded w-full"
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                   <input
                     type="text"
                     placeholder="Year"
                     value={edu.year}
                     onChange={(e) => updateEducation(edu.id, 'year', e.target.value)}
-                    className="border p-2 rounded w-full"
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                 </div>
                 <textarea
@@ -95,7 +95,7 @@ const EducationSection = ({ isEditing, tempProfile, onChange }) => {
                   placeholder="Description (optional)"
                   value={edu.description}
                   onChange={(e) => updateEducation(edu.id, 'description', e.target.value)}
-                  className="border p-2 rounded w-full mt-2"
+                  className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none mt-2 resize-none"
                 />
                 {educations.length > 1 && (
                   <button

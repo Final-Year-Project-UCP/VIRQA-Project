@@ -18,19 +18,19 @@ const ProfileHeader = ({ profile, tempProfile, isEditing, onEdit, onCancel, onSa
 
     // Basic Info
     if (currentProfile.name?.trim()) completedCount++; else incomplete.push('Name');
-     completedCount++; 
+    completedCount++;
     if (currentProfile.phone?.trim()) completedCount++; else incomplete.push('Phone');
     if (currentProfile.location?.trim()) completedCount++; else incomplete.push('Location');
     if (currentProfile.jobTitle?.trim()) completedCount++; else incomplete.push('Job Title');
     if (currentProfile.experience?.trim()) completedCount++; else incomplete.push('Experience');
-    
+
 
     // Other Sections
     if (currentProfile.bio?.trim()) completedCount++; else incomplete.push('Bio');
     if (currentProfile.educations?.length > 0) completedCount++; else incomplete.push('Education');
     if (currentProfile.skills?.length > 0) completedCount++; else incomplete.push('Skills');
-   if (currentProfile.documents?.length > 0) completedCount++;
-else incomplete.push('Documents');
+    if (currentProfile.documents?.length > 0) completedCount++;
+    else incomplete.push('Documents');
 
     const percentage = Math.round((completedCount / 10) * 100);
 
@@ -52,7 +52,7 @@ else incomplete.push('Documents');
   };
 
   return (
-    <div className="space-y-4 lg:space-y-6 lg:mb-5">
+    <div className="space-y-4">
       {showSuccess && (
         <div className="animate-slide-in p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
           <CheckCircle className="text-green-600" />

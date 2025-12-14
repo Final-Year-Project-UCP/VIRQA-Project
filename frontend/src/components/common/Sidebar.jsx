@@ -16,45 +16,111 @@ import {
   Folder,
   LogOut,
   KeyRound,
+  PhoneCall,
+  MessageSquare,
 
 } from 'lucide-react';
 import clsx from 'clsx';
 import NavButton from './NavButton.jsx';
+import Logo from './Logo.jsx';
 
 const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const menuSections = [
     {
       id: 'main',
       title: 'Main Menu',
       items: [
-        { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard', path: '/api/v1/candidates/home' },
-        { icon: Users, label: 'My Profile', id: 'profile', path: '/api/v1/candidates/profile' },
-        { icon: CheckSquare, label: 'Join Interview', id: 'join-interview', path: '/api/v1/candidates/join' },
-        { icon: BarChart3, label: 'Results', id: 'results', path: '/api/v1/candidates/results' },
-        { icon: Bell, label: 'Notifications', id: 'notifications', path: '/api/v1/candidates/notifications' },
+        {
+          icon: LayoutDashboard,
+          label: 'Dashboard',
+          id: 'dashboard',
+          path: '/api/v1/candidates'
+        },
+        {
+          icon: Users,
+          label: 'My Profile',
+          id: 'profile',
+          path: '/api/v1/candidates/profile'
+        },
+        {
+          icon: CheckSquare,
+          label: 'Join Interview',
+          id: 'join-interview',
+          path: '/api/v1/candidates/join'
+        },
+        {
+          icon: BarChart3,
+          label: 'Results',
+          id: 'results',
+          path: '/api/v1/candidates/results'
+        },
+        {
+          icon: Bell,
+          label: 'Notifications',
+          id: 'notifications',
+          path: '/api/v1/candidates/notifications'
+        }
       ]
     },
+
     {
       id: 'interview-tools',
       title: 'Interview Tools',
       items: [
-        { icon: FileText, label: 'Transcription', id: 'transcription', path: '/api/v1/candidates/comingsoon/transcription' },
-        { icon: Target, label: 'Topic Coverage', id: 'topic-coverage', path: '/api/v1/candidates/comingsoon/coverage' },
+        {
+          icon: Folder,
+          label: 'Interview History',
+          id: 'interview-history',
+          path: '/api/v1/candidates/interview-history'
+        },
 
-        { icon: Folder, label: 'Interview History', id: 'interview-history', path: '/api/v1/candidates/interview-history' },
+        {
+          icon: FileText,
+          label: 'Transcription',
+          id: 'transcription',
+          path: '/api/v1/candidates/comingsoon/transcription'
+        },
+        {
+          icon: Target,
+          label: 'Topic Coverage',
+          id: 'topic-coverage',
+          path: '/api/v1/candidates/comingsoon/coverage'
+        }
       ]
     },
+
     {
       id: 'support',
       title: 'Support Tools',
       items: [
+        {
+          icon: KeyRound,
+          label: 'Password Reset',
+          id: 'password-reset',
+          path: '/api/v1/candidates/passwordreset'
+        },
+        {
+          icon: PhoneCall,
+          label: 'Contact Us',
+          id: 'contact-us',
+          path: '/api/v1/candidates/contactus'
+        },
+        {
+          icon: MessageSquare,
+          label: 'Feedback',
+          id: 'feedback',
+          path: '/api/v1/candidates/feedback'
+        },
 
-        { icon: KeyRound, label: 'Password Reset', id: 'password-reset', path: '/api/v1/candidates/passwordreset' },
-        { icon: Folder, label: 'Files', path: '/api/v1/candidates/comingsoon/files' },
-        { icon: Shield, label: 'Security', path: '/api/v1/candidates/comingsoon/security' },
+        // ⏳ Coming Soon (at end)
+        {
+          icon: Shield,
+          label: 'Security',
+          id: 'security',
+          path: '/api/v1/candidates/comingsoon/security'
+        }
       ]
     }
   ];
@@ -92,26 +158,21 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
         )}
       >
         {/* Header */}
-        <div className="p-2 sm:p-3 border-b border-gray-200 flex items-center justify-between min-h-16">
+        <div className="p-2 sm:p-3 border-b border-gray-200 flex items-center justify-center min-h-16 relative">
           <div className={clsx('flex items-center', isOpen ? 'gap-2 sm:gap-3' : 'justify-center w-full')}>
-            <div className={clsx(
-              'flex items-center justify-center rounded-lg shrink-0 text-white font-bold text-sm sm:text-lg',
-              isMobile ? 'w-8 h-8 bg-blue-600' : 'w-10 h-10 bg-blue-600'
-            )}>
-              V
-            </div>
-            {isOpen && (
-              <div className="min-w-0">
-                <h1 className={clsx('truncate font-bold', isMobile ? 'text-sm' : 'text-xl')}>VIRQA</h1>
-              </div>
-            )}
+            <Logo
+              theme="dark"
+              collapsed={!isOpen}
+              isMobile={isMobile}
+              className={!isOpen && isMobile ? "scale-90" : ""}
+            />
           </div>
 
           {/* Close button on mobile */}
           {isMobile && isOpen && (
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0"
+              className="absolute right-2 p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors shrink-0"
               aria-label="Close sidebar"
             >
               <X size={16} className={clsx(isMobile ? 'text-sm' : 'text-base')} />
