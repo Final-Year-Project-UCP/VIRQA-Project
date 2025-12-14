@@ -22,6 +22,8 @@ import ComingSoon from "../Pages/ComingSoon/ComingSoon.jsx";
 import ContactUs from "../Pages/CandidatesPages/ContactUs/Contactus.jsx";
 import History from '../Pages/CandidatesPages/InterviewHistory/History.jsx'
 import Feedback from "../Pages/CandidatesPages/Feedback/Feedback.jsx";
+import AdminDashboard from "../Pages/AdminPages/Dashboard/Dashboard.jsx";
+import AdminLayout from "../layout/AdminLayout.jsx";
 
 const AppRoutes = () => {
   return (
@@ -59,6 +61,28 @@ const AppRoutes = () => {
         <Route path="notifications" element={< EmployeeNotificationsPage />} />
 
       </Route>
+
+
+      <Route path="/api/v1/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+
+        {/* 
+        <Route path="notifications" element={<AdminNotificationsPage />} />
+        <Route path="notifications/:id" element={<NotificationDetails />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="join" element={<JoinInterview />} />
+        <Route path="interview-history" element={<History />} />
+        <Route path="results" element={<Results />} />
+        <Route path="passwordreset" element={<ResetPassword />} />
+        <Route path="comingsoon/files" element={<ComingSoon />} />
+        <Route path="comingsoon/security" element={<ComingSoon />} />
+        <Route path="comingsoon/transcription" element={<ComingSoon />} />
+        <Route path="comingsoon/coverage" element={<ComingSoon />} />
+        <Route path="contactus" element={<ContactUs />} />
+        <Route path="feedback" element={<Feedback />} /> */}
+
+      </Route>
+
 
       {/* If route is not found */}
       <Route path="*" element={<ErrorPage />} />
