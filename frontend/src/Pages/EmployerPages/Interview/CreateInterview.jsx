@@ -1,180 +1,242 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import {  X, Mic ,Plus } from 'lucide-react';
-import { FileUpload } from '../../../components/common/FileUpload';
-// Toggle Switch Component
-const ToggleSwitch = ({ checked, onChange }) => (
-  <div className="relative">
-    <input type="checkbox" checked={checked} onChange={onChange} className="sr-only" />
-    <div className={`w-12 h-6 rounded-full transition ${checked ? 'bg-blue-600' : 'bg-gray-300'}`} />
-    <div
-      className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${checked ? 'translate-x-6' : ''}`}
-    />
-  </div>
-);
+import { ArrowLeft } from 'lucide-react';
+import StepIndicator from '../../../components/interview/StepIndicator';
+import JobDetailsStep from '../../../components/interview/JobDetailsStep';
+import AIPromptStep from '../../../components/interview/AIPromptStep';
+import SchedulingStep from '../../../components/interview/SchedulingStep';
+import InterviewListView from '../../../components/interview/InterviewListView';
+import EmptyInterviewState from '../../../components/interview/EmptyInterviewState';
 
-// Difficulty Slider Component
-const DifficultySlider = ({ value, onChange }) => {
-  const levels = [
-    { id: 'easy', label: 'Easy', color: 'green' },
-    { id: 'medium', label: 'Medium', color: 'blue' },
-    { id: 'hard', label: 'Hard', color: 'orange' },
-    { id: 'expert', label: 'Expert', color: 'red' },
+const CreateInterviewForm = () => {
+  const [currentView, setCurrentView] = useState('list'); // 'list' or 'form'
+  const [currentStep, setCurrentStep] = useState(0);
+  const [editingInterview, setEditingInterview] = useState(null);
+
+  // Dummy scheduled interviews data
+  const [scheduledInterviews, setScheduledInterviews] = useState([
+    {
+      id: 1,
+      jobTitle: 'Senior Frontend Developer',
+      jobDescription: 'We are looking for an experienced Frontend Developer with expertise in React, TypeScript, and modern web technologies. The ideal candidate will have 5+ years of experience building scalable web applications.',
+      candidateCount: 8,
+      startDate: '2025-12-20',
+      startTime: '14:00',
+      duration: 60,
+      status: 'Scheduled',
+      createdAt: '2025-12-15',
+      aiPrompt: 'You are an AI interviewer...'
+    },
+    {
+      id: 2,
+      jobTitle: 'Full Stack Engineer',
+      jobDescription: 'Join our team as a Full Stack Engineer. You will work on both frontend and backend systems, building features that impact millions of users.',
+      candidateCount: 12,
+      startDate: '2025-12-22',
+      startTime: '10:00',
+      duration: 90,
+      status: 'Scheduled',
+      createdAt: '2025-12-14',
+      aiPrompt: 'You are an AI interviewer...'
+    },
+    {
+      id: 3,
+      jobTitle: 'UI/UX Designer',
+      jobDescription: 'We need a creative UI/UX Designer to craft beautiful and intuitive user experiences. Experience with Figma and design systems is required.',
+      candidateCount: 5,
+      startDate: '2025-12-18',
+      startTime: '15:30',
+      duration: 45,
+      status: 'In Progress',
+      createdAt: '2025-12-10',
+      aiPrompt: 'You are an AI interviewer...'
+    }
+  ]);
+
+  const [formData, setFormData] = useState({
+    jobTitle: '',
+    jobDescription: '',
+    candidateEmails: [],
+    aiPrompt: '',
+    startDate: '',
+    startTime: '',
+    duration: '60',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  });
+
+  const steps = [
+    { title: 'Job Details', subtitle: 'Title & Description' },
+    { title: 'AI Prompt', subtitle: 'Generate & Review' },
+    { title: 'Schedule', subtitle: 'Date & Time' }
   ];
 
-  const currentIndex = levels.findIndex(l => l.id === value);
-  const sliderValue = (currentIndex / (levels.length - 1)) * 100;
+  const handleCreateNew = () => {
+    setEditingInterview(null);
+    setFormData({
+      jobTitle: '',
+      jobDescription: '',
+      candidateEmails: [],
+      aiPrompt: '',
+      startDate: '',
+      startTime: '',
+      duration: '60',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
+    setCurrentStep(0);
+    setCurrentView('form');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  return (
-    <div className="space-y-4">
-      <div className="relative h-2 bg-gray-200 rounded-full">
-        <div className="absolute h-full bg-gradient-to-r from-green-500 via-blue-500 to-red-500 rounded-full w-full" />
-        <div
-          className="absolute top-1/2 w-6 h-6 bg-white border-2 border-blue-600 rounded-full shadow-lg transform -translate-y-1/2 -translate-x-1/2"
-          style={{ left: `${sliderValue}%` }}
-        />
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={sliderValue}
-          onChange={e => {
-            const idx = Math.round((e.target.value / 100) * (levels.length - 1));
-            onChange(levels[idx].id);
-          }}
-          className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-        />
-      </div>
+  const handleViewInterview = (interview) => {
+    setEditingInterview(interview);
+    setFormData({
+      jobTitle: interview.jobTitle,
+      jobDescription: interview.jobDescription,
+      candidateEmails: [], // Would be populated from backend
+      aiPrompt: interview.aiPrompt,
+      startDate: interview.startDate,
+      startTime: interview.startTime,
+      duration: interview.duration.toString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
+    setCurrentStep(0);
+    setCurrentView('form');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-      <div className="flex justify-between mt-6">
-        {levels.map((level, idx) => (
-          <button
-            key={level.id}
-            type="button"
-            onClick={() => onChange(level.id)}
-            className={`flex flex-col items-center transition-all ${value === level.id ? 'scale-110' : ''}`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
-                value === level.id
-                  ? `bg-${level.color}-500 text-white ring-4 ring-${level.color}-300`
-                  : 'bg-gray-100 text-gray-600'
-              }`}
-            >
-              {idx + 1}
-            </div>
-            <span className={`text-sm font-medium ${value === level.id ? 'text-gray-900' : 'text-gray-500'}`}>
-              {level.label}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+  const handleBackToList = () => {
+    setCurrentView('list');
+    setEditingInterview(null);
+    setCurrentStep(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
+  const handleNext = () => {
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-// Skill Input Component
-const SkillInput = ({ skills, addSkill, removeSkill }) => {
-  const [input, setInput] = useState('');
-  const handleAdd = () => {
-    const trimmed = input.trim();
-    if (trimmed && !skills.includes(trimmed)) {
-      addSkill(trimmed);
-      setInput('');
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubmit = (finalData) => {
+    if (editingInterview) {
+      // Update existing interview
+      setScheduledInterviews(prev =>
+        prev.map(interview =>
+          interview.id === editingInterview.id
+            ? {
+              ...interview,
+              ...finalData,
+              candidateCount: finalData.candidateEmails?.length || interview.candidateCount
+            }
+            : interview
+        )
+      );
+      toast.success('Interview updated successfully!');
+    } else {
+      // Create new interview
+      const newInterview = {
+        id: scheduledInterviews.length + 1,
+        jobTitle: finalData.jobTitle,
+        jobDescription: finalData.jobDescription,
+        candidateCount: finalData.candidateEmails?.length || 0,
+        startDate: finalData.startDate,
+        startTime: finalData.startTime,
+        duration: parseInt(finalData.duration),
+        status: 'Scheduled',
+        createdAt: new Date().toISOString().split('T')[0],
+        aiPrompt: finalData.aiPrompt
+      };
+
+      setScheduledInterviews(prev => [...prev, newInterview]);
+      toast.success('Interview created successfully!');
     }
+
+    // Return to list view
+    setTimeout(() => {
+      handleBackToList();
+    }, 1000);
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-3">
-        {skills.map(s => (
-          <span key={s} className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
-            {s}
-            <button onClick={() => removeSkill(s)} className="ml-2 text-blue-500 hover:text-blue-700 p-0.5 rounded-full hover:bg-blue-100">
-              <X className="w-3 h-3" />
-            </button>
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Add a skill..."
-          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
-        />
-        <button onClick={handleAdd} className="lg:px-4 lg:py-2.5 px-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center lg:gap-2">
-          <Plus className="w-4 h-4 lg:block hidden" /> Add
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const CreateInterviewForm = () => {
-  const [formData, setFormData] = useState({ title: '', jobDescription: '', difficulty: 'medium', transcriptionEnabled: true, context: '' });
-  const [skills, setSkills] = useState(['React','TypeScript','UI/UX Design']);
-  const [uploadedFile, setUploadedFile] = useState(null);
-
-  return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create a New Interview</h1>
-          <p className="text-gray-600 mt-2">Fill in the details below to configure your AI-powered interview.</p>
-        </div>
+      <div className="max-w-8xl mx-auto">
+        {currentView === 'list' ? (
+          <>
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">Interviews</h1>
+              <p className="text-gray-600 mt-2">
+                Create and manage AI-powered interviews
+              </p>
+            </div>
 
-        <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); console.log({ ...formData, skills, uploadedFile }); toast.success('Interview saved'); }}>
-          <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 border-b pb-3 mb-3">Interview Details</h2>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={e => setFormData({...formData, title: e.target.value})}
-              placeholder="Interview Title"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-            <FileUpload
-              file={uploadedFile}
-              onUpload={f => { setUploadedFile(f); setFormData({...formData, context: f.content}); }}
-              onRemove={() => { setUploadedFile(null); setFormData({...formData, context: ''}); }}
-            />
-            <textarea
-              value={formData.jobDescription}
-              onChange={e => setFormData({...formData, jobDescription: e.target.value})}
-              placeholder="Paste job description"
-              rows="6"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-            <SkillInput skills={skills} addSkill={s => setSkills([...skills,s])} removeSkill={s => setSkills(skills.filter(sk => sk !== s))} />
-          </div>
+            {/* List or Empty State */}
+            {scheduledInterviews.length > 0 ? (
+              <InterviewListView
+                interviews={scheduledInterviews}
+                onCreateNew={handleCreateNew}
+                onViewInterview={handleViewInterview}
+              />
+            ) : (
+              <EmptyInterviewState onCreateNew={handleCreateNew} />
+            )}
+          </>
+        ) : (
+          <>
+            {/* Form View Header */}
+            <div className="mb-8">
+              <button
+                onClick={handleBackToList}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">Back to Interviews</span>
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {editingInterview ? 'Edit Interview' : 'Create a New Interview'}
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Follow the steps below to set up your AI-powered interview
+              </p>
+            </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 border-b pb-3 mb-3">AI Configuration</h2>
-            <DifficultySlider value={formData.difficulty} onChange={v => setFormData({...formData, difficulty: v})} />
-            <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
-                  <Mic className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <span className="font-medium text-gray-800">Enable Real-time Transcription</span>
-                  <p className="text-sm text-gray-500 mt-1">Instant transcription during the interview.</p>
-                </div>
-              </div>
-              <ToggleSwitch checked={formData.transcriptionEnabled} onChange={e => setFormData({...formData, transcriptionEnabled: e.target.checked})} />
-            </label>
-          </div>
+            {/* Step Indicator */}
+            <StepIndicator currentStep={currentStep} steps={steps} />
 
-          <div className="flex justify-end">
-            <button type="submit" className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg flex items-center gap-3 shadow-lg hover:shadow-xl">
-               Create Interview
-            </button>
-          </div>
-        </form>
+            {/* Step Content */}
+            <div className="transition-all duration-300">
+              {currentStep === 0 && (
+                <JobDetailsStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  onNext={handleNext}
+                />
+              )}
+
+              {currentStep === 1 && (
+                <AIPromptStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
+
+              {currentStep === 2 && (
+                <SchedulingStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

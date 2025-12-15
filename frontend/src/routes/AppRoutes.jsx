@@ -30,6 +30,7 @@ import { View } from "lucide-react";
 import ViewInterview from "../Pages/AdminPages/ViewInterveiw/ViewInterview.jsx";
 import ManageProfile from "../Pages/AdminPages/Profile/ManageProfile.jsx";
 import AdminNotification from "../Pages/AdminPages/Notification/AdminNotification.jsx";
+import EmployeeFeedback from "../Pages/EmployerPages/Feedback/Feedback.jsx";
 
 const AppRoutes = () => {
   return (
@@ -66,6 +67,7 @@ const AppRoutes = () => {
         <Route path="create-interview" element={<CreateInterviewForm />} />
         <Route path="history" element={<InterviewHistory />} />
         <Route path="notifications" element={< EmployeeNotificationsPage />} />
+        <Route path="feedback" element={<EmployeeFeedback />} />
 
 
       </Route>

@@ -35,8 +35,8 @@ const InterviewHistory = () => {
   const statusOptions = ["all", "Completed", "Pending", "Cancelled"];
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Interview History</h1>
+    <div className="p-4 max-w-8xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Interview History</h1>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4 items-center justify-center">

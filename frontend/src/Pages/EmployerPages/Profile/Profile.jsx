@@ -167,8 +167,8 @@ const ProfileSettings = () => {
   };
 
   return (
-    <div className="min-h-screen py-5">
-      <div className="max-w-5xl mx-[2%]">
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-8xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
           <User size={28} /> Profile Settings
         </h1>
