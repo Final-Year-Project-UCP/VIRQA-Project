@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Search, X, Menu, Clock } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Search, X, Menu, Clock, User, LogOut, ChevronDown } from 'lucide-react';
 import NotificationDropdown from './NotificationDropDown';
 
 const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
@@ -11,8 +11,11 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const inputRef = useRef(null);
+  const profileRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Update clock every second
   useEffect(() => {
@@ -29,7 +32,20 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
     setHasSearched(false);
     setResultStats({ visible: 0, total: 0 });
     setIsSearchExpanded(false);
+    setProfileDropdownOpen(false);
   }, [location.pathname]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Focus input when expanded on mobile
   useEffect(() => {
@@ -275,15 +291,57 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
                 <NotificationDropdown />
 
-                {/* Profile */}
-                <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex flex-col items-end">
-                    <span className="text-sm font-medium text-gray-800">Jane Doe</span>
-                    <span className="text-xs text-gray-500">Administrator</span>
-                  </div>
-                  <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
-                    JD
-                  </div>
+                {/* Profile Dropdown */}
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 transition-colors"
+                  >
+                    <div className="hidden sm:flex flex-col items-end">
+                      <span className="text-sm font-medium text-gray-800">Jane Doe</span>
+                      <span className="text-xs text-gray-500">Candidate</span>
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
+                      JD
+                    </div>
+                    <ChevronDown
+                      size={16}
+                      className={`text-gray-500 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {profileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-800">Jane Doe</p>
+                        <p className="text-xs text-gray-500">jane.doe@example.com</p>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          navigate('/api/v1/candidates/profile');
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors group"
+                      >
+                        <User size={16} className="text-gray-500 group-hover:text-blue-600 transition-colors" />
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">My Profile</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          // TODO: Implement logout logic
+                          console.log('Logging out...');
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-red-50 transition-colors group"
+                      >
+                        <LogOut size={16} className="text-gray-500 group-hover:text-red-600 transition-colors" />
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-red-600">Sign Out</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
