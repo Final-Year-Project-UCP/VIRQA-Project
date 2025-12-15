@@ -204,13 +204,13 @@ const Feedback = () => {
                             <div key={feedback.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                                 <div className="p-6">
                                     {/* Header */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-4">
+                                        <div className="flex-1 w-full">
                                             <h3 className="text-lg font-semibold text-gray-900 mb-2">{feedback.candidateName}</h3>
                                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                                                 <div className="flex items-center gap-1">
                                                     <User className="w-4 h-4" />
-                                                    <span>{feedback.candidateEmail}</span>
+                                                    <span className="break-all">{feedback.candidateEmail}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <Briefcase className="w-4 h-4" />
@@ -222,7 +222,7 @@ const Feedback = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end gap-2">
+                                        <div className="flex flex-row md:flex-col items-center md:items-end gap-2 w-full md:w-auto justify-between md:justify-start">
                                             {renderStars(feedback.rating)}
                                             {feedback.allowEmail && (
                                                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 flex items-center gap-1">

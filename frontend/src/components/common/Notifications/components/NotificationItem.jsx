@@ -49,7 +49,7 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
       onClick={() => !data.read && onMarkAsRead(data.id)}
-      className={`group relative flex items-start gap-4 p-5 rounded-2xl transition-all duration-300 border
+      className={`group relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300 border
         ${data.read
           ? 'bg-white/80 border-transparent hover:border-gray-200 hover:bg-white hover:shadow-lg hover:shadow-gray-200/50'
           : 'bg-white border-blue-100 shadow-md shadow-blue-500/5'
@@ -62,23 +62,23 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
       )}
 
       {/* Icon */}
-      <div className={`relative shrink-0 p-3 rounded-xl overflow-hidden ${lightBg}`}>
+      <div className={`relative shrink-0 p-2.5 sm:p-3 rounded-xl overflow-hidden ${lightBg}`}>
         <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-current ${text}`} />
-        <Icon size={22} className={text} />
+        <Icon size={20} className={`${text} sm:w-[22px] sm:h-[22px]`} />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 pt-1">
-        <div className="flex items-start justify-between mb-1.5">
-          <div className="flex items-center gap-2">
-            <h3 className={`font-semibold text-base ${data.read ? 'text-gray-700' : 'text-gray-900'}`}>
+      <div className="flex-1 min-w-0 pt-0.5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-1.5 gap-1 sm:gap-4">
+          <div className="flex items-start gap-2 pr-2">
+            <h3 className={`font-semibold text-sm sm:text-base leading-snug ${data.read ? 'text-gray-700' : 'text-gray-900'}`}>
               {data.title}
             </h3>
             {!data.read && (
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider"
+                className="shrink-0 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider mt-0.5"
               >
                 New
               </motion.span>
@@ -89,13 +89,13 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
           </span>
         </div>
 
-        <p className={`text-sm leading-relaxed ${data.read ? 'text-gray-500' : 'text-gray-600'}`}>
+        <p className={`text-xs sm:text-sm leading-relaxed ${data.read ? 'text-gray-500' : 'text-gray-600'}`}>
           {data.message}
         </p>
 
         {/* Action hint on hover */}
         {!data.read && (
-          <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+          <div className="mt-3 hidden sm:flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
             <span>Mark as read</span>
             <ArrowRight size={12} />
           </div>

@@ -76,7 +76,7 @@ const Lobby = ({ onJoin, userName, role }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 lg:p-8 font-sans">
-            <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col lg:flex-row h-[500px]">
+            <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col lg:flex-row h-auto lg:h-[500px]">
 
                 {/* Left: Audio Check Visualization */}
                 <div className="w-full lg:w-3/5 bg-gray-900 p-8 flex flex-col items-center justify-center relative">
