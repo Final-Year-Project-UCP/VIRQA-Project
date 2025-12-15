@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, X, Menu } from 'lucide-react';
+import { Search, X, Menu, Clock } from 'lucide-react';
 import NotificationDropdown from './NotificationDropDown';
 
 const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
@@ -10,8 +10,18 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
   const [resultStats, setResultStats] = useState({ visible: 0, total: 0 });
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const inputRef = useRef(null);
   const location = useLocation();
+
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Clear on route change
   useEffect(() => {
@@ -233,6 +243,36 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
             {/* Notification & Profile - Hidden when search expanded on mobile */}
             {(!isMobile || !isSearchExpanded) && (
               <>
+                {/* Animated Clock - Desktop Only */}
+                {!isMobile && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300 group">
+                    <div className="relative">
+                      <Clock
+                        size={18}
+                        className="text-blue-600 group-hover:rotate-12 transition-transform duration-300"
+                      />
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-gray-800 tabular-nums tracking-tight">
+                        {currentTime.toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true
+                        })}
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-medium">
+                        {currentTime.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <NotificationDropdown />
 
                 {/* Profile */}
