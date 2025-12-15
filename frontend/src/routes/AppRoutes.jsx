@@ -24,6 +24,11 @@ import History from '../Pages/CandidatesPages/InterviewHistory/History.jsx'
 import Feedback from "../Pages/CandidatesPages/Feedback/Feedback.jsx";
 import AdminDashboard from "../Pages/AdminPages/Dashboard/Dashboard.jsx";
 import AdminLayout from "../layout/AdminLayout.jsx";
+import ManageEmployee from "../Pages/AdminPages/ManageEmployee/ManageEmployee.jsx";
+import { View } from "lucide-react";
+import ViewInterview from "../Pages/AdminPages/ViewInterveiw/ViewInterview.jsx";
+import ManageProfile from "../Pages/AdminPages/Profile/ManageProfile.jsx";
+import AdminNotification from "../Pages/AdminPages/Notification/AdminNotification.jsx";
 
 const AppRoutes = () => {
   return (
@@ -60,26 +65,19 @@ const AppRoutes = () => {
         <Route path="history" element={<InterviewHistory />} />
         <Route path="notifications" element={< EmployeeNotificationsPage />} />
 
+
       </Route>
 
 
       <Route path="/api/v1/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="manage/employee" element={<ManageEmployee />} />
+        <Route path="view/interview" element={<ViewInterview />} />
+        <Route path="profile" element={<ManageProfile />} />
+        <Route path="notifications" element={<AdminNotification />} />
+        <Route path="comingsoon/settings" element={<ComingSoon />} />
 
-        {/* 
-        <Route path="notifications" element={<AdminNotificationsPage />} />
-        <Route path="notifications/:id" element={<NotificationDetails />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="join" element={<JoinInterview />} />
-        <Route path="interview-history" element={<History />} />
-        <Route path="results" element={<Results />} />
-        <Route path="passwordreset" element={<ResetPassword />} />
-        <Route path="comingsoon/files" element={<ComingSoon />} />
-        <Route path="comingsoon/security" element={<ComingSoon />} />
-        <Route path="comingsoon/transcription" element={<ComingSoon />} />
-        <Route path="comingsoon/coverage" element={<ComingSoon />} />
-        <Route path="contactus" element={<ContactUs />} />
-        <Route path="feedback" element={<Feedback />} /> */}
+
 
       </Route>
 
