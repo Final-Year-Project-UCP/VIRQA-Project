@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 import { Eye, EyeOff, Lock, CheckCircle, XCircle, KeyRound, ShieldCheck } from 'lucide-react';
 import resetBg from '../../../assets/reset_bg.png';
 
@@ -96,7 +97,33 @@ const ResetPassword = () => {
           <p className="text-gray-500 text-sm mt-2">Secure your account with a strong password</p>
         </div>
 
-        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-5" onSubmit={(e) => {
+          e.preventDefault();
+
+          // Validation
+          if (!oldPassword || !newPassword || !confirmPassword) {
+            toast.error('Please fill in all fields');
+            return;
+          }
+
+          if (newPassword !== confirmPassword) {
+            toast.error('Passwords do not match');
+            return;
+          }
+
+          if (strength < 3) {
+            toast.error('Password is too weak. Please use a stronger password');
+            return;
+          }
+
+          // Success
+          toast.success('Password updated successfully!');
+
+          // Reset form
+          setOldPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+        }}>
 
           {/* Old Password */}
           <motion.div variants={itemVariants}>

@@ -1,6 +1,6 @@
 import { Trash2, Edit2, MoreVertical, Smartphone, Mail, Shield } from 'lucide-react';
 
-const EmployeeList = ({ employees, onDelete }) => {
+const EmployeeList = ({ employees, onDelete, onEdit, onToggleStatus }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100">
@@ -43,17 +43,26 @@ const EmployeeList = ({ employees, onDelete }) => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    <button
+                                        onClick={() => onToggleStatus(employee.id)}
+                                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer hover:opacity-80 transition-opacity
                                         ${employee.status === 'Verified'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
+                                                ? 'bg-green-100 text-green-800'
+                                                : employee.status === 'Deactivated'
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                            }`}
+                                        title="Click to toggle status"
+                                    >
                                         {employee.status}
-                                    </span>
+                                    </button>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex items-center justify-end gap-3">
-                                        <button className="text-gray-400 hover:text-blue-600 transition-colors">
+                                        <button
+                                            onClick={() => onEdit(employee)}
+                                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                                        >
                                             <Edit2 size={18} />
                                         </button>
                                         <button

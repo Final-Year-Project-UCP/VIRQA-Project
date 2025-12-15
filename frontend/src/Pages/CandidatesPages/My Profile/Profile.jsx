@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import BioSection from './components/BioSection';
 import EducationSection from './components/EducationSection';
@@ -35,6 +36,7 @@ const MyProfile = () => {
   const handleSave = () => {
     setProfile(tempProfile);
     setIsEditing(false);
+    toast.success("Profile updated successfully!");
   };
 
   const handleCancel = () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import { toast } from 'react-toastify';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
   Paperclip,
@@ -71,6 +72,7 @@ const VIRQAContactUs = ({ user }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
+    toast.success("Message sent successfully!");
     setTimeout(() => setSubmitted(false), 3000);
   };
 

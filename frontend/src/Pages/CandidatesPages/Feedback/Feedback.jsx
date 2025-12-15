@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 import { Star, Send, CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
 
 const Feedback = () => {
@@ -23,6 +24,7 @@ const Feedback = () => {
         setTimeout(() => {
             setIsSubmitting(false);
             setIsSuccess(true);
+            toast.success("Feedback submitted successfully!");
             // Reset form after delay
             setTimeout(() => {
                 setIsSuccess(false);

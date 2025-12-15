@@ -13,9 +13,8 @@ const Input = ({ label, icon: Icon, error, ...props }) => (
     </label>
     <input
       {...props}
-      className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 focus:ring-2 transition ${
-        error ? "border-red-400 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-      }`}
+      className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 focus:ring-2 transition ${error ? "border-red-400 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+        }`}
     />
     {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
   </div>
@@ -51,7 +50,7 @@ const getStrength = (password) => {
 // ---------------------------
 const PasswordInput = ({ label, value, onChange, error }) => {
   const [isVisible, setIsVisible] = useState(false);
-  
+
   return (
     <div className="mb-5">
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -60,9 +59,8 @@ const PasswordInput = ({ label, value, onChange, error }) => {
           type={isVisible ? "text" : "password"}
           value={value}
           onChange={onChange}
-          className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 pr-12 focus:ring-2 transition ${
-            error ? "border-red-400 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-          }`}
+          className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 pr-12 focus:ring-2 transition ${error ? "border-red-400 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            }`}
         />
         <button
           type="button"
@@ -113,12 +111,16 @@ const ProfileSettings = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setErrors((e) => ({ ...e, photo: "Only images allowed" }));
+      const msg = "Only images allowed";
+      setErrors((e) => ({ ...e, photo: msg }));
+      toast.error(msg);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrors((e) => ({ ...e, photo: "Image must be under 5MB" }));
+      const msg = "Image must be under 5MB";
+      setErrors((e) => ({ ...e, photo: msg }));
+      toast.error(msg);
       return;
     }
 
@@ -157,6 +159,7 @@ const ProfileSettings = () => {
 
     if (Object.keys(v).length) {
       setErrors(v);
+      toast.error("Please fix the errors in the form");
       return;
     }
 
