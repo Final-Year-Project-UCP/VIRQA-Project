@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 import RoleTabSwitcher from "../../components/other/LoginPage/RoleTabSwitcher.jsx";
 import InputField from '../../components/common/InputField.jsx';
 import Button from '../../components/common/Button.jsx';
@@ -15,6 +16,21 @@ const Login = () => {
     e.preventDefault();
     console.log(`Logging in as ${activeRole}`);
     // **TODO:** Implement TanStack Query mutation here
+  };
+
+  const handleRegisterClick = (e) => {
+    e.preventDefault();
+    toast.info(
+      "Direct registration is not available. Please contact your institution's administrator to create an account.",
+      {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }
+    );
   };
 
   return (
@@ -105,12 +121,12 @@ const Login = () => {
           <div className="mt-8 text-center">
             <p className="text-gray-400 text-sm">
               Don't have an account?{' '}
-              <NavLink
-                to="#"
-                className="text-white hover:text-blue-400 font-bold transition-colors"
+              <button
+                onClick={handleRegisterClick}
+                className="text-white hover:text-blue-400 font-bold transition-colors cursor-pointer bg-transparent border-none underline"
               >
                 Register
-              </NavLink>
+              </button>
             </p>
           </div>
         </div>
