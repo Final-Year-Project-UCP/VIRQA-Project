@@ -3,6 +3,7 @@ import MainLayout from "../layout/CandidatesLayout.jsx";
 import LandingPage from "../Pages/LandingPages/LandingPage.jsx";
 import Login from "../Pages/LoginPages/Login.jsx";
 import ForgotPasswordStageOne from "../Pages/LoginPages/ForgetPassword.jsx";
+import VerifyOTPAndResetPassword from "../Pages/LoginPages/VerifyOTPAndReset.jsx";
 import Dashboard from "../Pages/CandidatesPages/Dashboard/Dashboard.jsx";
 import Notification from '../components/common/Notifications/Notification.jsx';
 import Profile from "../Pages/CandidatesPages/My Profile/Profile.jsx";
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/institute-register" element={<LandingPage />} />
       <Route path="/forget-password" element={<ForgotPasswordStageOne />} />
+      <Route path="/reset-password/verify-otp" element={<VerifyOTPAndResetPassword />} />
 
       {/* Candidate routes with layout */}
       <Route path="/api/v1/candidates" element={<MainLayout />}>
