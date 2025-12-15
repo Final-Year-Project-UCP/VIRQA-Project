@@ -28,7 +28,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
     }
   }, [isSearchExpanded]);
 
-  // PROFESSIONAL SEARCH + SMART HIGHLIGHTING
+  // PROFESSIONAL SEARCH + SMART HIGHLIGHTING (No hiding, just highlight)
   useEffect(() => {
     const query = searchQuery.trim();
     const items = document.querySelectorAll('.page-search-item');
@@ -36,7 +36,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
     if (!query) {
       items.forEach(el => {
-        el.classList.remove('hidden');
+        el.classList.remove('search-no-match');
         if (el.dataset.originalText) {
           el.innerHTML = el.dataset.originalText;
         }
@@ -47,17 +47,15 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
     }
 
     setHasSearched(true);
-    let visibleCount = 0;
+    let matchCount = 0;
     const lowerQuery = query.toLowerCase();
 
     // Escape regex special chars
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const escapedQuery = escapeRegex(query);
 
-    // Regex for partial match (anywhere)
-    const partialRegex = new RegExp(`(${escapedQuery})`, 'gi');
-    // Regex for full word match (with word boundaries)
-    const fullWordRegex = new RegExp(`\\b(${escapedQuery})\\b`, 'gi');
+    // Regex for case-insensitive matching
+    const searchRegex = new RegExp(`(${escapedQuery})`, 'gi');
 
     items.forEach(el => {
       const originalText = el.dataset.originalText || el.textContent.trim();
@@ -66,23 +64,23 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
       const lowerText = originalText.toLowerCase();
 
       if (lowerText.includes(lowerQuery)) {
-        el.classList.remove('hidden');
-        visibleCount++;
+        // Match found - highlight and remove dimming
+        el.classList.remove('search-no-match');
+        matchCount++;
 
-        // First: mark full word matches in RED
-        let highlighted = originalText.replace(fullWordRegex, '<mark class="search-full-match">$1</mark>');
-        // Then: mark remaining partial matches in YELLOW
-        highlighted = highlighted.replace(partialRegex, '<mark class="search-partial-match">$1</mark>');
-        // Clean up double-marked (in case of overlap)
-        highlighted = highlighted.replace(/<mark class="search-partial-match">(<mark class="search-full-match">.*?<\/mark>)<\/mark>/g, '$1');
-
+        // Highlight all matches
+        const highlighted = originalText.replace(searchRegex, '<mark class="search-highlight">$1</mark>');
         el.innerHTML = highlighted;
       } else {
-        el.classList.add('hidden');
+        // No match - dim the element but keep it visible
+        el.classList.add('search-no-match');
+        if (el.dataset.originalText) {
+          el.innerHTML = el.dataset.originalText;
+        }
       }
     });
 
-    setResultStats({ visible: visibleCount, total });
+    setResultStats({ visible: matchCount, total });
   }, [searchQuery]);
 
   const showNoResults = hasSearched && searchQuery && resultStats.visible === 0;
@@ -106,23 +104,29 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
     <>
       {/* Professional Highlight Styles */}
       <style jsx global>{`
-        .search-full-match {
-          background-color: #fee2e2 !important;
-          color: #991b1b !important;
-          padding: 0.125rem 0.35rem !important;
+        .search-highlight {
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+          color: #92400e !important;
+          padding: 0.15rem 0.4rem !important;
           border-radius: 6px !important;
           font-weight: 700 !important;
-          box-shadow: 0 0 0 2px rgba(254, 226, 226, 0.5);
+          box-shadow: 0 0 0 2px rgba(253, 230, 138, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s ease;
         }
-        .search-partial-match {
-          background-color: #fffbeb !important;
-          color: #92400e !important;
-          padding: 0.1rem 0.25rem !important;
-          border-radius: 4px !important;
-          font-weight: 600 !important;
+        
+        .search-highlight:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.5), 0 4px 8px rgba(0, 0, 0, 0.15);
         }
-        .page-search-item.hidden {
-          display: none !important;
+        
+        .page-search-item.search-no-match {
+          opacity: 0.35 !important;
+          filter: grayscale(0.5);
+          transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+        
+        .page-search-item {
+          transition: opacity 0.3s ease, filter 0.3s ease;
         }
       `}</style>
 
@@ -131,8 +135,8 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
           {/* Left Section */}
           <div className="flex items-center gap-4">
             {(isMobile || !sidebarOpen) && !isSearchExpanded && (
-              <button 
-                onClick={onMenuToggle} 
+              <button
+                onClick={onMenuToggle}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <Menu size={20} />
@@ -153,7 +157,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
             {!isMobile && (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                
+
                 <input
                   ref={inputRef}
                   type="text"
@@ -178,14 +182,11 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                   <div className="absolute -bottom-8 left-0 text-xs font-medium flex items-center gap-2">
                     {showNoResults ? (
                       <span className="text-red-600 flex items-center gap-1">
-                        <span>●</span> No results found
+                        <span>●</span> No matches found
                       </span>
                     ) : (
-                      <span className="text-gray-600">
-                        {resultStats.visible === resultStats.total 
-                          ? `All ${resultStats.total} items` 
-                          : `${resultStats.visible} of ${resultStats.total} results`
-                        }
+                      <span className="text-green-600 flex items-center gap-1">
+                        <span>✓</span> {resultStats.visible} {resultStats.visible === 1 ? 'match' : 'matches'} found
                       </span>
                     )}
                   </div>
