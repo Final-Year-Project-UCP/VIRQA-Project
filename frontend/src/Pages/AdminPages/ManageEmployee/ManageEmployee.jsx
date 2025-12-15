@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import AddEmployeeForm from '../../../components/admin/ManageEmployee/AddEmployeeForm';
 import EmployeeList from '../../../components/admin/ManageEmployee/EmployeeList';
 
@@ -10,6 +11,8 @@ const ManageEmployee = () => {
         { id: 3, email: 'mike.dev@company.com', role: 'Interviewer', status: 'Verified' },
     ]);
 
+    const [editingEmployee, setEditingEmployee] = useState(null);
+
     const handleAddEmployee = (newEmployee) => {
         const employee = {
             id: Date.now(),
@@ -19,9 +22,32 @@ const ManageEmployee = () => {
         setEmployees([employee, ...employees]);
     };
 
+    const handleUpdateEmployee = (updatedData) => {
+        setEmployees(employees.map(emp =>
+            emp.id === editingEmployee.id ? { ...emp, ...updatedData } : emp
+        ));
+        setEditingEmployee(null);
+    };
+
+    const handleEditEmployee = (employee) => {
+        setEditingEmployee(employee);
+    };
+
+    const handleToggleStatus = (id) => {
+        setEmployees(employees.map(emp => {
+            if (emp.id === id) {
+                const newStatus = emp.status === 'Verified' ? 'Deactivated' : 'Verified';
+                toast.info(`Employee status updated to ${newStatus}`);
+                return { ...emp, status: newStatus };
+            }
+            return emp;
+        }));
+    };
+
     const handleDeleteEmployee = (id) => {
-        if (window.confirm('Are you sure you want to deactivate this employee?')) {
+        if (window.confirm('Are you sure you want to remove this employee?')) {
             setEmployees(employees.filter(emp => emp.id !== id));
+            toast.success('Employee removed successfully');
         }
     };
 
@@ -35,7 +61,12 @@ const ManageEmployee = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column: Add Employee Form */}
                 <div className="lg:col-span-1">
-                    <AddEmployeeForm onAddEmployee={handleAddEmployee} />
+                    <AddEmployeeForm
+                        onAddEmployee={handleAddEmployee}
+                        onUpdateEmployee={handleUpdateEmployee}
+                        editingEmployee={editingEmployee}
+                        onCancelEdit={() => setEditingEmployee(null)}
+                    />
 
                     {/* Info Card */}
                     <div className="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-4">
@@ -48,7 +79,12 @@ const ManageEmployee = () => {
 
                 {/* Right Column: Employee List */}
                 <div className="lg:col-span-2">
-                    <EmployeeList employees={employees} onDelete={handleDeleteEmployee} />
+                    <EmployeeList
+                        employees={employees}
+                        onDelete={handleDeleteEmployee}
+                        onEdit={handleEditEmployee}
+                        onToggleStatus={handleToggleStatus}
+                    />
                 </div>
             </div>
         </div>

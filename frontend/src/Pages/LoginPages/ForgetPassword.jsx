@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { FcGoogle } from "react-icons/fc";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { motion } from 'framer-motion';
@@ -7,7 +8,6 @@ import Logo from '../../components/common/Logo.jsx';
 
 const ForgotPasswordStageOne = () => {
   const [email, setEmail] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,18 +16,19 @@ const ForgotPasswordStageOne = () => {
     try {
       setIsLoading(true);
       setErrorMessage('');
-      setSuccessMessage('');
 
       // TODO: TanStack mutation will replace this section later
       setTimeout(() => {
-        setSuccessMessage('Verification code sent! Check your inbox.');
+        toast.success('Verification code sent! Check your inbox.');
         setIsLoading(false);
 
         navigate('/reset-password/verify-otp', { state: { email } });
       }, 1500);
 
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to send reset code. Please try again.');
+      const errorMsg = err.message || 'Failed to send reset code. Please try again.';
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
       setIsLoading(false);
     }
   };
@@ -35,13 +36,17 @@ const ForgotPasswordStageOne = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email) {
-      setErrorMessage('Please enter your email address');
+      const msg = 'Please enter your email address';
+      setErrorMessage(msg);
+      toast.error(msg);
       return;
     }
 
     const emailRegex = /^[^\s@]+@gmail\.com$/;
     if (!emailRegex.test(email)) {
-      setErrorMessage('Please enter a valid Gmail address');
+      const msg = 'Please enter a valid Gmail address';
+      setErrorMessage(msg);
+      toast.error(msg);
       return;
     }
 
@@ -116,8 +121,8 @@ const ForgotPasswordStageOne = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || successMessage}
-              className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${isLoading || successMessage
+              disabled={isLoading}
+              className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${isLoading
                 ? 'bg-gray-600 cursor-not-allowed text-gray-300'
                 : 'bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-500/30 hover:scale-[1.02]'
                 }`}
