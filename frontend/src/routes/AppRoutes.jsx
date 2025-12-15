@@ -3,6 +3,7 @@ import MainLayout from "../layout/CandidatesLayout.jsx";
 import LandingPage from "../Pages/LandingPages/LandingPage.jsx";
 import Login from "../Pages/LoginPages/Login.jsx";
 import ForgotPasswordStageOne from "../Pages/LoginPages/ForgetPassword.jsx";
+import VerifyOTPAndResetPassword from "../Pages/LoginPages/VerifyOTPAndReset.jsx";
 import Dashboard from "../Pages/CandidatesPages/Dashboard/Dashboard.jsx";
 import Notification from '../components/common/Notifications/Notification.jsx';
 import Profile from "../Pages/CandidatesPages/My Profile/Profile.jsx";
@@ -29,6 +30,7 @@ import { View } from "lucide-react";
 import ViewInterview from "../Pages/AdminPages/ViewInterveiw/ViewInterview.jsx";
 import ManageProfile from "../Pages/AdminPages/Profile/ManageProfile.jsx";
 import AdminNotification from "../Pages/AdminPages/Notification/AdminNotification.jsx";
+import EmployeeFeedback from "../Pages/EmployerPages/Feedback/Feedback.jsx";
 
 const AppRoutes = () => {
   return (
@@ -38,6 +40,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/institute-register" element={<LandingPage />} />
       <Route path="/forget-password" element={<ForgotPasswordStageOne />} />
+      <Route path="/reset-password/verify-otp" element={<VerifyOTPAndResetPassword />} />
 
       {/* Candidate routes with layout */}
       <Route path="/api/v1/candidates" element={<MainLayout />}>
@@ -64,6 +67,7 @@ const AppRoutes = () => {
         <Route path="create-interview" element={<CreateInterviewForm />} />
         <Route path="history" element={<InterviewHistory />} />
         <Route path="notifications" element={< EmployeeNotificationsPage />} />
+        <Route path="feedback" element={<EmployeeFeedback />} />
 
 
       </Route>
