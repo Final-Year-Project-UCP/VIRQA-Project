@@ -12,6 +12,7 @@ const NotificationDropdown = ({
   iconBg = 'bg-gray-100',
   iconBorder = 'border-none',
   iconSize = 18,
+  viewAllPath = '/api/v1/candidates/notifications',
 }) => {
   const { data, markAsRead } = useNotifications();
   const notifications = data?.pages.flatMap(p => p.data) || [];
@@ -149,7 +150,7 @@ const NotificationDropdown = ({
             <div className="p-1 sm:p-2 bg-gray-50 border-t border-gray-100">
               <button
                 onClick={() => {
-                  navigate('/api/v1/candidates/notifications');
+                  navigate(viewAllPath);
                   setIsOpen(false);
                 }}
                 className="w-full text-center text-[8px] sm:text-[10px] font-medium text-blue-600 hover:text-blue-700 hover:bg-gray-100 py-1 rounded-md transition-all"
