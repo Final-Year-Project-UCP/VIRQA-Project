@@ -55,9 +55,9 @@ const LoginHandler =asyncHandler( async (req, res) => {
                 status(200).
                 cookie("token",token,options).
                 json({  
-                message: `${user.fullName} logged in successfully`,
+                message: `User logged in successfully`,
                 role: user.role,          
-                name: user.fullName })
+                })
    
 } )
 

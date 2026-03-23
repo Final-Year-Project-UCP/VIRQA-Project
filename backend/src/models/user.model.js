@@ -12,7 +12,7 @@ const baseOptions = {
 const userSchema = new mongoose.Schema({
     fullName: { type: String, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, select: false },
+    password: { type: String, select: false,default:null },
     isActive: { type: Boolean, default: true },
     profilePhoto: { type: String,default:null },
     phoneNumber:{type:String},
