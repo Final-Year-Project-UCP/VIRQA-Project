@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { getProfile,handleProfile } from "../controllers/admin.controller.js";
+import { 
+        getProfile,
+        handleProfile,
+        updateEmployee,
+        getManageEmployees,
+        addEmployee,
+        deleteEmployee
+        
+    } from "../controllers/admin.controller.js";
 import { verifyJwt } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 const adminRouter=Router()
@@ -13,5 +21,23 @@ adminRouter.post("/profile",
     { name: "profilePhoto", maxCount: 1 }
      ]),
     handleProfile
+)
+adminRouter.post("/add-employee",
+    verifyJwt,
+    addEmployee
+)
+
+adminRouter.patch("/update-employee",
+    verifyJwt,
+    updateEmployee
+)
+
+adminRouter.get("/manage-employee",//incomplete
+    verifyJwt,
+    getManageEmployees
+)
+adminRouter.delete("/employee/:id",
+    verifyJwt,
+    deleteEmployee
 )
 export default adminRouter

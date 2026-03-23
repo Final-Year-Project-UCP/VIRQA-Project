@@ -10,9 +10,9 @@ const baseOptions = {
 };
 
 const userSchema = new mongoose.Schema({
-    fullName: { type: String, required: true, trim: true },
+    fullName: { type: String, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: [true,"password is required"], select: false },
+    password: { type: String, select: false },
     isActive: { type: Boolean, default: true },
     profilePhoto: { type: String,default:null },
     phoneNumber:{type:String},
@@ -55,7 +55,14 @@ const Candidate = User.discriminator('candidate', new mongoose.Schema({
 const Employee = User.discriminator('employee', new mongoose.Schema({
     jobTitle: { type: String },
     department: { type: String },
-    assignedCandidates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    assignedCandidates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    status: {
+      type: String,
+      enum: ["Pending", "Verified", "Deactivated"],
+      default: "Pending",
+    },
+    verificationToken: String,//token for activation of account first time
+    verificationTokenExpires: Date
 }));
 
 // 4. ADMIN SCHEMA: High-level system access

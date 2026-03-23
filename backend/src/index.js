@@ -3,6 +3,7 @@ dotenv.config()
 import app from "./app.js";
 import connectDB from "./db/db_connect.js";
 
+
 if (!process.env.MONGODB_URI || !process.env.DB_NAME) {
   console.error('Missing environment variables: MONGODB_URI and DB_NAME must be set in backend/.env');
   process.exit(1);

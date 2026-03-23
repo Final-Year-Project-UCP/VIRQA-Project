@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { verifyJwt } from "../middlewares/authMiddleware.js";
-import handleProfile from "../controllers/employee.controller.js";
-const router=Router();
-router.post("/profile",verifyJwt,handleProfile);
-export default router
+import {handleProfile,activateAccount} from "../controllers/employee.controller.js";
+const employeeRouter=Router();
+employeeRouter.post("/profile",verifyJwt,handleProfile);
+employeeRouter.post("/activate-account",
+    verifyJwt,
+    activateAccount
+)
+export default employeeRouter

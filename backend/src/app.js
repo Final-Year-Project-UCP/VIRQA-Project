@@ -1,8 +1,10 @@
 import express from "express";
+
 import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import employeeRouter from "./routes/employee.routes.js"
 import adminRouter from "./routes/admin.routes.js";
+
 const app = express();
 
 app.use(express.json());
