@@ -34,7 +34,7 @@ employee.verificationToken = null;
 employee.verificationTokenExpires = null;
 
 await employee.save();
- return res.status(200).json( new ApiResponse("account activated successfuly!",{}));
+ return res.status(200).json( new ApiResponse(200,"account activated successfuly!",{}));
 })
 
 export {handleProfile,activateAccount}

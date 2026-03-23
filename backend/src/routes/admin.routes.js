@@ -6,7 +6,6 @@ import {
         getManageEmployees,
         addEmployee,
         deleteEmployee
-        
     } from "../controllers/admin.controller.js";
 import { verifyJwt } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -32,7 +31,7 @@ adminRouter.patch("/update-employee",
     updateEmployee
 )
 
-adminRouter.get("/manage-employee",//incomplete
+adminRouter.get("/manage-employee",
     verifyJwt,
     getManageEmployees
 )
@@ -40,4 +39,5 @@ adminRouter.delete("/employee/:id",
     verifyJwt,
     deleteEmployee
 )
+
 export default adminRouter

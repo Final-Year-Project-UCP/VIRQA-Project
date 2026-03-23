@@ -133,6 +133,10 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 
 //Manage Employees --GET
 const getManageEmployees=asyncHandler(async(req,res)=>{
+  const employees=await Employee.find({});
+    return res.status(200).json(new ApiResponse(200, 
+        employees
+    , "Success!"));
 
 })
 
