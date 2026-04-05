@@ -4,6 +4,8 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, CheckCircle, XCircle, KeyRound, ShieldCheck } from 'lucide-react';
 import Logo from '../../components/common/Logo.jsx';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '../../config/api.js';
 
 const VerifyOTPAndResetPassword = () => {
     const navigate = useNavigate();
@@ -95,33 +97,46 @@ const VerifyOTPAndResetPassword = () => {
         otpRefs.current[Math.min(pastedData.length, 5)]?.focus();
     };
 
-    const handleVerifyOtp = async () => {
+    const verifyOtpMutation = useMutation({
+        mutationFn: async (otpCode) => {
+            const res = await api.post('/user/verify-otp', { email, otp: otpCode });
+            return res.data;
+        },
+        onSuccess: () => {
+            toast.success('OTP verified successfully!');
+            setOtpVerified(true);
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || err.message || 'Failed to verify OTP. Please try again.');
+        }
+    });
+
+    const handleVerifyOtp = () => {
         const otpCode = otp.join('');
         if (otpCode.length !== 6) {
             toast.error('Please enter the complete 6-digit OTP');
             return;
         }
 
-        setIsLoading(true);
-        try {
-            // TODO: Replace with actual API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simulate OTP verification
-            if (otpCode === '123456') {
-                toast.success('OTP verified successfully!');
-                setOtpVerified(true);
-            } else {
-                toast.error('Invalid OTP. Please try again.');
-            }
-        } catch (error) {
-            toast.error('Failed to verify OTP. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
+        verifyOtpMutation.mutate(otpCode);
     };
 
-    const handleResetPassword = async (e) => {
+    const resetPasswordMutation = useMutation({
+        mutationFn: async (passwordStr) => {
+            const otpCode = otp.join('');
+            const res = await api.post('/user/reset-password', { email, otp: otpCode, newPassword: passwordStr });
+            return res.data;
+        },
+        onSuccess: () => {
+            toast.success('Password reset successfully!');
+            setTimeout(() => navigate('/login'), 1500);
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || err.message || 'Failed to reset password. Please try again.');
+        }
+    });
+
+    const handleResetPassword = (e) => {
         e.preventDefault();
 
         if (!newPassword || !confirmPassword) {
@@ -139,18 +154,7 @@ const VerifyOTPAndResetPassword = () => {
             return;
         }
 
-        setIsLoading(true);
-        try {
-            // TODO: Replace with actual API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            toast.success('Password reset successfully!');
-            setTimeout(() => navigate('/login'), 1500);
-        } catch (error) {
-            toast.error('Failed to reset password. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
+        resetPasswordMutation.mutate(newPassword);
     };
 
     return (
@@ -225,13 +229,13 @@ const VerifyOTPAndResetPassword = () => {
                             {/* Verify Button */}
                             <button
                                 onClick={handleVerifyOtp}
-                                disabled={isLoading || otp.join('').length !== 6}
-                                className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${isLoading || otp.join('').length !== 6
-                                        ? 'bg-gray-600 cursor-not-allowed text-gray-300'
-                                        : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-500/30 hover:scale-[1.02]'
+                                disabled={verifyOtpMutation.isPending || otp.join('').length !== 6}
+                                className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${verifyOtpMutation.isPending || otp.join('').length !== 6
+                                    ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                                    : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-500/30 hover:scale-[1.02]'
                                     }`}
                             >
-                                {isLoading ? (
+                                {verifyOtpMutation.isPending ? (
                                     <div className="flex items-center justify-center gap-2">
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         <span>Verifying...</span>
@@ -286,9 +290,9 @@ const VerifyOTPAndResetPassword = () => {
                                         <div className="flex items-center justify-between mb-1 px-1">
                                             <span className="text-[10px] uppercase font-bold text-gray-400">Strength</span>
                                             <span className={`text-[10px] uppercase font-bold transition-colors duration-300 ${strength === 1 ? "text-red-500" :
-                                                    strength === 2 ? "text-yellow-600" :
-                                                        strength === 3 ? "text-blue-500" :
-                                                            strength === 4 ? "text-emerald-600" : "text-gray-400"
+                                                strength === 2 ? "text-yellow-600" :
+                                                    strength === 3 ? "text-blue-500" :
+                                                        strength === 4 ? "text-emerald-600" : "text-gray-400"
                                                 }`}>
                                                 {getStrengthLabel()}
                                             </span>
@@ -317,8 +321,8 @@ const VerifyOTPAndResetPassword = () => {
                                     <input
                                         type={showConfirm ? "text" : "password"}
                                         className={`w-full pl-10 pr-10 py-3 bg-white/5 border rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all duration-300 placeholder-gray-500 text-white ${confirmPassword && newPassword !== confirmPassword
-                                                ? "border-red-500/50 focus:border-red-500"
-                                                : "border-white/10 focus:border-blue-500"
+                                            ? "border-red-500/50 focus:border-red-500"
+                                            : "border-white/10 focus:border-blue-500"
                                             }`}
                                         placeholder="Confirm new password"
                                         value={confirmPassword}
@@ -353,13 +357,13 @@ const VerifyOTPAndResetPassword = () => {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={isLoading || !newPassword || newPassword !== confirmPassword}
+                                disabled={resetPasswordMutation.isPending || !newPassword || newPassword !== confirmPassword}
                                 className={`w-full py-3.5 rounded-xl text-white font-semibold text-sm tracking-wide shadow-lg transition-all duration-300 ${!newPassword || newPassword !== confirmPassword
-                                        ? "bg-gray-600 cursor-not-allowed shadow-none opacity-70"
-                                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-600/40 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02]"
+                                    ? "bg-gray-600 cursor-not-allowed shadow-none opacity-70"
+                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-600/40 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02]"
                                     }`}
                             >
-                                {isLoading ? (
+                                {resetPasswordMutation.isPending ? (
                                     <div className="flex items-center justify-center gap-2">
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         <span>Resetting...</span>

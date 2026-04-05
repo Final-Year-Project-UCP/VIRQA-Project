@@ -1,7 +1,7 @@
 // components/auth/RoleTabSwitcher.jsx
 
 // Using 'Employer' instead of 'Institute' for clarity
-const tabs = ['Candidate', 'Institute'];
+const tabs = ['Candidate', 'Institute', 'Admin'];
 
 const RoleTabSwitcher = ({ activeRole, setActiveRole, isDarkTheme = false }) => {
   return (
@@ -11,7 +11,7 @@ const RoleTabSwitcher = ({ activeRole, setActiveRole, isDarkTheme = false }) => 
         <button
           key={tab}
           onClick={() => setActiveRole(tab)}
-          className={`w-1/2 py-2 text-sm font-medium rounded-md transition duration-200 ease-in-out cursor-pointer
+          className={`flex-1 py-2 text-sm font-medium rounded-md transition duration-200 ease-in-out cursor-pointer
                       ${activeRole === tab
               ? isDarkTheme
                 ? 'bg-blue-600 text-white shadow-sm'

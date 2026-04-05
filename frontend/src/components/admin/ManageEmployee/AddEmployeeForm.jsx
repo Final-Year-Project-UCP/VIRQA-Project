@@ -22,14 +22,11 @@ const AddEmployeeForm = ({ onAddEmployee, onUpdateEmployee, editingEmployee, onC
         setIsSubmitting(true);
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 800));
-
             if (editingEmployee) {
-                onUpdateEmployee({ email, role });
+                await onUpdateEmployee({ email, role });
                 toast.success(`Employee updated successfully: ${email}`);
             } else {
-                onAddEmployee({ email, role });
+                await onAddEmployee({ email, role });
                 toast.success(`Invitation sent to ${email}`);
             }
 

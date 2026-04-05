@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/common/ProtectedRoute.jsx";
 import MainLayout from "../layout/CandidatesLayout.jsx";
 import LandingPage from "../Pages/LandingPages/LandingPage.jsx";
 import Login from "../Pages/LoginPages/Login.jsx";
+import ForcePasswordChange from "../Pages/LoginPages/ForcePasswordChange.jsx";
 import ForgotPasswordStageOne from "../Pages/LoginPages/ForgetPassword.jsx";
 import VerifyOTPAndResetPassword from "../Pages/LoginPages/VerifyOTPAndReset.jsx";
 import Dashboard from "../Pages/CandidatesPages/Dashboard/Dashboard.jsx";
@@ -38,6 +40,7 @@ const AppRoutes = () => {
       {/* Pages without layout */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/force-password-change" element={<ForcePasswordChange />} />
       <Route path="/institute-register" element={<LandingPage />} />
       <Route path="/forget-password" element={<ForgotPasswordStageOne />} />
       <Route path="/reset-password/verify-otp" element={<VerifyOTPAndResetPassword />} />
@@ -73,16 +76,15 @@ const AppRoutes = () => {
       </Route>
 
 
-      <Route path="/api/v1/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-        <Route path="manage/employee" element={<ManageEmployee />} />
-        <Route path="view/interview" element={<ViewInterview />} />
-        <Route path="profile" element={<ManageProfile />} />
-        <Route path="notifications" element={<AdminNotification />} />
-        <Route path="comingsoon/settings" element={<ComingSoon />} />
-
-
-
+      <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+        <Route path="/api/v1/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="manage/employee" element={<ManageEmployee />} />
+          <Route path="view/interview" element={<ViewInterview />} />
+          <Route path="profile" element={<ManageProfile />} />
+          <Route path="notifications" element={<AdminNotification />} />
+          <Route path="comingsoon/settings" element={<ComingSoon />} />
+        </Route>
       </Route>
 
 

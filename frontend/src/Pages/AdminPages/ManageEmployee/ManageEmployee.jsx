@@ -1,32 +1,90 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AddEmployeeForm from '../../../components/admin/ManageEmployee/AddEmployeeForm';
 import EmployeeList from '../../../components/admin/ManageEmployee/EmployeeList';
+import { api, socket } from '../../../config/api.js';
 
 const ManageEmployee = () => {
-    // Initial mock data
-    const [employees, setEmployees] = useState([
-        { id: 1, email: 'john.doe@company.com', role: 'Interviewer', status: 'Verified' },
-        { id: 2, email: 'sarah.hr@company.com', role: 'HR', status: 'Pending' },
-        { id: 3, email: 'mike.dev@company.com', role: 'Interviewer', status: 'Verified' },
-    ]);
+    const queryClient = useQueryClient();
+
+    // Real-time sockets
+    useEffect(() => {
+        socket.on('employeeAdded', () => {
+            queryClient.invalidateQueries({ queryKey: ['employees'] });
+        });
+        socket.on('employeeUpdated', () => {
+            queryClient.invalidateQueries({ queryKey: ['employees'] });
+        });
+        socket.on('employeeDeleted', () => {
+            queryClient.invalidateQueries({ queryKey: ['employees'] });
+        });
+
+        return () => {
+            socket.off('employeeAdded');
+            socket.off('employeeUpdated');
+            socket.off('employeeDeleted');
+        };
+    }, [queryClient]);
+
+    // Fetch Employees Data
+    const { data: responseData, isLoading } = useQuery({
+        queryKey: ['employees'],
+        queryFn: async () => {
+            const res = await api.get('/admin/manage-employee');
+            return res.data;
+        }
+    });
+
+    const employees = (responseData?.data || []).map(emp => ({
+        id: emp._id,
+        email: emp.email,
+        role: emp.jobTitle || 'Interviewer',
+        status: emp.status || 'Pending'
+    }));
 
     const [editingEmployee, setEditingEmployee] = useState(null);
 
-    const handleAddEmployee = (newEmployee) => {
-        const employee = {
-            id: Date.now(),
-            ...newEmployee,
-            status: 'Pending' // Default status for new invites
-        };
-        setEmployees([employee, ...employees]);
+    // Mutations
+    const addMutation = useMutation({
+        mutationFn: async (newEmployee) => {
+            await api.post('/admin/add-employee', newEmployee);
+        },
+        // Invalidation is mainly handled by socket, but we can do it here too as fallback
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] })
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: async (updatedData) => {
+            const payload = {
+                oldEmail: editingEmployee.email, // backend depends on this
+                email: updatedData.email,
+                role: updatedData.role
+            };
+            await api.patch('/admin/update-employee', payload);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['employees'] });
+            setEditingEmployee(null);
+        }
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => {
+            await api.delete(`/admin/employee/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['employees'] });
+            toast.success('Employee removed successfully');
+        }
+    });
+
+    const handleAddEmployee = async (newEmployee) => {
+        await addMutation.mutateAsync(newEmployee);
     };
 
-    const handleUpdateEmployee = (updatedData) => {
-        setEmployees(employees.map(emp =>
-            emp.id === editingEmployee.id ? { ...emp, ...updatedData } : emp
-        ));
-        setEditingEmployee(null);
+    const handleUpdateEmployee = async (updatedData) => {
+        await updateMutation.mutateAsync(updatedData);
     };
 
     const handleEditEmployee = (employee) => {
@@ -34,20 +92,12 @@ const ManageEmployee = () => {
     };
 
     const handleToggleStatus = (id) => {
-        setEmployees(employees.map(emp => {
-            if (emp.id === id) {
-                const newStatus = emp.status === 'Verified' ? 'Deactivated' : 'Verified';
-                toast.info(`Employee status updated to ${newStatus}`);
-                return { ...emp, status: newStatus };
-            }
-            return emp;
-        }));
+        toast.info(`Status logic not currently supported by backend endpoints!`);
     };
 
-    const handleDeleteEmployee = (id) => {
+    const handleDeleteEmployee = async (id) => {
         if (window.confirm('Are you sure you want to remove this employee?')) {
-            setEmployees(employees.filter(emp => emp.id !== id));
-            toast.success('Employee removed successfully');
+            await deleteMutation.mutateAsync(id);
         }
     };
 
@@ -79,12 +129,16 @@ const ManageEmployee = () => {
 
                 {/* Right Column: Employee List */}
                 <div className="lg:col-span-2">
-                    <EmployeeList
-                        employees={employees}
-                        onDelete={handleDeleteEmployee}
-                        onEdit={handleEditEmployee}
-                        onToggleStatus={handleToggleStatus}
-                    />
+                    {isLoading ? (
+                        <div className="flex justify-center p-8 text-gray-500">Loading Employees...</div>
+                    ) : (
+                        <EmployeeList
+                            employees={employees}
+                            onDelete={handleDeleteEmployee}
+                            onEdit={handleEditEmployee}
+                            onToggleStatus={handleToggleStatus}
+                        />
+                    )}
                 </div>
             </div>
         </div>
