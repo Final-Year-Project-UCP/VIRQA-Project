@@ -5,6 +5,8 @@ import { FcGoogle } from "react-icons/fc";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { motion } from 'framer-motion';
 import Logo from '../../components/common/Logo.jsx';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '../../config/api.js';
 
 const ForgotPasswordStageOne = () => {
   const [email, setEmail] = useState('');
@@ -12,25 +14,25 @@ const ForgotPasswordStageOne = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSendResetCode = async (email) => {
-    try {
-      setIsLoading(true);
-      setErrorMessage('');
-
-      // TODO: TanStack mutation will replace this section later
-      setTimeout(() => {
-        toast.success('Verification code sent! Check your inbox.');
-        setIsLoading(false);
-
-        navigate('/reset-password/verify-otp', { state: { email } });
-      }, 1500);
-
-    } catch (err) {
-      const errorMsg = err.message || 'Failed to send reset code. Please try again.';
+  const forgotPasswordMutation = useMutation({
+    mutationFn: async (userEmail) => {
+      const res = await api.post('/user/forgot-password', { email: userEmail });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Verification code sent! Check your inbox.');
+      navigate('/reset-password/verify-otp', { state: { email } });
+    },
+    onError: (err) => {
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to send reset code. Please try again.';
       setErrorMessage(errorMsg);
       toast.error(errorMsg);
-      setIsLoading(false);
     }
+  });
+
+  const handleSendResetCode = (email) => {
+    setErrorMessage('');
+    forgotPasswordMutation.mutate(email);
   };
 
   const handleSubmit = (e) => {
@@ -108,7 +110,7 @@ const ForgotPasswordStageOne = () => {
                     ? 'border-red-500/50 focus:ring-2 focus:ring-red-500/30'
                     : 'border-white/10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'}`}
                 placeholder="you@gmail.com"
-                disabled={isLoading}
+                disabled={forgotPasswordMutation.isPending}
               />
               {/* Error Message */}
               {errorMessage && (
@@ -121,13 +123,13 @@ const ForgotPasswordStageOne = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${isLoading
+              disabled={forgotPasswordMutation.isPending}
+              className={`w-full py-3.5 px-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${forgotPasswordMutation.isPending
                 ? 'bg-gray-600 cursor-not-allowed text-gray-300'
                 : 'bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-500/30 hover:scale-[1.02]'
                 }`}
             >
-              {isLoading ? (
+              {forgotPasswordMutation.isPending ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   <span>Sending...</span>

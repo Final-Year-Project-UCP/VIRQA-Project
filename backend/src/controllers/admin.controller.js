@@ -3,7 +3,7 @@ import ApiResponse from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
 import { deleteDataFromCloudinary } from "../utils/FileRemovalCloudinary.js";
 import { uploadOnCloudinary } from "../utils/FileUploadCloudinary.js";
-import sendEmail from "../utils/Email.js";
+import sendEmail, { sendEmployeeInvite } from "../utils/Email.js";
 import { ApiError } from "../utils/ApiError.js";
 import e from "express";
 
@@ -69,29 +69,30 @@ const {email,role}=req.body
   // check if employee already exists
  const existingUser=await Employee.findOne({email});
  if (existingUser) throw new ApiError(400, "employee already exists");
- // create activation token
+  // generate temp password
   const crypto = await import("crypto");
-  const token = crypto.randomBytes(32).toString("hex");
+  const tempPassword = crypto.randomBytes(4).toString("hex");
 
   // save employee in DB
   const user=await Employee.create({
     email,
     jobTitle:role,
-    status: "Pending",
-    verificationToken: token,
-    createdBy:req.user._id,
-    verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    password: tempPassword,
+    status: "Verified",
+    needsPasswordChange: true,
+    createdBy:req.user._id
   });
-   await user.save({ validateBeforeSave: false });
-  // activation link
-  const activationLink = `http://localhost:5173/activate-account?token=${token}`;
+  await user.save({ validateBeforeSave: false });
 
- const result=await sendEmail(process.env.GOOGLE_USER,email, "EMPLOYEE", activationLink)
- if(!result) throw new ApiError(500,"Error! in sending email")
+ const result=await sendEmployeeInvite(process.env.GOOGLE_USER, email, tempPassword);
+ if(!result) throw new ApiError(500,"Error! in sending email");
+
+  // Emit real-time event
+  const io = req.app.get("io");
+  if (io) io.emit("employeeAdded", user);
 
   return res.status(200).json({
-    message: "Employee invited successfully",
-    activationLink
+    message: "Employee invited successfully"
   });
 })
 
@@ -111,6 +112,11 @@ const updateEmployee = asyncHandler(async (req, res) => {
     if (role) employee.jobTitle = role;
     
     await employee.save();
+
+    // Emit real-time event
+    const io = req.app.get("io");
+    if (io) io.emit("employeeUpdated", employee);
+
     return res.status(200).json(
         new ApiResponse(200,email,"updated sucessfully") 
     );
@@ -124,6 +130,11 @@ const deleteEmployee = asyncHandler(async (req, res) => {
          throw new ApiError(404, "id doesnot exists!");
        // Delete from DB
     await Employee.findByIdAndDelete(id);
+
+    // Emit real-time event
+    const io = req.app.get("io");
+    if (io) io.emit("employeeDeleted", id);
+
     return res.status(200).json({
         message: "Employee deleted permanently",
         id

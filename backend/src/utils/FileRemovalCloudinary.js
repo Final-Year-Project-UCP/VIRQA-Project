@@ -31,6 +31,8 @@ const extractPublicIdFromUrl = (url) => {
   }
 };
 
+
+
 // This function deletes the file from Cloudinary using the URL,
 // automatically detecting resource_type (video or image) based on file extension
 const deleteDataFromCloudinary = async (dataUrl) => {

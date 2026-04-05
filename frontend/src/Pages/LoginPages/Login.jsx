@@ -4,18 +4,48 @@ import { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import RoleTabSwitcher from "../../components/other/LoginPage/RoleTabSwitcher.jsx";
-import InputField from '../../components/common/InputField.jsx';
-import Button from '../../components/common/Button.jsx';
 import Logo from '../../components/common/Logo.jsx';
 
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '../../config/api.js';
+
 const Login = () => {
-  const [activeRole, setActiveRole] = useState('Candidate');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const loginMutation = useMutation({
+    mutationFn: async (credentials) => {
+      const res = await api.post('/user/login', credentials);
+      return res.data;
+    },
+    onSuccess: (data) => {
+      localStorage.setItem('userRole', data.role);
+
+      if (data.needsPasswordChange) {
+        navigate('/force-password-change');
+        return;
+      }
+
+      toast.success(data.message || 'Logged in successfully');
+
+      if (data.role === 'employee') {
+        navigate('/api/v1/employee/dashboard');
+      } else if (data.role === 'admin') {
+        navigate('/api/v1/admin');
+      } else {
+        navigate('/api/v1/candidates');
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Login failed');
+    }
+  });
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log(`Logging in as ${activeRole}`);
-    // **TODO:** Implement TanStack Query mutation here
+    loginMutation.mutate({ email, password });
   };
 
   const handleRegisterClick = (e) => {
@@ -63,14 +93,12 @@ const Login = () => {
         {/* Login Card */}
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-8">
 
-          <RoleTabSwitcher activeRole={activeRole} setActiveRole={setActiveRole} isDarkTheme={true} />
-
           <div className="text-center mb-8 mt-6">
             <h2 className="text-3xl font-bold text-white mb-2">
               Welcome Back
             </h2>
             <p className="text-gray-400 text-sm">
-              Log in to your VIRQA {activeRole.toLowerCase()} account
+              Log in securely to your VIRQA account
             </p>
           </div>
 
@@ -84,6 +112,8 @@ const Login = () => {
                 </div>
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -95,6 +125,8 @@ const Login = () => {
                 </div>
                 <input
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -112,9 +144,14 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full py-3.5 px-4 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              disabled={loginMutation.isPending}
+              className={`w-full py-3.5 px-4 font-bold rounded-xl shadow-lg transform transition-all duration-200 
+                ${loginMutation.isPending
+                  ? 'bg-blue-400 text-white opacity-70 cursor-not-allowed'
+                  : 'bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]'
+                }`}
             >
-              Login
+              {loginMutation.isPending ? 'Logging in...' : 'Login'}
             </button>
           </form>
 

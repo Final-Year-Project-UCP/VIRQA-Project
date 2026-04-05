@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     organization:{type:String},
     // Shared metadata
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    needsPasswordChange: { type: Boolean, default: false },
+    resetPasswordOTP: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
 }, baseOptions);
 
 

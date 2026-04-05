@@ -22,6 +22,20 @@ const testUserApi = async () => {
         });
         console.log("Login Success:", loginResponse.data);
         console.log("Received Token:", loginResponse.data.token);
+
+        // Try getting token from cookies if not in body
+        const cookies = loginResponse.headers['set-cookie'];
+        const tokenStr = cookies ? cookies.find(c => c.startsWith('token=')) : null;
+        const cookieHeader = tokenStr ? tokenStr.split(';')[0] : '';
+
+        console.log("\n--- Testing Logout ---");
+        const logoutResponse = await axios.post(`${API_URL}/logout`, {}, {
+            headers: {
+                Cookie: cookieHeader // VerifyJWT expects token in cookie
+            },
+            withCredentials: true
+        });
+        console.log("Logout Success:", logoutResponse.data);
     }
     catch (error) {
         if (error.response) {
