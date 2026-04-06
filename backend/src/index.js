@@ -4,6 +4,7 @@ import app from "./app.js";
 import connectDB from "./db/db_connect.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { registerInterviewSocketHandlers } from "./sockets/interview.socket.js";
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -21,6 +22,9 @@ io.on("connection", (socket) => {
     console.log("Client disconnected:", socket.id);
   });
 });
+
+// Register interview-specific socket logic
+registerInterviewSocketHandlers(io);
 
 
 if (!process.env.MONGODB_URI || !process.env.DB_NAME) {

@@ -1,22 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Lobby from './components/Lobby';
 import ActiveSession from './components/ActiveSession';
 import ScheduledInterviews from './components/ScheduledInterviews';
 import { AnimatePresence, motion } from 'framer-motion';
+import { api } from '../../../config/api.js';
 
 const LiveInterviewPage = () => {
+  const navigate = useNavigate();
   const [interviewStatus, setInterviewStatus] = useState('scheduled'); // 'scheduled' | 'lobby' | 'active' | 'ended'
   const [selectedInterview, setSelectedInterview] = useState(null);
 
-  // Mock User Data - In real app, fetch from context/auth
-  const userData = {
-    name: "Alex Morgan",
-    role: "Senior Frontend Developer", // Default, will override with selected interview
-    interviewer: "Sarah Johnson",
-    company: "TechCorp Inc."
-  };
+  // ── Fetch Candidate Interviews ──
+  const { data: interviews, isLoading, error } = useQuery({
+    queryKey: ['candidateInterviews'],
+    queryFn: async () => {
+      const res = await api.get('candidate/my-interviews');
+      return res.data?.data || [];
+    }
+  });
 
   const handleSelectInterview = (interview) => {
     setSelectedInterview(interview);
@@ -27,19 +33,33 @@ const LiveInterviewPage = () => {
     setInterviewStatus('active');
   };
 
-  const handleLeaveInterview = () => {
-    if (window.confirm("Are you sure you want to end the interview?")) {
-      setInterviewStatus('ended');
-      // Navigate back or show summary
-      // window.location.href = '/dashboard'; 
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
+        <p className="text-slate-500 font-medium">Syncing upcoming interviews...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md border border-gray-200">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Connection Error</h2>
+          <p className="text-slate-500 mb-6 font-medium">Failed to load your scheduled interviews. Please check your connection and try again.</p>
+          <button onClick={() => window.location.reload()} className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   const renderContent = () => {
     switch (interviewStatus) {
       case 'scheduled':
         return (
           <ScheduledInterviews
+            interviews={interviews}
             onJoin={handleSelectInterview}
           />
         );
@@ -47,8 +67,7 @@ const LiveInterviewPage = () => {
       case 'lobby':
         return (
           <Lobby
-            role={selectedInterview?.role || userData.role}
-            userName={userData.name}
+            session={selectedInterview}
             onJoin={handleJoinInterview}
             onBack={() => setInterviewStatus('scheduled')}
           />
@@ -57,10 +76,12 @@ const LiveInterviewPage = () => {
       case 'active':
         return (
           <ActiveSession
-            role={selectedInterview?.role || userData.role}
-            userName={userData.name}
-            interviewerName={selectedInterview?.interviewer || userData.interviewer}
-            onLeave={handleLeaveInterview}
+            session={selectedInterview}
+            onLeave={() => {
+              if (window.confirm("Are you sure you want to end the interview?")) {
+                setInterviewStatus('ended');
+              }
+            }}
           />
         );
 
@@ -68,14 +89,16 @@ const LiveInterviewPage = () => {
       default:
         return (
           <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Interview Ended</h1>
-              <p className="text-gray-600 mb-8">Thank you for your time. You may now close this tab.</p>
+            <div className="text-center p-12 bg-white rounded-3xl shadow-xl border border-gray-100 max-w-lg">
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">Interview Completed</h1>
+              <p className="text-gray-600 font-medium mb-8">
+                Thank you for your time. Your response has been recorded.
+              </p>
               <button
-                onClick={() => window.location.reload()}
-                className="text-blue-600 hover:underline"
+                onClick={() => navigate('/api/v1/candidates/results')}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
               >
-                Return to Lobby
+                View Results
               </button>
             </div>
           </div>
@@ -90,7 +113,7 @@ const LiveInterviewPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="w-full h-full"
+        className="w-full min-h-screen"
       >
         {renderContent()}
       </motion.div>

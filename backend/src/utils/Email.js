@@ -1,7 +1,13 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
-import { activationTemplate, employeeInviteTemplate, forgotPasswordTemplate } from "../constants.js";
+import { 
+    activationTemplate, 
+    employeeInviteTemplate, 
+    forgotPasswordTemplate, 
+    interviewInviteTemplate, 
+    interviewRescheduleTemplate 
+} from "../constants.js";
 const createMailOptions = (from,to, subject,activationLink ) => {
   return {
     from,// sender email
@@ -68,6 +74,48 @@ export const sendForgotPasswordOTP = async (email, otpCode) => {
     
     const info = await transporter.sendMail(mailOptions);
     return info.accepted.length > 0;
+};
+
+export const sendInterviewInvite = async (to, { jobTitle, date, time, duration, password }) => {
+  const loginLink = "http://localhost:5173/login";
+  const html = interviewInviteTemplate
+    .replace("{{jobTitle}}", jobTitle)
+    .replace("{{date}}", date)
+    .replace("{{time}}", time)
+    .replace("{{duration}}", duration)
+    .replace("{{email}}", to)
+    .replace("{{password}}", password)
+    .replace("{{loginLink}}", loginLink)
+    .replace("{{year}}", new Date().getFullYear());
+
+  const mailOptions = {
+    from: process.env.GOOGLE_USER,
+    to,
+    subject: `Interview Invitation: ${jobTitle} at VIRQA`,
+    html
+  };
+  const info = await transporter.sendMail(mailOptions);
+  return info.accepted.length > 0;
+};
+
+export const sendInterviewReschedule = async (to, { jobTitle, date, time, duration }) => {
+  const loginLink = "http://localhost:5173/login";
+  const html = interviewRescheduleTemplate
+    .replace("{{jobTitle}}", jobTitle)
+    .replace("{{date}}", date)
+    .replace("{{time}}", time)
+    .replace("{{duration}}", duration)
+    .replace("{{loginLink}}", loginLink)
+    .replace("{{year}}", new Date().getFullYear());
+
+  const mailOptions = {
+    from: process.env.GOOGLE_USER,
+    to,
+    subject: `RESCHEDULED: Interview for ${jobTitle} at VIRQA`,
+    html
+  };
+  const info = await transporter.sendMail(mailOptions);
+  return info.accepted.length > 0;
 };
 
 export default sendEmail;

@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../../config/api.js';
+import { generateVirginReportPDF, generateVirginTranscriptPDF } from '../../../utils/pdfGenerator.js';
 import {
   BarChart2,
   Award,
@@ -40,65 +43,64 @@ ChartJS.register(
 const Results = () => {
   const [selectedInterview, setSelectedInterview] = useState(null);
 
-  // Mock List of Past Interviews
-  const interviewHistory = [
-    {
-      id: 1,
-      title: 'Senior Frontend Developer',
-      date: 'Dec 15, 2024',
-      time: '10:00 AM',
-      duration: '45 min',
-      score: 82,
-      status: 'evaluated',
-      company: 'TechCorp Inc.',
-      interviewer: 'Sarah Chen'
-    },
-    {
-      id: 2,
-      title: 'Full Stack Engineer',
-      date: 'Dec 10, 2024',
-      time: '2:30 PM',
-      duration: '60 min',
-      score: 75,
-      status: 'evaluated',
-      company: 'InnovateLabs',
-      interviewer: 'Mike Ross'
-    },
-    {
-      id: 3,
-      title: 'React Native Specialist',
-      date: 'Nov 28, 2024',
-      time: '11:15 AM',
-      duration: '35 min',
-      score: 88,
-      status: 'evaluated',
-      company: 'AppWorks',
-      interviewer: 'Jessica Pearson'
-    },
-    {
-      id: 4,
-      title: 'System Design Mock',
-      date: 'Nov 15, 2024',
-      time: '09:00 AM',
-      duration: '50 min',
-      score: 65,
-      status: 'evaluated',
-      company: 'Practice Session',
-      interviewer: 'AI Coach'
+  // Fetch dynamic real results from backend
+  const { data: resultsResponse, isLoading } = useQuery({
+    queryKey: ['candidateResults'],
+    queryFn: async () => {
+      const res = await api.get('candidate/my-results');
+      return res.data.data;
     }
-  ];
+  });
+
+  // Calculate totals and format properly
+  const interviewHistory = (resultsResponse || []).map(interview => {
+    let rawScore = 0;
+    if (interview.scores && interview.scores.length > 0) {
+      const sum = interview.scores.reduce((acc, curr) => acc + (curr.overallScore || 0), 0);
+      rawScore = Math.round(sum / interview.scores.length);
+    }
+
+    return {
+      id: interview._id,
+      title: interview.interviewSessionId?.jobTitle || interview.role,
+      date: new Date(interview.createdAt).toLocaleDateString(),
+      time: new Date(interview.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      duration: 'Completed',
+      score: rawScore,
+      status: interview.status,
+      company: interview.interviewSessionId?.createdBy?.organization || 'System',
+      interviewer: 'AI Coach',
+      rawScores: interview.scores, // For detail view breakdown
+      rawAnswers: interview.answers // For PDF Transcript mapping
+    };
+  });
 
   // --- Sub-Components for Detail View ---
 
   const DetailView = ({ interview, onBack }) => {
-    // Mock Metrics Data (In real app, fetch based on interview.id)
+    // Dynamic Metrics Data Computation
+    let sScore = 0;
+    let tScore = 0;
+    let fallbackFluency = 0;
+    let fallbackCompleteness = 0;
+
+    if (interview.rawScores && interview.rawScores.length > 0) {
+      const sSum = interview.rawScores.reduce((acc, curr) => acc + (curr.semanticScore || 0), 0);
+      const tSum = interview.rawScores.reduce((acc, curr) => acc + (curr.technicalScore || 0), 0);
+      sScore = Math.round(sSum / interview.rawScores.length);
+      tScore = Math.round(tSum / interview.rawScores.length);
+
+      fallbackFluency = interview.score;
+      fallbackCompleteness = Math.max(0, interview.score - 5);
+    }
+
     const metricsData = [
-      { name: 'Semantic Accuracy', score: interview.score + 5 > 100 ? 100 : interview.score + 5 },
-      { name: 'Fluency', score: interview.score },
-      { name: 'Tone / Sentiment', score: interview.score + 3 },
-      { name: 'Completeness', score: interview.score - 5 },
+      { name: 'Semantic Accuracy', score: sScore || interview.score },
+      { name: 'Technical Score', score: tScore || interview.score },
+      { name: 'Fluency', score: fallbackFluency || interview.score },
+      { name: 'Completeness', score: fallbackCompleteness || (interview.score - 5) },
       { name: 'Confidence', score: interview.score - 2 },
-      { name: 'Topic Coverage', score: interview.score - 8 }
+      { name: 'Topic Coverage', score: interview.score }
     ];
 
     const chartData = {
@@ -157,7 +159,11 @@ const Results = () => {
             </div>
           </div>
           <div className="ml-auto flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            <button 
+                onClick={() => generateVirginReportPDF(interview, metricsData)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                title="Save Official Assessment Card"
+            >
               <Download size={16} />
               <span className="inline lg:hidden">Report</span>
               <span className="hidden lg:inline">Download Report</span>
@@ -239,27 +245,33 @@ const Results = () => {
                 Resources
               </h3>
               <div className="space-y-3">
-                <button className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group">
+                <button 
+                  onClick={() => generateVirginTranscriptPDF(interview, interview.rawAnswers)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
                       <Download size={14} />
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-semibold text-slate-900 group-hover:text-indigo-700">Full Transcript</p>
-                      <p className="text-xs text-slate-500">PDF • 2.4 MB</p>
+                      <p className="text-xs text-slate-500">PDF Document</p>
                     </div>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
                 </button>
 
-                <button className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group">
+                <button 
+                  onClick={() => generateVirginReportPDF(interview, metricsData)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
                       <CheckCircle size={14} />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-semibold text-slate-900 group-hover:text-indigo-700">Action Plan</p>
-                      <p className="text-xs text-slate-500">Generated by AI</p>
+                      <p className="text-sm font-semibold text-slate-900 group-hover:text-indigo-700">VIRQA Report</p>
+                      <p className="text-xs text-slate-500">Authority Certified</p>
                     </div>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-400" />
@@ -317,41 +329,46 @@ const Results = () => {
               exit={{ opacity: 0, x: -20 }}
               className="grid grid-cols-1 gap-4 sm:gap-6"
             >
-              {interviewHistory.map((interview) => (
-                <div
-                  key={interview.id}
-                  className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer group"
-                  onClick={() => setSelectedInterview(interview)}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold ${interview.score >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                        interview.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                        {interview.score}
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{interview.title}</h3>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-slate-500">
-                          <span className="flex items-center gap-1"><Calendar size={14} /> {interview.date}</span>
-                          <span className="flex items-center gap-1"><Clock size={14} /> {interview.duration}</span>
-                          <span className="flex items-center gap-1">with {interview.interviewer}</span>
+              {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+              ) : (
+                interviewHistory.map((interview) => (
+                  <div
+                    key={interview.id}
+                    className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer group"
+                    onClick={() => setSelectedInterview(interview)}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold ${interview.score >= 80 ? 'bg-emerald-100 text-emerald-700' :
+                          interview.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                          {interview.score}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{interview.title}</h3>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-slate-500">
+                            <span className="flex items-center gap-1"><Calendar size={14} /> {interview.date}</span>
+                            <span className="flex items-center gap-1"><Clock size={14} /> {interview.duration}</span>
+                            <span className="flex items-center gap-1">with {interview.interviewer}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-4 border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-100">
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 uppercase tracking-wide">
-                        {interview.status}
-                      </span>
-                      <ChevronRight size={20} className="text-slate-300 group-hover:text-indigo-400 transform group-hover:translate-x-1 transition-all" />
+                      <div className="flex items-center gap-4 border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-100">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 uppercase tracking-wide">
+                          {interview.status}
+                        </span>
+                        <ChevronRight size={20} className="text-slate-300 group-hover:text-indigo-400 transform group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-
+                ))
+              )}
               {/* Empty State Helper (Hidden if list populated) */}
-              {interviewHistory.length === 0 && (
+              {!isLoading && interviewHistory.length === 0 && (
                 <div className="text-center py-20">
                   <p className="text-slate-500">No interviews recorded yet.</p>
                 </div>

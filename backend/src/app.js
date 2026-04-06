@@ -4,6 +4,8 @@ import authRouter from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import employeeRouter from "./routes/employee.routes.js"
 import adminRouter from "./routes/admin.routes.js";
+import candidateRouter from "./routes/candidate.routes.js";
+import aiInterviewRouter from "./routes/aiInterview.routes.js";
 import cors from "cors";
 const app = express();
 
@@ -24,6 +26,8 @@ app.get('/', (req, res) => {
 app.use('/api/v1/user', authRouter);
 app.use('/api/v1/employee', employeeRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/candidate', candidateRouter);
+app.use('/api/v1/ai-interview', aiInterviewRouter);
 
 
 export default app;

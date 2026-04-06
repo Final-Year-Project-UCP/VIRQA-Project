@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Calendar, Clock, Users, Briefcase, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, Users, Briefcase, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-const SchedulingStep = ({ formData, setFormData, onBack, onSubmit }) => {
+const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting }) => {
     const [scheduleData, setScheduleData] = useState({
-        startDate: '',
-        startTime: '',
-        duration: '60',
+        startDate: formData.startDate || '',
+        startTime: formData.startTime || '',
+        duration: formData.duration || '60',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     });
 
@@ -25,17 +25,6 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit }) => {
             ...scheduleData
         };
 
-        console.log('=== INTERVIEW CREATION DATA ===');
-        console.log('Job Title:', finalData.jobTitle);
-        console.log('Job Description:', finalData.jobDescription);
-        console.log('Candidate Emails:', finalData.candidateEmails);
-        console.log('AI Prompt:', finalData.aiPrompt);
-        console.log('Start Date:', finalData.startDate);
-        console.log('Start Time:', finalData.startTime);
-        console.log('Duration:', finalData.duration, 'minutes');
-        console.log('Timezone:', finalData.timezone);
-        console.log('================================');
-
         onSubmit(finalData);
     };
 
@@ -51,26 +40,26 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit }) => {
                     Interview Summary
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-white rounded-lg p-4">
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                             <Briefcase className="w-4 h-4 text-gray-600" />
                             <span className="text-sm text-gray-600">Position</span>
                         </div>
                         <p className="font-semibold text-gray-900">{formData.jobTitle}</p>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
+                    <div className="bg-white rounded-lg p-4 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                             <Users className="w-4 h-4 text-gray-600" />
                             <span className="text-sm text-gray-600">Candidates</span>
                         </div>
                         <p className="font-semibold text-gray-900">{formData.candidateEmails?.length || 0} candidates</p>
                     </div>
-                    <div className="bg-white rounded-lg p-4 md:col-span-2">
+                    <div className="bg-white rounded-lg p-4 md:col-span-2 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="w-4 h-4 text-gray-600" />
-                            <span className="text-sm text-gray-600">AI Prompt</span>
+                            <span className="text-sm text-gray-600">AI Topic/Prompt</span>
                         </div>
-                        <p className="text-sm text-gray-700 line-clamp-2">{formData.aiPrompt?.substring(0, 150)}...</p>
+                        <p className="text-sm text-gray-700 line-clamp-2">{formData.aiPrompt || "General Interview Session"}</p>
                     </div>
                 </div>
             </div>
@@ -176,15 +165,21 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit }) => {
                 <button
                     onClick={onBack}
                     className="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all"
+                    disabled={isSubmitting}
                 >
                     ← Back
                 </button>
                 <button
                     onClick={handleSubmit}
-                    className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                    disabled={isSubmitting}
+                    className={`px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                    <CheckCircle2 className="w-5 h-5" />
-                    Create Interview
+                    {isSubmitting ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <CheckCircle2 className="w-5 h-5" />
+                    )}
+                    {isSubmitting ? 'Creating...' : 'Create Interview'}
                 </button>
             </div>
         </div>

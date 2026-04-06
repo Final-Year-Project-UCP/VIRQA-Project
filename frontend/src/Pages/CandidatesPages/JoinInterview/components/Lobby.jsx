@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Settings, Volume2 } from 'lucide-react';
 
-const Lobby = ({ onJoin, userName, role }) => {
+const Lobby = ({ onJoin, session }) => {
     const [isMicOn, setIsMicOn] = useState(true);
     const [audioStream, setAudioStream] = useState(null);
     const [volumeLevel, setVolumeLevel] = useState(0); // 0 to 100
@@ -12,6 +12,9 @@ const Lobby = ({ onJoin, userName, role }) => {
     const audioContextRef = useRef(null);
     const analyserRef = useRef(null);
     const sourceRef = useRef(null);
+
+    // Get current user from storage or context (placeholder for now, will use generic "Candidate")
+    const userName = "Me"; 
 
     useEffect(() => {
         let stream = null;
@@ -134,22 +137,22 @@ const Lobby = ({ onJoin, userName, role }) => {
                     </div>
 
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Join Audio Session</h1>
-                        <p className="text-gray-500 mb-8 max-w-sm">You are joining an AI-powered audio interview. Please ensure you are in a quiet environment.</p>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2 whitespace-nowrap">Join Interview Session</h1>
+                        <p className="text-gray-500 mb-8 max-w-sm">You are joining an AI-powered technical interview. Please ensure you are in a quiet environment.</p>
 
                         <div className="space-y-4">
                             <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                                <p className="text-xs text-indigo-600 font-semibold uppercase tracking-wider mb-1">Role</p>
-                                <p className="font-semibold text-gray-900">{role}</p>
+                                <p className="text-xs text-indigo-600 font-semibold uppercase tracking-wider mb-1">Target Position</p>
+                                <p className="font-bold text-gray-900 uppercase tracking-tight">{session?.jobTitle}</p>
                             </div>
 
                             <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
                                 <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-                                    {userName.charAt(0)}
+                                    C
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-900">{userName}</p>
-                                    <p className="text-xs text-gray-500">Candidate</p>
+                                    <p className="text-sm font-bold text-gray-900">Assigned Candidate</p>
+                                    <p className="text-xs text-gray-500 font-medium">Ready to begin</p>
                                 </div>
                             </div>
                         </div>
