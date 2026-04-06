@@ -167,36 +167,43 @@ const handleProfile = asyncHandler(async (req, res) => {
 
 //Manage Employees(add employee) --POST
 const addEmployee = asyncHandler(async (req, res) => {
-    //search 
     const { email, role } = req.body
+    
     // check if employee already exists
     const existingUser = await Employee.findOne({ email });
-    if (existingUser) throw new ApiError(400, "employee already exists");
+    if (existingUser) throw new ApiError(400, "Employee with this email already exists");
+
     // generate temp password
     const crypto = await import("crypto");
     const tempPassword = crypto.randomBytes(4).toString("hex");
 
-    // save employee in DB
+    // Create user but don't finalize yet (status Pending)
     const user = await Employee.create({
         email,
         jobTitle: role,
         password: tempPassword,
-        status: "Verified",
+        status: "Pending", // Should be pending until they actually use the invite
         needsPasswordChange: true,
         createdBy: req.user._id
     });
-    await user.save({ validateBeforeSave: false });
 
-    const result = await sendEmployeeInvite(process.env.GOOGLE_USER, email, tempPassword);
-    if (!result) throw new ApiError(500, "Error! in sending email");
+    try {
+        const result = await sendEmployeeInvite(process.env.GOOGLE_USER, email, tempPassword);
+        if (!result) {
+             throw new Error("Email service failed to send");
+        }
+        
+        // Emit real-time event
+        const io = req.app.get("io");
+        if (io) io.emit("employeeAdded", user);
 
-    // Emit real-time event
-    const io = req.app.get("io");
-    if (io) io.emit("employeeAdded", user);
-
-    return res.status(200).json({
-        message: "Employee invited successfully"
-    });
+        return res.status(200).json(new ApiResponse(200, user, "Employee invited successfully"));
+    } catch (error) {
+        // CLEANUP: If email fails, delete the user so the admin can try again
+        await Employee.findByIdAndDelete(user._id);
+        console.error("Email Sending Error:", error.message);
+        throw new ApiError(500, `Failed to send invitation email: ${error.message}. User record rolled back.`);
+    }
 })
 
 

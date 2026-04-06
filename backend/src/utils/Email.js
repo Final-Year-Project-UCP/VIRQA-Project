@@ -21,6 +21,9 @@ const createMailOptions = (from,to, subject,activationLink ) => {
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.GOOGLE_USER,
     pass: process.env.GOOGLE_APP_PASSWORD,
@@ -42,21 +45,29 @@ const sendEmail = async (from,to, subject,activationLink) => {
 };
 
 export const sendEmployeeInvite = async (from, to, password) => {
-  const loginLink = "http://localhost:5173/login";
-  const html = employeeInviteTemplate
-    .replace("{{email}}", to)
-    .replace("{{password}}", password)
-    .replace("{{loginLink}}", loginLink)
-    .replace("{{year}}", new Date().getFullYear());
+  try {
+    const loginLink = "http://localhost:5173/login";
+    const html = employeeInviteTemplate
+      .replace("{{email}}", to)
+      .replace("{{password}}", password)
+      .replace("{{loginLink}}", loginLink)
+      .replace("{{year}}", new Date().getFullYear());
 
-  const mailOptions = {
-    from,
-    to,
-    subject: "Welcome to VIRQA - Account Credentials",
-    html
-  };
-  const info = await transporter.sendMail(mailOptions);
-  return info.accepted.length > 0;
+    const mailOptions = {
+      from: from || process.env.GOOGLE_USER,
+      to,
+      subject: "Welcome to VIRQA - Account Credentials",
+      html
+    };
+    
+    console.log(`Attempting to send invite email to: ${to}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Invite email sent successfully:", info.messageId);
+    return info.accepted.length > 0;
+  } catch (error) {
+    console.error("Nodemailer Error (sendEmployeeInvite):", error);
+    throw error; // Rethrow to be caught by the controller
+  }
 };
 
 export const sendForgotPasswordOTP = async (email, otpCode) => {

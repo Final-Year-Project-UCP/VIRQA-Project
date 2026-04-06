@@ -30,6 +30,13 @@ const LiveInterviewPage = () => {
   };
 
   const handleJoinInterview = () => {
+    // Automatically enter full screen for the interview session
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen().catch((err) => {
+        console.warn(`Full-screen request failed: ${err.message}`);
+      });
+    }
     setInterviewStatus('active');
   };
 
@@ -79,6 +86,10 @@ const LiveInterviewPage = () => {
             session={selectedInterview}
             onLeave={() => {
               if (window.confirm("Are you sure you want to end the interview?")) {
+                // Exit full screen if active
+                if (document.fullscreenElement) {
+                  document.exitFullscreen().catch((err) => console.error(err));
+                }
                 setInterviewStatus('ended');
               }
             }}
