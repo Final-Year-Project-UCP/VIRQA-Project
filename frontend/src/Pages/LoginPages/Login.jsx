@@ -17,12 +17,12 @@ const Login = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials) => {
-      const res = await api.post('/user/login', credentials);
+      const res = await api.post('/api/v1/user/login', credentials);
       return res.data;
     },
     onSuccess: (data) => {
       localStorage.setItem('userRole', data.role);
-
+      localStorage.setItem('token', data.token);
       if (data.needsPasswordChange) {
         navigate('/force-password-change');
         return;
