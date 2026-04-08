@@ -182,7 +182,11 @@ const getProfile = asyncHandler(async (req, res) => {
 // @desc    Update user profile
 // @route   PATCH /api/v1/user/profile
 const updateProfile = asyncHandler(async (req, res) => {
-    const { fullName, phoneNumber, professionalBio, organization, location, skills, experience, level, jobTitle, department } = req.body;
+    const { 
+        fullName, phoneNumber, professionalBio, organization, location, 
+        skills, experience, level, jobTitle, department, 
+        educations, resumeUrl 
+    } = req.body;
 
     const user = await User.findById(req.user._id);
     if (!user) throw new ApiError(404, "User not found");
@@ -196,9 +200,12 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     // Update Role-specific fields
     if (user.role === 'candidate') {
-        if (skills) user.skills = skills;
+        if (skills !== undefined) user.skills = skills;
         if (experience !== undefined) user.experience = experience;
         if (level) user.level = level;
+        if (jobTitle) user.jobTitle = jobTitle;
+        if (educations !== undefined) user.educations = educations;
+        if (resumeUrl !== undefined) user.resumeUrl = resumeUrl;
     } else if (user.role === 'employee') {
         if (jobTitle) user.jobTitle = jobTitle;
         if (department) user.department = department;

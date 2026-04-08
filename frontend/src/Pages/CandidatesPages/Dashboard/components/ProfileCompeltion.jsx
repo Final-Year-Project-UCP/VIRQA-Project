@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, CheckCircle, XCircle, Edit3, ChevronDown } from 'lucide-react';
+import { User, CheckCircle, Circle, Edit3, ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ProfileCompletionCard = ({ data, isLoading }) => {
   const [isExpanded, setIsExpanded] = useState(false);

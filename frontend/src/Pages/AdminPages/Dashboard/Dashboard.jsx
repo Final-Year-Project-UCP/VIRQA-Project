@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from "../../../config/api.js";
 import BarChart from "../../../components/charts/BarChart";
-import { Search, Users, UserPlus, Briefcase, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { Search, Users, Briefcase, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
@@ -109,54 +109,10 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            {/* Quick Actions & Chart Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-                {/* Quick Actions */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 flex flex-col justify-between">
-                    <div>
-                        <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                             Direct Administration
-                        </h2>
-                        <div className="space-y-4">
-                            <button 
-                                onClick={() => navigate('/admin/manage-employee')}
-                                className="w-full flex items-center gap-4 p-4 text-left rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all group hover:border-blue-200 hover:shadow-sm"
-                            >
-                                <div className="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors border border-blue-100">
-                                    <UserPlus className="text-blue-700" size={24} />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="font-bold text-slate-900">Provision Staff</div>
-                                    <div className="text-xs text-slate-500 font-medium tracking-tight">Onboard new organizational users</div>
-                                </div>
-                            </button>
-
-                            <button 
-                                onClick={() => navigate('/admin/manage-employee')}
-                                className="w-full flex items-center gap-4 p-4 text-left rounded-2xl hover:bg-slate-50 border border-slate-100 transition-all group hover:border-indigo-200 hover:shadow-sm"
-                            >
-                                <div className="p-3 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors border border-indigo-100">
-                                    <Users className="text-indigo-700" size={24} />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="font-bold text-slate-900">Master Employee Registry</div>
-                                    <div className="text-xs text-slate-500 font-medium tracking-tight">Audit and management permissions</div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                    <div className="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System Health</div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-xs font-bold text-slate-600">All Modules Operational</span>
-                        </div>
-                    </div>
-                </div>
-
+            {/* Chart Section */}
+            <div className="mb-10">
                 {/* Chart */}
-                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
                     <div className="flex justify-between items-center mb-10">
                         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                              <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>

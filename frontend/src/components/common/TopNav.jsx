@@ -140,7 +140,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
   return (
     <>
       {/* Professional Highlight Styles */}
-      <style jsx global>{`
+      <style>{`
         .search-highlight {
           background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
           color: #92400e !important;

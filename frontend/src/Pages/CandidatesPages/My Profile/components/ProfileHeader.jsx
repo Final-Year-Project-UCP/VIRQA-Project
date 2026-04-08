@@ -17,16 +17,16 @@ const ProfileHeader = ({ profile, tempProfile, isEditing, onEdit, onCancel, onSa
     const incomplete = [];
 
     // Basic Info
-    if (currentProfile.name?.trim()) completedCount++; else incomplete.push('Name');
-    completedCount++;
-    if (currentProfile.phone?.trim()) completedCount++; else incomplete.push('Phone');
+    if (currentProfile.fullName?.trim()) completedCount++; else incomplete.push('Name');
+    completedCount++; // Automatically checking email maybe, but let's stick to original behavior
+    if (currentProfile.phoneNumber?.trim()) completedCount++; else incomplete.push('Phone');
     if (currentProfile.location?.trim()) completedCount++; else incomplete.push('Location');
     if (currentProfile.jobTitle?.trim()) completedCount++; else incomplete.push('Job Title');
     if (currentProfile.experience?.trim()) completedCount++; else incomplete.push('Experience');
 
 
     // Other Sections
-    if (currentProfile.bio?.trim()) completedCount++; else incomplete.push('Bio');
+    if (currentProfile.professionalBio?.trim()) completedCount++; else incomplete.push('Bio');
     if (currentProfile.educations?.length > 0) completedCount++; else incomplete.push('Education');
     if (currentProfile.skills?.length > 0) completedCount++; else incomplete.push('Skills');
     if (currentProfile.documents?.length > 0) completedCount++;

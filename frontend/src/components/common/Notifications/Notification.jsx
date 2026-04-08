@@ -6,7 +6,7 @@ let SharedNotifications = () => {
   const { data, fetchNextPage, hasNextPage, markAsRead, markAllAsRead } = useNotifications();
 
   const notifications = data?.pages.flatMap(p => p.data) || [];
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
 
   return (

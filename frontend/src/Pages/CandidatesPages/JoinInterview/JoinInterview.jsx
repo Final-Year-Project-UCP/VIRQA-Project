@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Lobby from './components/Lobby';
 import ActiveSession from './components/ActiveSession';
 import ScheduledInterviews from './components/ScheduledInterviews';
+import InterviewFeedbackModal from './components/InterviewFeedbackModal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { api } from '../../../config/api.js';
 
@@ -14,6 +15,7 @@ const LiveInterviewPage = () => {
   const navigate = useNavigate();
   const [interviewStatus, setInterviewStatus] = useState('scheduled'); // 'scheduled' | 'lobby' | 'active' | 'ended'
   const [selectedInterview, setSelectedInterview] = useState(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // ── Fetch Candidate Interviews ──
   const { data: interviews, isLoading, error } = useQuery({
@@ -91,6 +93,7 @@ const LiveInterviewPage = () => {
                   document.exitFullscreen().catch((err) => console.error(err));
                 }
                 setInterviewStatus('ended');
+                setShowFeedbackModal(true);
               }
             }}
           />
@@ -99,19 +102,32 @@ const LiveInterviewPage = () => {
       case 'ended':
       default:
         return (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="text-center p-12 bg-white rounded-3xl shadow-xl border border-gray-100 max-w-lg">
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 relative">
+            <div className="text-center p-12 bg-white rounded-3xl shadow-xl border border-gray-100 max-w-lg z-0">
               <h1 className="text-3xl font-bold text-gray-900 mb-3">Interview Completed</h1>
               <p className="text-gray-600 font-medium mb-8">
                 Thank you for your time. Your response has been recorded.
               </p>
               <button
-                onClick={() => navigate('/api/v1/candidates/results')}
+                onClick={() => navigate('/candidate/results')}
                 className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
               >
                 View Results
               </button>
             </div>
+            
+            <AnimatePresence>
+              {showFeedbackModal && (
+                <InterviewFeedbackModal 
+                  session={selectedInterview} 
+                  onClose={() => setShowFeedbackModal(false)}
+                  onSubmitSuccess={() => {
+                      // Optional: handle something after success. 
+                      // Modal auto-closes and animates out.
+                  }}
+                />
+              )}
+            </AnimatePresence>
           </div>
         );
     }

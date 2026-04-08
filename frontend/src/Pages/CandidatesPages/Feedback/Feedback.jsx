@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Star, Send, CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
+import { Star, Send, CheckCircle, MessageSquare } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '../../../config/api';
 
 const Feedback = () => {
     const [rating, setRating] = useState(0);
@@ -12,27 +14,34 @@ const Feedback = () => {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-
-    // Mock submit handler
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (rating === 0) return; // simple validation
-
-        setIsSubmitting(true);
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false);
+    const submitMutation = useMutation({
+        mutationFn: async (payload) => {
+            return api.post('/feedback/submit', payload);
+        },
+        onSuccess: () => {
             setIsSuccess(true);
             toast.success("Feedback submitted successfully!");
-            // Reset form after delay
             setTimeout(() => {
                 setIsSuccess(false);
                 setRating(0);
                 setCategory('');
                 setMessage('');
             }, 3000);
-        }, 1500);
+        },
+        onError: (error) => {
+            toast.error(error.response?.data?.message || "Failed to submit feedback");
+        }
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (rating === 0) return;
+
+        submitMutation.mutate({
+            rating,
+            category: category || "Other",
+            message
+        });
     };
 
     const categories = [
@@ -123,40 +132,26 @@ const Feedback = () => {
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* Category Select */}
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-gray-700">
-                                        Topic
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            value={category}
-                                            onChange={(e) => setCategory(e.target.value)}
-                                            required
-                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all appearance-none cursor-pointer"
-                                        >
-                                            <option value="" disabled>Select a topic</option>
-                                            {categories.map(c => (
-                                                <option key={c} value={c}>{c}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </div>
+                            {/* Category Select */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-gray-700">
+                                    Topic
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all appearance-none cursor-pointer"
+                                    >
+                                        <option value="" disabled>Select a topic</option>
+                                        {categories.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
-                                </div>
-
-                                {/* Just a placeholder for layout balance or maybe email display */}
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-gray-700">
-                                        Email (Optional)
-                                    </label>
-                                    <input
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                                    />
                                 </div>
                             </div>
 
@@ -178,14 +173,14 @@ const Feedback = () => {
                             <div className="pt-2">
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || rating === 0}
+                                    disabled={submitMutation.isPending || rating === 0}
                                     className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all transform
-                    ${isSubmitting || rating === 0
+                    ${submitMutation.isPending || rating === 0
                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
                                             : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.01] shadow-blue-500/30'
                                         }`}
                                 >
-                                    {isSubmitting ? (
+                                    {submitMutation.isPending ? (
                                         <>
                                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                             <span>Submitting...</span>
