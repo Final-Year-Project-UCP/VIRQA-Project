@@ -1,5 +1,5 @@
 import { Bar } from "react-chartjs-2";
-import { defaultChartOptions } from "../../config/chartconfig";
+import { defaultChartOptions } from "../../config/chartConfig";
 import {
   Chart as ChartJS,
   CategoryScale,
