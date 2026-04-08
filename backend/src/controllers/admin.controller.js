@@ -197,12 +197,23 @@ const addEmployee = asyncHandler(async (req, res) => {
         const io = req.app.get("io");
         if (io) io.emit("employeeAdded", user);
 
-        return res.status(200).json(new ApiResponse(200, user, "Employee invited successfully"));
+        return res.status(200).json(new ApiResponse(200, { user, emailSent: true }, "Employee invited successfully"));
     } catch (error) {
-        // CLEANUP: If email fails, delete the user so the admin can try again
-        await Employee.findByIdAndDelete(user._id);
-        console.error("Email Sending Error:", error.message);
-        throw new ApiError(500, `Failed to send invitation email: ${error.message}. User record rolled back.`);
+        // In production, email can fail due to SMTP/Gmail settings. Keep the employee created
+        // so admin can share credentials manually.
+        console.error("Email Sending Error:", error?.message || error);
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    user,
+                    emailSent: false,
+                    tempPassword,
+                    emailError: error?.message || "Email send failed"
+                },
+                "Employee created, but invite email failed. Share the credentials manually or fix email settings."
+            )
+        );
     }
 })
 
