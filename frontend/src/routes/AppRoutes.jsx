@@ -33,6 +33,8 @@ import ViewInterview from "../Pages/AdminPages/ViewInterveiw/ViewInterview.jsx";
 import ManageProfile from "../Pages/AdminPages/Profile/ManageProfile.jsx";
 import AdminNotification from "../Pages/AdminPages/Notification/AdminNotification.jsx";
 import EmployeeFeedback from "../Pages/EmployerPages/Feedback/Feedback.jsx";
+import EmployerCandidateResult from "../Pages/EmployerPages/Interview/EmployerCandidateResult.jsx";
+import InterviewConduct from "../Pages/InterviewConduct.jsx";
 
 const AppRoutes = () => {
   return (
@@ -44,35 +46,38 @@ const AppRoutes = () => {
       <Route path="/institute-register" element={<LandingPage />} />
       <Route path="/forget-password" element={<ForgotPasswordStageOne />} />
       <Route path="/reset-password/verify-otp" element={<VerifyOTPAndResetPassword />} />
+      <Route path="/interview" element={<InterviewConduct />} />
+      <Route path="/interview/:id" element={<InterviewConduct />} />
 
-      {/* Candidate routes with layout */}
-      <Route path="/api/v1/candidates" element={<MainLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="notifications" element={<CandidateNotificationsPage />} />
-        <Route path="notifications/:id" element={<NotificationDetails />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="join" element={<JoinInterview />} />
-        <Route path="interview-history" element={<History />} />
-        <Route path="results" element={<Results />} />
-        <Route path="passwordreset" element={<ResetPassword />} />
-        <Route path="comingsoon/files" element={<ComingSoon />} />
-        <Route path="comingsoon/security" element={<ComingSoon />} />
-        <Route path="comingsoon/transcription" element={<ComingSoon />} />
-        <Route path="comingsoon/coverage" element={<ComingSoon />} />
-        <Route path="contactus" element={<ContactUs />} />
-        <Route path="feedback" element={<Feedback />} />
-
+      <Route element={<ProtectedRoute allowedRoles={['candidate']} />}>
+        <Route path="/api/v1/candidates" element={<MainLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="notifications" element={<CandidateNotificationsPage />} />
+          <Route path="notifications/:id" element={<NotificationDetails />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="join" element={<JoinInterview />} />
+          <Route path="interview-history" element={<History />} />
+          <Route path="results" element={<Results />} />
+          <Route path="passwordreset" element={<ResetPassword />} />
+          <Route path="comingsoon/files" element={<ComingSoon />} />
+          <Route path="comingsoon/security" element={<ComingSoon />} />
+          <Route path="comingsoon/transcription" element={<ComingSoon />} />
+          <Route path="comingsoon/coverage" element={<ComingSoon />} />
+          <Route path="contactus" element={<ContactUs />} />
+          <Route path="feedback" element={<Feedback />} />
+        </Route>
       </Route>
 
-      <Route path="/api/v1/employee" element={<EmployeesLayout />}>
-        <Route path="dashboard" element={<EmployeeDashboard />} />
-        <Route path="profile" element={<ProfileSettings />} />
-        <Route path="create-interview" element={<CreateInterviewForm />} />
-        <Route path="history" element={<InterviewHistory />} />
-        <Route path="notifications" element={< EmployeeNotificationsPage />} />
-        <Route path="feedback" element={<EmployeeFeedback />} />
-
-
+      <Route element={<ProtectedRoute allowedRoles={['employee']} />}>
+        <Route path="/api/v1/employee" element={<EmployeesLayout />}>
+          <Route path="dashboard" element={<EmployeeDashboard />} />
+          <Route path="profile" element={<ProfileSettings />} />
+          <Route path="create-interview" element={<CreateInterviewForm />} />
+          <Route path="history" element={<InterviewHistory />} />
+          <Route path="evaluation/:sessionId/:candidateId" element={<EmployerCandidateResult />} />
+          <Route path="notifications" element={<EmployeeNotificationsPage />} />
+          <Route path="feedback" element={<EmployeeFeedback />} />
+        </Route>
       </Route>
 
 

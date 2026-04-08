@@ -1,76 +1,22 @@
 import { useState } from 'react';
-import { Search, Star, Calendar, User, Briefcase, MessageSquare, Mail } from 'lucide-react';
+import { Search, Star, Calendar, User, Briefcase, MessageSquare, Mail, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../../config/api.js';
 
 const Feedback = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedInterview, setSelectedInterview] = useState('all');
 
-    // Simplified feedback data - what candidates submit
-    const feedbackData = [
-        {
-            id: 1,
-            candidateName: 'John Doe',
-            candidateEmail: 'john.doe@example.com',
-            interviewTitle: 'Senior Frontend Developer',
-            date: '2025-12-15',
-            rating: 5,
-            feedback: 'Great interview experience! The AI interviewer asked relevant questions about React and TypeScript. The questions were challenging but fair. I appreciated the focus on real-world scenarios. The platform was easy to use and the interview flow was smooth.',
-            allowEmail: true
-        },
-        {
-            id: 2,
-            candidateName: 'Jane Smith',
-            candidateEmail: 'jane.smith@example.com',
-            interviewTitle: 'Full Stack Engineer',
-            date: '2025-12-14',
-            rating: 4,
-            feedback: 'Very comprehensive interview covering both frontend and backend topics. Questions were quite challenging which I appreciated. Would have liked a bit more time for some of the coding questions. Overall positive experience and the AI was professional.',
-            allowEmail: true
-        },
-        {
-            id: 3,
-            candidateName: 'Michael Johnson',
-            candidateEmail: 'michael.j@example.com',
-            interviewTitle: 'UI/UX Designer',
-            date: '2025-12-13',
-            rating: 3,
-            feedback: 'The interview was okay. Some questions felt generic and not specific to the role. Would have preferred more focus on design thinking and portfolio discussion. Had some audio issues at the beginning which was frustrating.',
-            allowEmail: false
-        },
-        {
-            id: 4,
-            candidateName: 'Sarah Williams',
-            candidateEmail: 'sarah.w@example.com',
-            interviewTitle: 'Senior Frontend Developer',
-            date: '2025-12-12',
-            rating: 5,
-            feedback: 'Excellent interview process! The AI asked insightful questions and adapted based on my responses. Really impressed with how natural the conversation felt. Best AI interview I\'ve done. Would definitely recommend this platform.',
-            allowEmail: true
-        },
-        {
-            id: 5,
-            candidateName: 'David Brown',
-            candidateEmail: 'david.b@example.com',
-            interviewTitle: 'Full Stack Engineer',
-            date: '2025-12-11',
-            rating: 4,
-            feedback: 'Good interview experience. Questions were relevant and covered a wide range of topics. The AI was responsive and professional throughout. Minor suggestion: would be helpful to have a practice mode before the actual interview.',
-            allowEmail: true
-        },
-        {
-            id: 6,
-            candidateName: 'Emily Davis',
-            candidateEmail: 'emily.d@example.com',
-            interviewTitle: 'UI/UX Designer',
-            date: '2025-12-10',
-            rating: 2,
-            feedback: 'Not a great experience. The AI seemed to have trouble understanding my design-related answers. Questions felt too technical and not enough focus on UX methodology. Platform needs improvement for design roles. Audio quality was poor.',
-            allowEmail: false
+    const { data: feedbackData = [], isLoading, error } = useQuery({
+        queryKey: ['employeeFeedback'],
+        queryFn: async () => {
+            const res = await api.get('/feedback/employee');
+            return res.data?.data || [];
         }
-    ];
+    });
 
     // Get unique interview titles for filter
-    const interviewTitles = ['all', ...new Set(feedbackData.map(f => f.interviewTitle))];
+    const interviewTitles = ['all', ...new Set(feedbackData.map(f => f.interviewTitle))].filter(Boolean);
 
     // Filter feedback
     const filteredFeedback = feedbackData
@@ -101,8 +47,34 @@ const Feedback = () => {
     };
 
     // Calculate stats
-    const avgRating = (feedbackData.reduce((acc, f) => acc + f.rating, 0) / feedbackData.length).toFixed(1);
-    const emailAllowedCount = feedbackData.filter(f => f.allowEmail).length;
+    const avgRating = feedbackData.length > 0
+        ? (feedbackData.reduce((acc, f) => acc + (f.rating || 0), 0) / feedbackData.length).toFixed(1)
+        : "0.0";
+
+    // We don't have allowEmail in new backend, we can substitute it with something else or just remove it.
+    // For now, let's keep the UI but show total feedback in its place or just a static 0.
+    const uniqueCandidates = new Set(feedbackData.map(f => f.candidateEmail)).size;
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+                <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+                <p className="text-gray-500 font-medium">Loading feedback...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-sm w-full">
+                    <MessageSquare className="w-16 h-16 text-red-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Failed to Load</h3>
+                    <p className="text-gray-500 mb-6">Could not fetch feedback from server.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -145,11 +117,11 @@ const Feedback = () => {
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600 mb-1">Email Allowed</p>
-                                <p className="text-3xl font-bold text-gray-900">{emailAllowedCount}</p>
+                                <p className="text-sm text-gray-600 mb-1">Unique Candidates</p>
+                                <p className="text-3xl font-bold text-gray-900">{uniqueCandidates}</p>
                             </div>
                             <div className="p-3 bg-green-100 rounded-lg">
-                                <Mail className="w-6 h-6 text-green-600" />
+                                <User className="w-6 h-6 text-green-600" />
                             </div>
                         </div>
                     </div>
@@ -224,12 +196,9 @@ const Feedback = () => {
                                         </div>
                                         <div className="flex flex-row md:flex-col items-center md:items-end gap-2 w-full md:w-auto justify-between md:justify-start">
                                             {renderStars(feedback.rating)}
-                                            {feedback.allowEmail && (
-                                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 flex items-center gap-1">
-                                                    <Mail className="w-3 h-3" />
-                                                    Email Allowed
-                                                </span>
-                                            )}
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
+                                                {feedback.category || "Interview Experience"}
+                                            </span>
                                         </div>
                                     </div>
 

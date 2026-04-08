@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 import app from "./app.js";
 import connectDB from "./db/db_connect.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { registerInterviewSocketHandlers } from "./sockets/interview.socket.js";
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -17,10 +18,20 @@ app.set("io", io);
 
 io.on("connection", (socket) => {
   console.log("Client connected via socket.io:", socket.id);
+
+  // Join a private room for targeted notifications
+  socket.on("join", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined their private notification room.`);
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
   });
 });
+
+// Register interview-specific socket logic
+registerInterviewSocketHandlers(app, io);
 
 
 if (!process.env.MONGODB_URI || !process.env.DB_NAME) {

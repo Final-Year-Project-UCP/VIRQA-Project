@@ -30,7 +30,7 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
         <div className="relative group">
           {/* Profile Image Container */}
           <div className="w-24 h-24 lg:w-36 lg:h-36 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center text-white text-xl lg:text-3xl font-bold shadow-lg">
-            {getInitials(profile.name)}
+            {getInitials(profile.fullName)}
           </div>
 
           {/* Camera Upload Button */}
@@ -59,8 +59,8 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
             <div className="space-y-2 lg:space-y-3">
               <input
                 type="text"
-                value={tempProfile.name}
-                onChange={(e) => onChange('name', e.target.value)}
+                value={tempProfile.fullName}
+                onChange={(e) => onChange('fullName', e.target.value)}
                 className="text-lg lg:text-2xl font-bold text-gray-900 text-center border-b border-gray-300 focus:border-blue-500 focus:outline-none pb-1 bg-transparent w-full placeholder:text-gray-400"
                 placeholder="Your Name"
               />
@@ -78,7 +78,7 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
           ) : (
             <div className="space-y-1 lg:space-y-2">
               <h2 className="text-lg lg:text-2xl font-bold text-gray-900 leading-tight break-words">
-                {profile.name || 'Your Name'}
+                {profile.fullName || 'Your Name'}
               </h2>
               <div className="flex items-center justify-center gap-1 lg:gap-2 text-gray-600">
                 <Briefcase size={14} className="lg:size-4" />
@@ -120,14 +120,14 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
             {isEditing ? (
               <input
                 type="text"
-                value={tempProfile.phone}
-                onChange={(e) => onChange('phone', e.target.value)}
+                value={tempProfile.phoneNumber}
+                onChange={(e) => onChange('phoneNumber', e.target.value)}
                 className="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none py-0.5 lg:py-1 text-gray-900 font-medium text-sm lg:text-base placeholder:text-gray-400"
                 placeholder="+1 (555) 123-4567"
               />
             ) : (
               <span className="text-gray-900 font-medium text-sm lg:text-base">
-                {profile.phone || '+1 (555) 123-4567'}
+                {profile.phoneNumber || '+1 (555) 123-4567'}
               </span>
             )}
           </div>

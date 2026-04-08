@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, RefreshCw, Edit3, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { api } from '../../config/api.js';
 
 const AIPromptStep = ({ formData, setFormData, onNext, onBack }) => {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -16,39 +17,28 @@ const AIPromptStep = ({ formData, setFormData, onNext, onBack }) => {
         }
     }, []);
 
-    const generatePrompt = () => {
+    // inside component
+    const generatePrompt = async () => {
         setIsGenerating(true);
 
-        // Simulate AI generation delay
-        setTimeout(() => {
-            const generatedPrompt = `You are an AI interviewer conducting a professional interview for the position of ${formData.jobTitle}.
+        try {
+            const response = await api.post('employee/interview/generate-prompt', {
+                jobTitle: formData.jobTitle || 'General Position',
+                jobDescription: formData.jobDescription || 'N/A',
+                candidateCount: formData.candidateEmails?.length || 0
+            });
 
-Job Description:
-${formData.jobDescription}
-
-Your role is to:
-1. Ask relevant technical and behavioral questions based on the job requirements
-2. Evaluate the candidate's responses for technical accuracy, problem-solving skills, and cultural fit
-3. Provide follow-up questions to dive deeper into the candidate's experience
-4. Maintain a professional and friendly tone throughout the interview
-5. Assess the candidate's communication skills and enthusiasm for the role
-
-Interview Guidelines:
-- Start with an introduction and make the candidate feel comfortable
-- Ask 5-7 questions covering technical skills, past experience, and problem-solving abilities
-- Listen carefully to responses and ask relevant follow-up questions
-- Conclude with an opportunity for the candidate to ask questions
-- Provide a comprehensive evaluation at the end
-
-Number of Candidates: ${formData.candidateEmails?.length || 0}
-
-Please conduct a thorough and fair interview that helps identify the best candidate for this position.`;
-
-            setAiPrompt(generatedPrompt);
-            setFormData({ ...formData, aiPrompt: generatedPrompt });
-            setIsGenerating(false);
+            const generatedText = response.data.data.generatedPrompt;
+            setAiPrompt(generatedText);
+            setFormData({ ...formData, aiPrompt: generatedText });
             toast.success('AI prompt generated successfully!');
-        }, 1500);
+        } catch (error) {
+            console.error("AI Generation Error", error);
+            toast.error('Failed to generate prompt via AI.');
+        } finally {
+            setIsGenerating(false);
+            setIsEditing(false);
+        }
     };
 
     const handleRegenerate = () => {
@@ -81,8 +71,8 @@ Please conduct a thorough and fair interview that helps identify the best candid
                         <button
                             onClick={() => setIsEditing(!isEditing)}
                             className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${isEditing
-                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                                 }`}
                         >
                             {isEditing ? (

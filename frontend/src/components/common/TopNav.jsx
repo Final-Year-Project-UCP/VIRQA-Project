@@ -3,9 +3,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, X, Menu, Clock, User, LogOut, ChevronDown } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../config/api';
 import NotificationDropdown from './NotificationDropDown';
 
 const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
+  const { data: profileResponse } = useQuery({
+    queryKey: ['profile'],
+    queryFn: () => api.get('/user/profile')
+  });
+
+  const profileData = profileResponse?.data?.data;
+  const firstName = profileData?.fullName?.split(' ')[0] || 'User';
+  const initials = profileData?.fullName ? profileData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [resultStats, setResultStats] = useState({ visible: 0, total: 0 });
   const [hasSearched, setHasSearched] = useState(false);
@@ -129,7 +140,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
   return (
     <>
       {/* Professional Highlight Styles */}
-      <style jsx global>{`
+      <style>{`
         .search-highlight {
           background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
           color: #92400e !important;
@@ -298,11 +309,11 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                     className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 transition-colors"
                   >
                     <div className="hidden sm:flex flex-col items-end">
-                      <span className="text-sm font-medium text-gray-800">Jane Doe</span>
-                      <span className="text-xs text-gray-500">Candidate</span>
+                      <span className="text-sm font-medium text-gray-800">{profileData?.fullName || 'User'}</span>
+                      <span className="text-xs text-gray-500">{profileData?.role?.charAt(0).toUpperCase() + profileData?.role?.slice(1) || 'Candidate'}</span>
                     </div>
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
-                      JD
+                      {initials}
                     </div>
                     <ChevronDown
                       size={16}
@@ -314,8 +325,8 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                   {profileDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-semibold text-gray-800">Jane Doe</p>
-                        <p className="text-xs text-gray-500">jane.doe@example.com</p>
+                        <p className="text-sm font-semibold text-gray-800">{profileData?.fullName || 'User'}</p>
+                        <p className="text-xs text-gray-500">{profileData?.email || ''}</p>
                       </div>
 
                       <button

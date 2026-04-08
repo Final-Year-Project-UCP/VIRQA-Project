@@ -1,7 +1,8 @@
-import { useState, memo } from "react";
+import { useState, useRef, memo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { Eye, EyeOff, User, Mail, Briefcase, Lock, Upload, Save } from "lucide-react";
-
+import { Eye, EyeOff, User, Mail, Briefcase, Lock, Upload, Save, Loader2 } from "lucide-react";
+import { api } from "../../../config/api.js";
 
 // ---------------------------
 // Reusable Input Component
@@ -14,7 +15,7 @@ const Input = ({ label, icon: Icon, error, ...props }) => (
     <input
       {...props}
       className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 focus:ring-2 transition ${error ? "border-red-400 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
-        }`}
+        } disabled:opacity-50 disabled:cursor-not-allowed`}
     />
     {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
   </div>
@@ -46,7 +47,7 @@ const getStrength = (password) => {
 
 
 // ---------------------------
-// Password Input Component 
+// Password Input Component
 // ---------------------------
 const PasswordInput = ({ label, value, onChange, error }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -80,28 +81,80 @@ const PasswordInput = ({ label, value, onChange, error }) => {
 // MAIN COMPONENT
 // ---------------------------
 const ProfileSettings = () => {
-  const [form, setForm] = useState({
-    name: "Alex Doe",
-    email: "alex.doe@company.com",
-    job: "Human Resources Manager",
-    bio: "",
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef(null);
+
+  const [errors, setErrors] = useState({});
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [bio, setBio] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState({});
-  const [photo, setPhoto] = useState(null);
+  // ---------------------------
+  // Fetch Profile (TanStack)
+  // ---------------------------
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["employeeProfile"],
+    queryFn: async () => {
+      const res = await api.get("/employee/profile");
+      return res.data?.data;
+    },
+    staleTime: 60_000,
+  });
 
-  const strength = getStrength(form.newPassword);
+  // Sync form state once data is available
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.fullName || "");
+      setBio(profile.professionalBio || "");
+    }
+  }, [profile]);
+
+  const strength = getStrength(passwords.newPassword);
 
   // ---------------------------
-  // Update handler
+  // Update Profile Mutation
   // ---------------------------
-  const update = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: "" }));
-  };
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData();
+      if (fullName) formData.append("fullName", fullName);
+      if (bio) formData.append("professionalBio", bio);
+      if (photoFile) formData.append("profilePhoto", photoFile);
+      return api.post("/employee/profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+    },
+    onSuccess: () => {
+      toast.success("Profile Updated Successfully!");
+      queryClient.invalidateQueries({ queryKey: ["employeeProfile"] });
+      setPhotoFile(null);
+      setPhotoPreview(null);
+    },
+    onError: (err) => toast.error(err.response?.data?.message || "Failed to update profile"),
+  });
+
+  // ---------------------------
+  // Change Password Mutation
+  // ---------------------------
+  const changePasswordMutation = useMutation({
+    mutationFn: async () => {
+      return api.post("/employee/profile", {
+        oldPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Password changed successfully!");
+      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    },
+    onError: (err) => toast.error(err.response?.data?.message || "Failed to update password"),
+  });
 
   // ---------------------------
   // Photo Upload Validation
@@ -124,47 +177,64 @@ const ProfileSettings = () => {
       return;
     }
 
+    setPhotoFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => setPhoto(reader.result);
+    reader.onloadend = () => setPhotoPreview(reader.result);
     reader.readAsDataURL(file);
   };
 
   // ---------------------------
-  // Validation Before Submit
+  // Submit Profile Info
   // ---------------------------
-  const validate = () => {
-    let e = {};
-
-    if (!form.name.trim()) e.name = "Name is required";
-    if (form.bio.length > 250) e.bio = "Bio must be under 250 characters";
-
-    if (form.newPassword && strength.score < 4)
-      e.newPassword = "Password must be strong (uppercase, lowercase, number, special)";
-
-    if (form.newPassword && form.newPassword !== form.confirmPassword)
-      e.confirmPassword = "Passwords do not match";
-
-    if (form.newPassword && !form.currentPassword)
-      e.currentPassword = "Enter current password to update";
-
-    return e;
-  };
-
-  // ----------------------------
-  // Submit Handler
-  // ----------------------------
   const handleSubmit = (e) => {
     e.preventDefault();
-    const v = validate();
+    const errs = {};
 
-    if (Object.keys(v).length) {
-      setErrors(v);
+    if (!fullName.trim()) errs.name = "Name is required";
+    if (bio.length > 250) errs.bio = "Bio must be under 250 characters";
+
+    if (passwords.newPassword && strength.score < 4)
+      errs.newPassword = "Password must be strong (uppercase, lowercase, number, special)";
+
+    if (passwords.newPassword && passwords.newPassword !== passwords.confirmPassword)
+      errs.confirmPassword = "Passwords do not match";
+
+    if (passwords.newPassword && !passwords.currentPassword)
+      errs.currentPassword = "Enter current password to update";
+
+    if (Object.keys(errs).length) {
+      setErrors(errs);
       toast.error("Please fix the errors in the form");
       return;
     }
 
-    toast.success("Profile Updated Successfully!");
+    setErrors({});
+
+    // Run profile update
+    updateMutation.mutate();
+
+    // If password fields filled, also change password
+    if (passwords.newPassword && passwords.currentPassword) {
+      changePasswordMutation.mutate();
+    }
   };
+
+  const isSubmitting = updateMutation.isPending || changePasswordMutation.isPending;
+  const displayPhoto = photoPreview || profile?.profilePhoto;
+
+  // ---------------------------
+  // Loading skeleton
+  // ---------------------------
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
+          <p className="text-sm">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -183,8 +253,8 @@ const ProfileSettings = () => {
               <h3 className="font-semibold text-lg mb-4">Profile Photo</h3>
 
               <div className="w-32 h-32 mx-auto rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                {photo ? (
-                  <img src={photo} className="w-full h-full object-cover" alt="Profile" />
+                {displayPhoto ? (
+                  <img src={displayPhoto} className="w-full h-full object-cover" alt="Profile" />
                 ) : (
                   <User size={50} className="text-gray-400" />
                 )}
@@ -192,10 +262,11 @@ const ProfileSettings = () => {
 
               <label className="mt-4 block text-center cursor-pointer px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
                 <Upload size={18} /> Upload Photo
-                <input type="file" className="hidden" onChange={handlePhoto} accept="image/*" />
+                <input type="file" className="hidden" onChange={handlePhoto} accept="image/*" ref={fileInputRef} />
               </label>
 
               {errors.photo && <p className="text-sm text-red-500 mt-1 text-center">{errors.photo}</p>}
+              {photoPreview && <p className="text-xs text-blue-600 mt-2 text-center">New photo ready — save to apply</p>}
             </div>
 
             {/* Personal Info */}
@@ -204,14 +275,14 @@ const ProfileSettings = () => {
 
               <Input
                 label="Full Name"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
+                value={fullName}
+                onChange={(e) => { setFullName(e.target.value); setErrors(p => ({ ...p, name: "" })); }}
                 error={errors.name}
               />
 
-              <Input label="Email" icon={Mail} value={form.email} disabled />
+              <Input label="Email" icon={Mail} value={profile?.email || ""} disabled />
 
-              <Input label="Job Title" icon={Briefcase} value={form.job} disabled />
+              <Input label="Job Title" icon={Briefcase} value={profile?.jobTitle || ""} disabled />
             </div>
           </div>
 
@@ -223,8 +294,8 @@ const ProfileSettings = () => {
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="font-semibold text-lg mb-4">Professional Bio</h3>
               <textarea
-                value={form.bio}
-                onChange={(e) => update("bio", e.target.value)}
+                value={bio}
+                onChange={(e) => { setBio(e.target.value); setErrors(p => ({ ...p, bio: "" })); }}
                 placeholder="Tell something about yourself..."
                 className="w-full p-4 border border-gray-300 bg-gray-50 rounded-lg min-h-[120px] focus:ring-2 focus:ring-blue-500"
                 maxLength={250}
@@ -232,7 +303,7 @@ const ProfileSettings = () => {
               <div className="flex justify-between mt-2">
                 {errors.bio && <p className="text-sm text-red-500">{errors.bio}</p>}
                 <p className="text-sm text-gray-500 ml-auto">
-                  {form.bio.length}/250 characters
+                  {bio.length}/250 characters
                 </p>
               </div>
             </div>
@@ -245,20 +316,20 @@ const ProfileSettings = () => {
 
               <PasswordInput
                 label="Current Password"
-                value={form.currentPassword}
-                onChange={(e) => update("currentPassword", e.target.value)}
+                value={passwords.currentPassword}
+                onChange={(e) => setPasswords(p => ({ ...p, currentPassword: e.target.value }))}
                 error={errors.currentPassword}
               />
 
               <PasswordInput
                 label="New Password"
-                value={form.newPassword}
-                onChange={(e) => update("newPassword", e.target.value)}
+                value={passwords.newPassword}
+                onChange={(e) => setPasswords(p => ({ ...p, newPassword: e.target.value }))}
                 error={errors.newPassword}
               />
 
               {/* Strength Bar */}
-              {form.newPassword && (
+              {passwords.newPassword && (
                 <div className="mb-5">
                   <p className={`text-sm font-medium text-${strength.color}-600`}>
                     Strength: {strength.label}
@@ -274,17 +345,22 @@ const ProfileSettings = () => {
 
               <PasswordInput
                 label="Confirm New Password"
-                value={form.confirmPassword}
-                onChange={(e) => update("confirmPassword", e.target.value)}
+                value={passwords.confirmPassword}
+                onChange={(e) => setPasswords(p => ({ ...p, confirmPassword: e.target.value }))}
                 error={errors.confirmPassword}
               />
 
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
+                  disabled={isSubmitting}
+                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <Save size={18} /> Save Changes
+                  {isSubmitting ? (
+                    <><Loader2 size={18} className="animate-spin" /> Saving...</>
+                  ) : (
+                    <><Save size={18} /> Save Changes</>
+                  )}
                 </button>
               </div>
             </form>

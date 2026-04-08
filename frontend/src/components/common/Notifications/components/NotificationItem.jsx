@@ -41,6 +41,13 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
     text: 'text-gray-600'
   };
 
+  const formattedDate = new Date(data.createdAt).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return (
     <motion.div
       layout
@@ -48,16 +55,16 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-      onClick={() => !data.read && onMarkAsRead(data.id)}
+      onClick={() => !data.isRead && onMarkAsRead(data._id)}
       className={`group relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl transition-all duration-300 border
-        ${data.read
+        ${data.isRead
           ? 'bg-white/80 border-transparent hover:border-gray-200 hover:bg-white hover:shadow-lg hover:shadow-gray-200/50'
           : 'bg-white border-blue-100 shadow-md shadow-blue-500/5'
         }
       `}
     >
       {/* Unread Indicator Glow */}
-      {!data.read && (
+      {!data.isRead && (
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-l-2xl" />
       )}
 
@@ -71,10 +78,10 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
       <div className="flex-1 min-w-0 pt-0.5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-1.5 gap-1 sm:gap-4">
           <div className="flex items-start gap-2 pr-2">
-            <h3 className={`font-semibold text-sm sm:text-base leading-snug ${data.read ? 'text-gray-700' : 'text-gray-900'}`}>
+            <h3 className={`font-semibold text-sm sm:text-base leading-snug ${data.isRead ? 'text-gray-700' : 'text-gray-900'}`}>
               {data.title}
             </h3>
-            {!data.read && (
+            {!data.isRead && (
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -85,16 +92,16 @@ const NotificationItem = ({ data, onMarkAsRead }) => {
             )}
           </div>
           <span className="text-xs font-medium text-gray-400 whitespace-nowrap">
-            {data.timestamp}
+            {formattedDate}
           </span>
         </div>
 
-        <p className={`text-xs sm:text-sm leading-relaxed ${data.read ? 'text-gray-500' : 'text-gray-600'}`}>
+        <p className={`text-xs sm:text-sm leading-relaxed ${data.isRead ? 'text-gray-500' : 'text-gray-600'}`}>
           {data.message}
         </p>
 
         {/* Action hint on hover */}
-        {!data.read && (
+        {!data.isRead && (
           <div className="mt-3 hidden sm:flex items-center gap-1 text-xs font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
             <span>Mark as read</span>
             <ArrowRight size={12} />

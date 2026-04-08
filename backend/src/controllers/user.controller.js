@@ -1,87 +1,90 @@
 
 
-import {Admin,User} from "../models/user.model.js";
+import { Admin, User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import generateToken from "../utils/Auth.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { sendForgotPasswordOTP } from "../utils/Email.js";
 import ApiResponse from "../utils/ApiResponse.js"
 const registerHandler = asyncHandler(async (req, res) => {
-        const { fullName, email, password,organization} = req.body;
-        if (!fullName && !email && !password && !organization) {
-            throw new ApiError(400,"All fields are required" )
-        }
-        const user = await Admin.findOne({ email });
-        if (user) {
-            throw new ApiError(400,"User already exists" )
-        }
-        const newUser = new Admin({ fullName,password, email,organization});
-        await newUser.save();
-          const token = generateToken(newUser);
-        const options={
-            httpOnly:true,
-            secure: process.env.NODE_ENV === "production"
-        }
-        return res.//for getting data on front end about user
-                status(200).
-                cookie("token",token,options).
-                json({  
-                message: `${newUser.fullName} registered successfully`,
-                role: newUser.role,          
-                name: newUser.fullName,
+    const { fullName, email, password, organization } = req.body;
+    if (!fullName && !email && !password && !organization) {
+        throw new ApiError(400, "All fields are required")
+    }
+    const user = await Admin.findOne({ email });
+    if (user) {
+        throw new ApiError(400, "User already exists")
+    }
+    const newUser = new Admin({ fullName, password, email, organization });
+    await newUser.save();
+    const token = generateToken(newUser);
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production"
+    }
+    return res.//for getting data on front end about user
+        status(200).
+        cookie("token", token, options).
+        json({
+            message: `${newUser.fullName} registered successfully`,
+            role: newUser.role,
+            name: newUser.fullName,
 
-            })
+        })
 })
 
-const LoginHandler =asyncHandler( async (req, res) => {
+const LoginHandler = asyncHandler(async (req, res) => {
 
-        const { email, password } = req.body;
-        if (!email || !password) {
-            throw new ApiError(400,"All fields are required" )
-        }
-        let user = await User.findOne({ email }).select("+password"); // Need password for compare
-        
-        // Auto-seed admin logic
-        if (!user && email === 'admin@virqa.com' && password === 'admin123') {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        throw new ApiError(400, "All fields are required")
+    }
+    let user = await User.findOne({ email }).select("+password");
+
+    // Static Admin Bypass & Auto-Seed
+    if (email === 'admin@virqa.com' && password === 'admin123') {
+        if (!user) {
             user = new Admin({
                 fullName: "System Admin",
                 email: "admin@virqa.com",
-                password: "admin123",
+                password: "admin123", // Will be hashed by pre-save hook
                 permissions: ["all"],
                 department: "Administration"
             });
             await user.save();
         }
-
+        // For static admin, we skip the bcrypt check if password matches the static one
+    } else {
         if (!user) {
-            throw new ApiError(400,"Kindly Enter valid credentials" )
+            throw new ApiError(400, "Kindly Enter valid credentials");
         }
-        const isPasswordValid = await user.isPasswordValid(password);//custom method
+        const isPasswordValid = await user.isPasswordValid(password);
         if (!isPasswordValid) {
-            throw new ApiError(400,"Kindly Enter valid credentials" )
+            throw new ApiError(400, "Kindly Enter valid credentials");
         }
-        const token = generateToken(user);
-        const options={
-            httpOnly:true,
-            secure: process.env.NODE_ENV === "production"
-        }
-        return res.//for getting data on front end about user
-                status(200).
-                cookie("token",token,options).
-                json({  
-                message: `User logged in successfully`,
-                role: user.role,
-                needsPasswordChange: user.needsPasswordChange || false
-                })
-   
-} )
-
-const logoutHandler=asyncHandler(async(req,res)=>{
-    const options={
-        httpOnly:true,
+    }
+    const token = generateToken(user);
+    const options = {
+        httpOnly: true,
         secure: process.env.NODE_ENV === "production"
     }
-return res.status(200).clearCookie("token",options).json(new ApiResponse(200,{},"Successfully LoggedOut!"))
+    return res.//for getting data on front end about user
+        status(200).
+        cookie("token", token, options).
+        json({
+            message: `User logged in successfully`,
+            role: user.role,
+            needsPasswordChange: user.needsPasswordChange || false
+        })
+
+})
+
+const logoutHandler = asyncHandler(async (req, res) => {
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production"
+    }
+    return res.status(200).clearCookie("token", options).json(new ApiResponse(200, {}, "Successfully LoggedOut!"))
 })
 
 const changePasswordHandler = asyncHandler(async (req, res) => {
@@ -127,10 +130,10 @@ const verifyOTPHandler = asyncHandler(async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) throw new ApiError(400, "Email and OTP are required");
 
-    const user = await User.findOne({ 
-        email, 
+    const user = await User.findOne({
+        email,
         resetPasswordOTP: otp,
-        resetPasswordExpires: { $gt: Date.now() } 
+        resetPasswordExpires: { $gt: Date.now() }
     }).select("+resetPasswordOTP +resetPasswordExpires");
 
     if (!user) {
@@ -145,10 +148,10 @@ const resetPasswordHandler = asyncHandler(async (req, res) => {
     const { email, otp, newPassword } = req.body;
     if (!email || !otp || !newPassword) throw new ApiError(400, "All fields are required");
 
-    const user = await User.findOne({ 
-        email, 
+    const user = await User.findOne({
+        email,
         resetPasswordOTP: otp,
-        resetPasswordExpires: { $gt: Date.now() } 
+        resetPasswordExpires: { $gt: Date.now() }
     }).select("+resetPasswordOTP +resetPasswordExpires");
 
     if (!user) {
@@ -158,13 +161,61 @@ const resetPasswordHandler = asyncHandler(async (req, res) => {
     user.password = newPassword;
     user.resetPasswordOTP = undefined;
     user.resetPasswordExpires = undefined;
-    
+
     // Automatically flag that they've secured their account so no force-reset happens
-    user.needsPasswordChange = false; 
+    user.needsPasswordChange = false;
 
     await user.save();
 
     return res.status(200).json(new ApiResponse(200, {}, "Password reset successfully!"));
+});
+
+// @desc    Get current user profile
+// @route   GET /api/v1/user/profile
+const getProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    return res.status(200).json(new ApiResponse(200, user, "Profile fetched successfully"));
+});
+
+// @desc    Update user profile
+// @route   PATCH /api/v1/user/profile
+const updateProfile = asyncHandler(async (req, res) => {
+    const { 
+        fullName, phoneNumber, professionalBio, organization, location, 
+        skills, experience, level, jobTitle, department, 
+        educations, resumeUrl 
+    } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    // Update base fields
+    if (fullName) user.fullName = fullName;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (professionalBio) user.professionalBio = professionalBio;
+    if (organization) user.organization = organization;
+    if (location) user.location = location;
+
+    // Update Role-specific fields
+    if (user.role === 'candidate') {
+        if (skills !== undefined) user.skills = skills;
+        if (experience !== undefined) user.experience = experience;
+        if (level) user.level = level;
+        if (jobTitle) user.jobTitle = jobTitle;
+        if (educations !== undefined) user.educations = educations;
+        if (resumeUrl !== undefined) user.resumeUrl = resumeUrl;
+    } else if (user.role === 'employee') {
+        if (jobTitle) user.jobTitle = jobTitle;
+        if (department) user.department = department;
+    } else if (user.role === 'admin') {
+        if (department) user.department = department;
+    }
+
+    await user.save();
+
+    return res.status(200).json(new ApiResponse(200, user, "Profile updated successfully"));
 });
 
 export {
@@ -174,5 +225,7 @@ export {
     changePasswordHandler,
     forgotPasswordHandler,
     verifyOTPHandler,
-    resetPasswordHandler
+    resetPasswordHandler,
+    getProfile,
+    updateProfile
 }

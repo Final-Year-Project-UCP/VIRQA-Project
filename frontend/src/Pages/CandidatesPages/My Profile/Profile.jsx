@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../../../config/api.js';
+
 import BioSection from './components/BioSection';
 import EducationSection from './components/EducationSection';
 import SkillsSection from './components/SkillSection';
@@ -12,21 +15,73 @@ import ProfileHeader from './components/ProfileHeader';
 import DocumentsSection from './components/DocumentSection';
 
 const MyProfile = () => {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: '',
+    fullName: '',
     email: '',
-    phone: '',
+    phoneNumber: '',
     location: '',
     jobTitle: '',
     experience: '',
+    level: '',
     educations: [],
     documents: [],
-    bio: '',
+    resumeUrl: '',
+    professionalBio: '',
     skills: [],
   });
 
   const [tempProfile, setTempProfile] = useState(profile);
+
+  // Fetch true profile data
+  const { data: profileResponse, isLoading } = useQuery({
+    queryKey: ['candidateProfile'],
+    queryFn: () => api.get('/user/profile'),
+  });
+
+  useEffect(() => {
+    if (profileResponse?.data?.data) {
+      const data = profileResponse.data.data;
+      const formattedProfile = {
+        fullName: data.fullName || '',
+        email: data.email || '',
+        phoneNumber: data.phoneNumber || '',
+        location: data.location || '',
+        jobTitle: data.jobTitle || '',
+        experience: data.experience?.toString() || '',
+        level: data.level || '',
+        educations: data.educations || [],
+        resumeUrl: data.resumeUrl || '',
+        documents: data.resumeUrl ? [{ name: 'Resume', url: data.resumeUrl }] : [],
+        professionalBio: data.professionalBio || '',
+        skills: data.skills || [],
+      };
+      setProfile(formattedProfile);
+      setTempProfile(formattedProfile);
+    }
+  }, [profileResponse]);
+
+  // Handle Updates
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updatedData) => {
+      // Map frontend fields (like documents -> resumeUrl string) back to what backend wants
+      const payload = {
+        ...updatedData,
+        resumeUrl: updatedData.documents?.[0]?.url || updatedData.resumeUrl || ''
+      };
+      return api.patch('/user/profile', payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['candidateProfile']);
+      queryClient.invalidateQueries(['profile']); // For TopNav
+      toast.success("Profile updated successfully!");
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to update profile.");
+    }
+  });
 
   const handleEdit = () => {
     setTempProfile(profile);
@@ -35,8 +90,7 @@ const MyProfile = () => {
 
   const handleSave = () => {
     setProfile(tempProfile);
-    setIsEditing(false);
-    toast.success("Profile updated successfully!");
+    updateProfileMutation.mutate(tempProfile);
   };
 
   const handleCancel = () => {
@@ -86,6 +140,17 @@ const MyProfile = () => {
       transition: { type: 'spring', stiffness: 50 }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center animate-pulse">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500 font-medium">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-6 font-sans">

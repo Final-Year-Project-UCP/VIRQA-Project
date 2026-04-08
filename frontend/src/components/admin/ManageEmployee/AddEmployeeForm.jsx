@@ -34,7 +34,9 @@ const AddEmployeeForm = ({ onAddEmployee, onUpdateEmployee, editingEmployee, onC
                 setEmail('');
             }
         } catch (error) {
-            toast.error("Failed to process request. Please try again.");
+            const errorMessage = error.response?.data?.message || "Failed to process request. Please try again.";
+            toast.error(errorMessage);
+            console.error("Employee Request Failed:", error);
         } finally {
             setIsSubmitting(false);
         }

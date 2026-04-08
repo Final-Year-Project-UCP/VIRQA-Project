@@ -43,6 +43,13 @@ const User = mongoose.model("User", userSchema);
 // 2. CANDIDATE SCHEMA: Specific to those taking interviews
 const Candidate = User.discriminator('candidate', new mongoose.Schema({
     resumeUrl: { type: String },
+    jobTitle: { type: String, default: "" },
+    educations: [{
+        degree: String,
+        institution: String,
+        year: String,
+        description: String
+    }],
     skills: [String],
     location:{type:String},
     experience:{type:Number,default:0},
