@@ -188,6 +188,8 @@ const addEmployee = asyncHandler(async (req, res) => {
     });
 
     try {
+        // Email can hang for ~60s on some deployed hosts (blocked outbound SMTP).
+        // `sendEmployeeInvite` now has a short timeout so the API stays responsive.
         const result = await sendEmployeeInvite(process.env.GOOGLE_USER, email, tempPassword);
         if (!result) {
              throw new Error("Email service failed to send");
@@ -201,7 +203,11 @@ const addEmployee = asyncHandler(async (req, res) => {
     } catch (error) {
         // In production, email can fail due to SMTP/Gmail settings. Keep the employee created
         // so admin can share credentials manually.
-        console.error("Email Sending Error:", error?.message || error);
+        console.error("Email Sending Error:", {
+            message: error?.message || error,
+            code: error?.code,
+            command: error?.command
+        });
         return res.status(200).json(
             new ApiResponse(
                 200,

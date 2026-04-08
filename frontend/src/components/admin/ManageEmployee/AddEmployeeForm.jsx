@@ -26,8 +26,14 @@ const AddEmployeeForm = ({ onAddEmployee, onUpdateEmployee, editingEmployee, onC
                 await onUpdateEmployee({ email, role });
                 toast.success(`Employee updated successfully: ${email}`);
             } else {
-                await onAddEmployee({ email, role });
-                toast.success(`Invitation sent to ${email}`);
+                const response = await onAddEmployee({ email, role });
+                if (response?.data?.emailSent === false) {
+                    toast.warning(`Employee added but email failed! Admin must share this Temp Password manually: ${response.data.tempPassword}`, { autoClose: false });
+                } else if (response?.message) {
+                    toast.success(response.message);
+                } else {
+                    toast.success(`Invitation sent to ${email}`);
+                }
             }
 
             if (!editingEmployee) {
