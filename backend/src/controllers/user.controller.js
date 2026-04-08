@@ -70,8 +70,17 @@ const LoginHandler = asyncHandler(async (req, res) => {
     // Generate JWT token
     const token = generateToken(user);
 
-    // Send token in response body instead of cookie
-    return res.status(200).json({
+    const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
+
+    // Send token in response body AND cookie (cookie supports cross-site auth in prod)
+    return res
+        .status(200)
+        .cookie("token", token, cookieOptions)
+        .json({
         message: "User logged in successfully",
         role: user.role,
         token: token, // send token here
@@ -83,11 +92,15 @@ const LoginHandler = asyncHandler(async (req, res) => {
 
 
 const logoutHandler = asyncHandler(async (req, res) => {
-    const options = {
+    const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production"
-    }
-    return res.status(200).clearCookie("token", options).json(new ApiResponse(200, {}, "Successfully LoggedOut!"))
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
+    return res
+        .status(200)
+        .clearCookie("token", cookieOptions)
+        .json(new ApiResponse(200, {}, "Successfully LoggedOut!"))
 })
 
 const changePasswordHandler = asyncHandler(async (req, res) => {

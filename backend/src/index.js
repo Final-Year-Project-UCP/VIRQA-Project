@@ -9,7 +9,10 @@ import { registerInterviewSocketHandlers } from "./sockets/interview.socket.js";
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: (process.env.FRONTEND_URL || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
     credentials: true,
   },
 });
