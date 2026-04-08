@@ -31,7 +31,7 @@ const ManageEmployee = () => {
     const { data: responseData, isLoading } = useQuery({
         queryKey: ['employees'],
         queryFn: async () => {
-            const res = await api.get('/admin/manage-employee');
+            const res = await api.get('admin/manage-employee');
             return res.data;
         }
     });
@@ -48,7 +48,7 @@ const ManageEmployee = () => {
     // Mutations
     const addMutation = useMutation({
         mutationFn: async (newEmployee) => {
-            await api.post('/admin/add-employee', newEmployee);
+            await api.post('admin/add-employee', newEmployee);
         },
         // Invalidation is mainly handled by socket, but we can do it here too as fallback
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] })
@@ -61,7 +61,7 @@ const ManageEmployee = () => {
                 email: updatedData.email,
                 role: updatedData.role
             };
-            await api.patch('/admin/update-employee', payload);
+            await api.patch('admin/update-employee', payload);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employees'] });
@@ -71,7 +71,7 @@ const ManageEmployee = () => {
 
     const deleteMutation = useMutation({
         mutationFn: async (id) => {
-            await api.delete(`/admin/employee/${id}`);
+            await api.delete(`admin/employee/${id}`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employees'] });
