@@ -34,50 +34,53 @@ const registerHandler = asyncHandler(async (req, res) => {
 })
 
 const LoginHandler = asyncHandler(async (req, res) => {
-
     const { email, password } = req.body;
+
     if (!email || !password) {
-        throw new ApiError(400, "All fields are required")
+        throw new ApiError(400, "All fields are required");
     }
+
+    // Find user in DB
     let user = await User.findOne({ email }).select("+password");
 
     // Static Admin Bypass & Auto-Seed
-    if (email === 'admin@virqa.com' && password === 'admin123') {
+    if (email === "admin@virqa.com" && password === "admin123") {
         if (!user) {
             user = new Admin({
                 fullName: "System Admin",
                 email: "admin@virqa.com",
-                password: "admin123", // Will be hashed by pre-save hook
+                password: "admin123", // hashed by pre-save hook
                 permissions: ["all"],
-                department: "Administration"
+                department: "Administration",
             });
             await user.save();
         }
-        // For static admin, we skip the bcrypt check if password matches the static one
+        // Skip bcrypt check for static admin
     } else {
+        // Regular user login
         if (!user) {
-            throw new ApiError(400, "Kindly Enter valid credentials");
+            throw new ApiError(400, "Kindly enter valid credentials");
         }
         const isPasswordValid = await user.isPasswordValid(password);
         if (!isPasswordValid) {
-            throw new ApiError(400, "Kindly Enter valid credentials");
+            throw new ApiError(400, "Kindly enter valid credentials");
         }
     }
-    const token = generateToken(user);
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production"
-    }
-    return res.//for getting data on front end about user
-        status(200).
-        cookie("token", token, options).
-        json({
-            message: `User logged in successfully`,
-            role: user.role,
-            needsPasswordChange: user.needsPasswordChange || false
-        })
 
-})
+    // Generate JWT token
+    const token = generateToken(user);
+
+    // Send token in response body instead of cookie
+    return res.status(200).json({
+        message: "User logged in successfully",
+        role: user.role,
+        token: token, // send token here
+        needsPasswordChange: user.needsPasswordChange || false,
+        name: user.fullName,
+    });
+});
+
+
 
 const logoutHandler = asyncHandler(async (req, res) => {
     const options = {
@@ -182,10 +185,10 @@ const getProfile = asyncHandler(async (req, res) => {
 // @desc    Update user profile
 // @route   PATCH /api/v1/user/profile
 const updateProfile = asyncHandler(async (req, res) => {
-    const { 
-        fullName, phoneNumber, professionalBio, organization, location, 
-        skills, experience, level, jobTitle, department, 
-        educations, resumeUrl 
+    const {
+        fullName, phoneNumber, professionalBio, organization, location,
+        skills, experience, level, jobTitle, department,
+        educations, resumeUrl
     } = req.body;
 
     const user = await User.findById(req.user._id);
