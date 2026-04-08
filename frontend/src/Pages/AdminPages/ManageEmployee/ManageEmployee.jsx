@@ -48,7 +48,8 @@ const ManageEmployee = () => {
     // Mutations
     const addMutation = useMutation({
         mutationFn: async (newEmployee) => {
-            await api.post('admin/add-employee', newEmployee);
+            const response = await api.post('admin/add-employee', newEmployee);
+            return response.data;
         },
         // Invalidation is mainly handled by socket, but we can do it here too as fallback
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] })
@@ -80,7 +81,7 @@ const ManageEmployee = () => {
     });
 
     const handleAddEmployee = async (newEmployee) => {
-        await addMutation.mutateAsync(newEmployee);
+        return await addMutation.mutateAsync(newEmployee);
     };
 
     const handleUpdateEmployee = async (updatedData) => {
