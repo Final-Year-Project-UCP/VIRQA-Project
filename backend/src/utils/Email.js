@@ -46,7 +46,8 @@ const sendEmail = async (from,to, subject,activationLink) => {
 
 export const sendEmployeeInvite = async (from, to, password) => {
   try {
-    const loginLink = "http://localhost:5173/login";
+    const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
+    const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
     const html = employeeInviteTemplate
       .replace("{{email}}", to)
       .replace("{{password}}", password)
@@ -88,7 +89,8 @@ export const sendForgotPasswordOTP = async (email, otpCode) => {
 };
 
 export const sendInterviewInvite = async (to, { jobTitle, date, time, duration, password }) => {
-  const loginLink = "http://localhost:5173/login";
+  const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
+  const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
   const html = interviewInviteTemplate
     .replace("{{jobTitle}}", jobTitle)
     .replace("{{date}}", date)
@@ -110,7 +112,8 @@ export const sendInterviewInvite = async (to, { jobTitle, date, time, duration, 
 };
 
 export const sendInterviewReschedule = async (to, { jobTitle, date, time, duration }) => {
-  const loginLink = "http://localhost:5173/login";
+  const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
+  const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
   const html = interviewRescheduleTemplate
     .replace("{{jobTitle}}", jobTitle)
     .replace("{{date}}", date)
