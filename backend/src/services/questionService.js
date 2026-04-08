@@ -10,30 +10,47 @@ import openai from "../utils/openai.js";
  * @returns {Promise<string>} The generated question.
  */
 export const generateQuestion = async (context) => {
-  const { role, experience, difficulty, history } = context;
+  const { role, experience, difficulty, history, questionIndex } = context;
+
+  const isFirst = questionIndex === 0;
+  const isScenarioPhase = questionIndex >= 2 && questionIndex <= 4; // Q3, Q4, Q5 as scenarios
+  const isFinalPhase = questionIndex > 4;
+
+  let phaseInstruction = "";
+  if (isFirst) {
+    phaseInstruction = "This is the very first question. Start with a foundational conceptual question to break the ice and assess basic understanding of the role.";
+  } else if (isScenarioPhase) {
+    phaseInstruction = "CRITICAL: You are now in the SCENARIO phase. Generate a complex, real-world 'What if' scenario or a specific problem-solving challenge that requires deep architectural or logic thinking. The question should be slightly longer but very structured.";
+  } else if (isFinalPhase) {
+    phaseInstruction = "You are in the FINAL phase. Keep questions short, precise, and focused on specific technical edge cases or rapid-fire knowledge checks.";
+  } else {
+    phaseInstruction = "This is a transition phase. Ask a knowledge-based question that bridges concepts with practical application.";
+  }
 
   let historyPrompt = "";
   if (history && history.length > 0) {
-    historyPrompt = "Here is the history of the interview so far:\n";
-    history.forEach((turn, i) => {
-      historyPrompt += `Q: ${turn.question}\nA: ${turn.answer || "No answer provided."}\n\n`;
+    historyPrompt = "Recent History:\n";
+    history.slice(-2).forEach((turn, i) => {
+      historyPrompt += `Q: ${turn.question}\nA: ${turn.answer || "No answer provided."}\n`;
     });
-    historyPrompt += "Based on these previous answers, please generate the next question.";
-  } else {
-    historyPrompt = "This is the very first question of the interview. Start with a foundational conceptual question related to the role.";
   }
 
   const prompt = `
-You are an expert technical interviewer hiring a ${experience} ${role}.
-The current difficulty level for the next question should be: ${difficulty}.
+You are a WORLD-CLASS Technical Interviewer for a ${experience} ${role} position.
+Current Difficulty Target: ${difficulty.toUpperCase()}
+
+${phaseInstruction}
 
 ${historyPrompt}
 
-Requirements for the question:
-1. Make it conversational, concise, and focused.
-2. Directly relate it to the role and the requested difficulty level.
-3. If this is not the first question, try to naturally transition from the candidate's last answer if possible, but keep pushing their technical boundaries according to the difficulty.
-4. Output ONLY the question text. Do not include quotes, prefixes like "Question:", or extra commentary.
+STRICT CONSTRAINTS:
+1. Output ONLY the question text.
+2. Tone: Professional, direct, and slightly challenging.
+3. Length: 
+    - Scenario Phase: 2-3 sentences max.
+    - Other Phases: 1-2 sentences max.
+4. Do NOT say 'Great', 'Awesome', or 'Nice'. Get straight to the next challenge.
+5. If the candidate failed to answer the last question properly, you may briefly re-explore it but keep moving.
 `;
 
   try {

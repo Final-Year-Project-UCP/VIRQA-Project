@@ -3,6 +3,7 @@ import InterviewSession from "../models/interviewSession.model.js";
 import { generateQuestion } from "../services/questionService.js";
 import { convertAudioToText } from "../services/sttService.js";
 import { evaluateAnswer } from "../services/evaluationService.js";
+import { createNotification } from "../utils/notificationUtils.js";
 
 /**
  * Adjusts difficulty string based on score.
@@ -21,7 +22,7 @@ const adjustDifficulty = (currentDifficulty, overallScore) => {
   return levels[currentIndex];
 };
 
-export const registerInterviewSocketHandlers = (io) => {
+export const registerInterviewSocketHandlers = (app, io) => {
   io.on("connection", (socket) => {
     console.log("Interview module: Client connected", socket.id);
 
@@ -50,7 +51,8 @@ export const registerInterviewSocketHandlers = (io) => {
           role: interview.role,
           experience: interview.experience,
           difficulty: interview.currentDifficulty,
-          history
+          history,
+          questionIndex: interview.questions.length // 0 for first
         };
 
         let questionToEmit;
@@ -135,7 +137,8 @@ export const registerInterviewSocketHandlers = (io) => {
             role: interview.role,
             experience: interview.experience,
             difficulty: interview.currentDifficulty, // Uses updated difficulty
-            history
+            history,
+            questionIndex: interview.questions.length // Current count before push
           };
 
           const newQuestionText = await generateQuestion(context);
@@ -177,6 +180,16 @@ export const registerInterviewSocketHandlers = (io) => {
                             session.candidates[candidateIndex].status = "Completed";
                             await session.save();
                             console.log(`Sync success: Updated candidate status to Completed in InterviewSession ${session._id}`);
+
+                            // Notify the employer
+                            await createNotification(app, {
+                                recipientId: session.createdBy,
+                                senderId: interview.candidateId,
+                                title: "Interview Completed",
+                                message: `Candidate has completed the interview for ${session.jobTitle}. You can now view the results.`,
+                                type: "interview_completed",
+                                data: { sessionId: session._id, candidateId: interview.candidateId }
+                            });
                         }
                     }
                 }

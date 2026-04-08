@@ -1,0 +1,1324 @@
+<!DOCTYPE html><html><head>
+      <title>VIRQA_AI_Flow_Diagram</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\ummar\.antigravity\extensions\shd101wyy.markdown-preview-enhanced-0.8.22-universal\crossnote\dependencies\katex\katex.min.css">
+      
+      
+      <script type="text/javascript" src="file:///c:\Users\ummar\.antigravity\extensions\shd101wyy.markdown-preview-enhanced-0.8.22-universal\crossnote\dependencies\mermaid\mermaid.min.js" charset="UTF-8"></script>
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview  ">
+      
+<div align="center">
+<h1 id="-virqa--ai-interview-platform">🧠 VIRQA — AI Interview Platform </h1>
+<h2 id="complete-system-architecture--flow-documentation">Complete System Architecture &amp; Flow Documentation </h2>
+<blockquote>
+<p><strong>Version:</strong> 1.0.0 &nbsp;|&nbsp; <strong>Platform:</strong> Full-Stack Web Application &nbsp;|&nbsp; <strong>AI-Powered:</strong> Yes<br>
+<strong>Institution:</strong> University of Central Punjab (UCP) — Final Year Project (F22)<br>
+<strong>Author:</strong> Muhammad Ummar &nbsp;|&nbsp; <strong>Category:</strong> Artificial Intelligence × Human Resources</p>
+</blockquote>
+<hr>
+<p><em>This document provides an exhaustive technical reference for the VIRQA AI Interview Platform — covering every actor, data flow, API contract, AI service pipeline, database schema, and real-time <a href="http://Socket.io">Socket.io</a> event across all 9 phases of the interview lifecycle.</em></p>
+</div>
+<hr>
+<h2 id="-table-of-contents">📋 Table of Contents </h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Section</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><a href="#0-system-overview">System Overview</a></td>
+<td>Architecture at a glance</td>
+</tr>
+<tr>
+<td>1</td>
+<td><a href="#1-technology-stack">Technology Stack</a></td>
+<td>Actors, interfaces, and tools</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="#2-phase-1--interview-session-creation">Phase 1 — Interview Creation</a></td>
+<td>HR creates and dispatches sessions</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="#3-phase-2--candidate-authentication--lobby">Phase 2 — Candidate Auth &amp; Lobby</a></td>
+<td>Login, password flow, mic check</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="#4-phase-3--ai-interview-initialization">Phase 3 — AI Initialization</a></td>
+<td>Session creation and socket join</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="#5-phase-4--real-time-ai-question-generation">Phase 4 — Question Generation</a></td>
+<td>Groq LLM contextual Q generation</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="#6-phase-5--audio-answer-processing-pipeline">Phase 5 — Audio Pipeline</a></td>
+<td>Record → STT → Evaluate</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="#7-phase-6--adaptive-difficulty-engine">Phase 6 — Adaptive Difficulty</a></td>
+<td>Dynamic scoring-based difficulty</td>
+</tr>
+<tr>
+<td>8</td>
+<td><a href="#8-phase-7--database-write-after-each-answer">Phase 7 — DB Persistence</a></td>
+<td>Per-answer data save cycle</td>
+</tr>
+<tr>
+<td>9</td>
+<td><a href="#9-phase-8--interview-completion--final-report">Phase 8 — Completion &amp; Report</a></td>
+<td>Final scoring and status sync</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="#10-phase-9--admin-audit--monitoring">Phase 9 — Admin Monitoring</a></td>
+<td>Admin Dashboard &amp; audit trails</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="#11-complete-data-model-relationships">Data Models</a></td>
+<td>MongoDB entity relationships</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="#12-complete-socketio-event-reference">Socket.io Reference</a></td>
+<td>All real-time events documented</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="0-system-overview">0. System Overview </h2>
+<p>VIRQA is an AI-powered, end-to-end interview automation platform. It enables HR employees to schedule technical interviews, invites candidates automatically via email, and conducts fully automated AI interviews using voice recognition and LLM-based evaluation — all in real-time.</p>
+<div class="mermaid">graph TD
+    subgraph USERS ["👥 System Users"]
+        U1(["🛡️ Admin"])
+        U2(["👔 HR / Employee"])
+        U3(["👤 Candidate"])
+    end
+
+    subgraph FRONTEND ["🖥️ Frontend — React + Vite"]
+        F1[Admin Dashboard]
+        F2[Employee Dashboard]
+        F3[Candidate Portal]
+    end
+
+    subgraph BACKEND ["⚙️ Backend — Node.js + Express"]
+        B1[REST API Layer]
+        B2[Socket.io Engine]
+        B3[Auth Middleware\nJWT via Cookie]
+    end
+
+    subgraph AI_SERVICES ["🤖 AI Services"]
+        AI1["🧠 Groq LLM\nllama-3.1-8b-instant\nQuestion Generation + Evaluation"]
+        AI2["🎙️ Whisper STT\nwhisper-large-v3\nSpeech-to-Text Transcription"]
+    end
+
+    subgraph DATA ["🗄️ Data Layer"]
+        DB[(MongoDB — Mongoose)]
+        CL[☁️ Cloudinary\nProfile Photos]
+        EM[📧 Gmail SMTP\nNodemailer Emails]
+    end
+
+    U1 --&gt; F1 --&gt; B1
+    U2 --&gt; F2 --&gt; B1
+    U3 --&gt; F3 --&gt; B2
+
+    B1 --&gt; B3
+    B2 --&gt; B3
+    B3 --&gt; DB
+    B1 --&gt; AI1
+    B2 --&gt; AI1
+    B2 --&gt; AI2
+    B1 --&gt; CL
+    B1 --&gt; EM
+
+    style USERS fill:#1e1b4b,color:#fff,stroke:#4f46e5
+    style FRONTEND fill:#0f172a,color:#fff,stroke:#3b82f6
+    style BACKEND fill:#0f2a1e,color:#fff,stroke:#22c55e
+    style AI_SERVICES fill:#2a1e0f,color:#fff,stroke:#f59e0b
+    style DATA fill:#2a0f1e,color:#fff,stroke:#ec4899
+</div><hr>
+<h2 id="1-technology-stack">1. Technology Stack </h2>
+<h3 id="-actors--their-interfaces">👥 Actors &amp; Their Interfaces </h3>
+<table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Dashboard</th>
+<th>Primary Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🛡️ <strong>Admin</strong></td>
+<td>Admin Dashboard — React + Vite</td>
+<td>Audit interviews, manage employees, view global reports</td>
+</tr>
+<tr>
+<td>👔 <strong>HR / Employee</strong></td>
+<td>Employee Dashboard — React + Vite</td>
+<td>Create sessions, invite candidates, view results</td>
+</tr>
+<tr>
+<td>👤 <strong>Candidate</strong></td>
+<td>Candidate Portal — React + Vite</td>
+<td>Accept invite, take AI interview, view their scores</td>
+</tr>
+</tbody>
+</table>
+<h3 id="-technology-reference">🔧 Technology Reference </h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>React 18 + Vite + TanStack Query</td>
+<td>UI rendering, API state management</td>
+</tr>
+<tr>
+<td><strong>Real-time</strong></td>
+<td><a href="http://Socket.io">Socket.io</a> (Client + Server)</td>
+<td>Bidirectional audio/event streaming</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>Node.js + Express 5</td>
+<td>REST API + socket event processing</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>JWT (stored in HttpOnly Cookie)</td>
+<td>Secure session management</td>
+</tr>
+<tr>
+<td><strong>LLM — Questions</strong></td>
+<td>Groq API · <code>llama-3.1-8b-instant</code></td>
+<td>Generates dynamic interview questions</td>
+</tr>
+<tr>
+<td><strong>LLM — Evaluation</strong></td>
+<td>Groq API · <code>llama-3.1-8b-instant</code></td>
+<td>Scores and provides feedback on answers</td>
+</tr>
+<tr>
+<td><strong>Speech-to-Text</strong></td>
+<td>Groq Whisper · <code>whisper-large-v3</code></td>
+<td>Converts candidate audio to text</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>MongoDB + Mongoose (Discriminator pattern)</td>
+<td>Document storage with inheritance</td>
+</tr>
+<tr>
+<td><strong>File Storage</strong></td>
+<td>Cloudinary</td>
+<td>Profile photo upload and hosting</td>
+</tr>
+<tr>
+<td><strong>Email</strong></td>
+<td>Nodemailer + Gmail SMTP</td>
+<td>Interview invites, OTP, reschedule alerts</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-phase-1--interview-session-creation">2. Phase 1 — Interview Session Creation </h2>
+<blockquote>
+<p><strong>Who:</strong> HR Employee &nbsp;|&nbsp; <strong>When:</strong> Before any candidate joins &nbsp;|&nbsp; <strong>Outcome:</strong> <code>InterviewSession</code> saved + emails dispatched</p>
+</blockquote>
+<p>In this phase, the Employee fills out an interview creation form. Optionally, they can request the AI to generate a tailored system prompt based on the job description. For each candidate email provided, the system finds or creates an account, then dispatches a personalized invitation email containing temporary credentials.</p>
+<div class="mermaid">flowchart TD
+    START(["👔 HR Employee Logs In"]) --&gt; FORM
+
+    FORM["📝 Interview Creation Form
+    ────────────────────
+    · Job Title &amp; Description
+    · Scheduled Date &amp; Start Time
+    · Duration (minutes)
+    · Candidate Emails (comma-separated)"]
+
+    FORM --&gt; PROMPT_Q{✨ Generate AI
+    System Prompt?}
+
+    PROMPT_Q --&gt;|"Yes → POST /employee/interview/generate-prompt"| LLM
+    LLM["🤖 Groq LLM
+    Generates structured interviewer
+    prompt based on Job Title + JD"]
+    LLM --&gt; FORM
+
+    PROMPT_Q --&gt;|No| SUBMIT
+
+    FORM --&gt; SUBMIT["POST /api/v1/employee/interview/create"]
+    SUBMIT --&gt; LOOP{🔄 For Each
+    Candidate Email}
+
+    LOOP --&gt; EXISTS{User exists
+    in MongoDB?}
+
+    EXISTS --&gt;|"❌ No"| CREATE
+    CREATE["👤 Create Candidate Account
+    ─────────────────────
+    · email = provided email
+    · fullName = email prefix
+    · password = random hex (8 chars)
+    · needsPasswordChange = true
+    · createdBy = Employee._id"]
+
+    EXISTS --&gt;|"✅ Yes"| EXISTING
+    EXISTING["Use Existing Account
+    Password instruction = 'use existing'"]
+
+    CREATE --&gt; EMAIL
+    EXISTING --&gt; EMAIL
+
+    EMAIL["📧 Send Interview Invite Email
+    via Nodemailer + Gmail SMTP
+    ─────────────────────────────
+    · Job Title
+    · Scheduled Date &amp; Time
+    · Duration
+    · Login credentials (temp password)
+    · Login link"]
+
+    EMAIL --&gt; SESSION_CREATE
+    SESSION_CREATE["💾 Create InterviewSession Document
+    ─────────────────────────────
+    · jobTitle, jobDescription, topic
+    · scheduledDate, startTime, duration
+    · candidates[]: { candidateId, email, inviteSent, status: Pending }
+    · createdBy: Employee._id
+    · status: Scheduled"]
+
+    SESSION_CREATE --&gt; DB[("🗄️ MongoDB
+    InterviewSession Collection")]
+    DB --&gt; SUCCESS["✅ 201 Response
+    Session Created Successfully"]
+
+    style START fill:#4f46e5,color:#fff
+    style EMAIL fill:#16a34a,color:#fff
+    style DB fill:#b45309,color:#fff
+    style SUCCESS fill:#0891b2,color:#fff
+    style SESSION_CREATE fill:#7c3aed,color:#fff
+</div><hr>
+<h2 id="3-phase-2--candidate-authentication--lobby">3. Phase 2 — Candidate Authentication &amp; Lobby </h2>
+<blockquote>
+<p><strong>Who:</strong> Candidate &nbsp;|&nbsp; <strong>When:</strong> After receiving the invite email &nbsp;|&nbsp; <strong>Outcome:</strong> Candidate enters Lobby and performs Mic Check</p>
+</blockquote>
+<p>The candidate receives an email with credentials. On first login, they are forced to set a new password. Once authenticated, they see their scheduled interviews and enter a Lobby component that checks microphone health with a live audio visualizer before starting.</p>
+<div class="mermaid">flowchart TD
+    START(["📧 Candidate Receives Invite Email"]) --&gt; LOGIN
+
+    LOGIN["🔐 Login Page
+    email + temp password"]
+    LOGIN --&gt; AUTH_API["POST /api/v1/user/login"]
+
+    AUTH_API --&gt; PWD_CHK{needsPasswordChange
+    = true?}
+
+    PWD_CHK --&gt;|"⚠️ Yes"| CHANGE_PWD
+    CHANGE_PWD["🔑 Change Password Page
+    Submit new password"]
+    CHANGE_PWD --&gt; CHANGE_API["PATCH /api/v1/user/change-password
+    needsPasswordChange → false"]
+    CHANGE_API --&gt; TOKEN
+
+    PWD_CHK --&gt;|"✅ No"| TOKEN
+    TOKEN["🍪 JWT Token Set in HttpOnly Cookie
+    role = candidate"]
+
+    TOKEN --&gt; DASHBOARD["🏠 Candidate Dashboard"]
+
+    DASHBOARD --&gt; FETCH["GET /candidate/my-interviews
+    ─────────────────────────
+    Queries InterviewSession where
+    candidates.candidateId matches user"]
+
+    FETCH --&gt; DB[("🗄️ MongoDB
+    InterviewSession → filtered by candidateId")]
+    DB --&gt; LIST["📋 Display Upcoming Interviews
+    (jobTitle, date, time, status)"]
+
+    LIST --&gt; SELECT["👆 Candidate Selects Interview
+    → Enters Lobby"]
+
+    SELECT --&gt; LOBBY["🎙️ Lobby Component
+    ─────────────────────────────
+    · Request microphone permission
+    · Live audio waveform visualization
+    · Volume level ripple animation
+    · Mic mute / unmute toggle"]
+
+    LOBBY --&gt; JOIN_BTN["▶️ Click 'Start Interview' Button
+    → document.documentElement.requestFullscreen()
+    → interviewStatus: 'lobby' → 'active'"]
+
+    JOIN_BTN --&gt; ACTIVE["🖥️ Active Interview Session Mounts"]
+
+    style START fill:#4f46e5,color:#fff
+    style TOKEN fill:#16a34a,color:#fff
+    style LOBBY fill:#0891b2,color:#fff
+    style JOIN_BTN fill:#7c3aed,color:#fff
+    style ACTIVE fill:#b45309,color:#fff
+</div><hr>
+<h2 id="4-phase-3--ai-interview-initialization">4. Phase 3 — AI Interview Initialization </h2>
+<blockquote>
+<p><strong>Who:</strong> Backend + Candidate Frontend &nbsp;|&nbsp; <strong>When:</strong> Active Session component mounts &nbsp;|&nbsp; <strong>Outcome:</strong> <code>AIInterview</code> document created, socket room joined, first question emitted</p>
+</blockquote>
+<div class="mermaid">flowchart TD
+    START(["🖥️ Active Session Component Mounts"]) --&gt; API
+
+    API["POST /api/v1/ai-interview/start
+    ───────────────────────────────
+    Body: {
+      candidateId,
+      role,
+      experience,
+      interviewSessionId
+    }"]
+
+    API --&gt; EXIST_CHK{"🔍 Existing AIInterview found
+    for this candidate + session?"}
+
+    EXIST_CHK --&gt;|"status: completed"| BLOCK
+    BLOCK["🚫 403 Forbidden
+    'Interview already completed.
+    Cannot rejoin.'"]
+
+    EXIST_CHK --&gt;|"status: ongoing"| RESUME
+    RESUME["♻️ 200 OK — Resume Session
+    Return existing AIInterview document
+    (preserves all Q&amp;A history)"]
+
+    EXIST_CHK --&gt;|"Not Found"| CREATE
+    CREATE["🆕 Create AIInterview Document
+    ─────────────────────────────
+    · candidateId
+    · interviewSessionId (ref)
+    · role, experience
+    · currentDifficulty: medium
+    · status: ongoing
+    · questions: []
+    · answers: []
+    · scores: []"]
+
+    CREATE --&gt; SAVE[("🗄️ Save to AIInterview Collection")]
+    RESUME --&gt; STORE
+    SAVE --&gt; STORE
+
+    STORE["💾 Frontend stores interviewId"]
+    STORE --&gt; SOCKET["🔌 Socket.io connect()
+    to Backend ws://localhost:8080"]
+
+    SOCKET --&gt; JOIN["emit('start-interview', { interviewId })
+    ─────────────────────────────
+    Server: socket.join(interviewId)
+    → Joins dedicated interview room"]
+
+    JOIN --&gt; READY["✅ System Ready
+    Waiting for first question..."]
+
+    style START fill:#4f46e5,color:#fff
+    style BLOCK fill:#dc2626,color:#fff
+    style RESUME fill:#f59e0b,color:#000
+    style CREATE fill:#16a34a,color:#fff
+    style SAVE fill:#b45309,color:#fff
+    style READY fill:#0891b2,color:#fff
+</div><hr>
+<h2 id="5-phase-4--real-time-ai-question-generation">5. Phase 4 — Real-Time AI Question Generation </h2>
+<blockquote>
+<p><strong>Service:</strong> <code>questionService.js</code> &nbsp;|&nbsp; <strong>AI Model:</strong> <code>llama-3.1-8b-instant</code> via Groq &nbsp;|&nbsp; <strong>Temperature:</strong> 0.7 (creative, varied)</p>
+</blockquote>
+<p>The question generation service is <strong>context-aware</strong>. It receives the full history of all previous questions and answers to ensure continuity, relevance, and non-repetition. The difficulty level is dynamically passed in and can change after every answer.</p>
+<div class="mermaid">flowchart LR
+    A(["📨 'start-interview' event received"]) --&gt; B
+
+    B["🔍 Fetch AIInterview from DB
+    (role, experience, difficulty, history)"]
+
+    B --&gt; CHK{"📊 Is last question
+    still unanswered?"}
+
+    CHK --&gt;|"✅ Yes (Resume)"| REEMIT
+    REEMIT["🔁 Re-emit last question text
+    (prevents duplicate Q generation
+    on page refresh / reconnect)"]
+
+    CHK --&gt;|"❌ No (Fresh)"| CTX
+
+    CTX["🏗️ Build Context Object
+    ─────────────────────────────
+    context = {
+      role: 'Frontend Developer',
+      experience: 'Intermediate',
+      difficulty: 'medium',
+      history: [
+        { question: '...', answer: '...' },
+        ...
+      ]
+    }"]
+
+    CTX --&gt; GEN["🤖 questionService.generateQuestion(context)"]
+
+    GEN --&gt; GROQ["☁️ Groq API Call
+    ─────────────────────────────
+    model: llama-3.1-8b-instant
+    temperature: 0.7 (varied output)
+    max_tokens: 150
+    ─────────────────────────────
+    Prompt structure:
+    · Role + Difficulty instruction
+    · Full Q&amp;A history (if any)
+    · Output: question text ONLY
+    · No markdown, no prefixes"]
+
+    GROQ --&gt; SUCCESS{API Success?}
+
+    SUCCESS --&gt;|"✅ Yes"| QTEXT["📝 Generated Question Text"]
+    SUCCESS --&gt;|"❌ No (Fallback)"| FB
+    FB["📝 Fallback: 'Describe a challenging
+    problem you solved recently for {role}'"]
+
+    QTEXT --&gt; SAVEQ
+    FB --&gt; SAVEQ
+
+    SAVEQ["💾 Save to AIInterview.questions[]
+    { text: questionText, askedAt: Date }"]
+
+    SAVEQ --&gt; EMIT["📡 emit('next-question', { questionText })
+    → Sent to candidate's socket room"]
+
+    EMIT --&gt; DISPLAY["🖥️ Candidate sees question
+    + TTS reads it aloud"]
+
+    REEMIT --&gt; DISPLAY
+
+    style A fill:#4f46e5,color:#fff
+    style GROQ fill:#b45309,color:#fff
+    style EMIT fill:#16a34a,color:#fff
+    style DISPLAY fill:#0891b2,color:#fff
+</div><hr>
+<h2 id="6-phase-5--audio-answer-processing-pipeline">6. Phase 5 — Audio Answer Processing Pipeline </h2>
+<blockquote>
+<p><strong>Services:</strong> <code>sttService.js</code> + <code>evaluationService.js</code> &nbsp;|&nbsp; <strong>Models:</strong> Whisper large-v3 + llama-3.1-8b-instant &nbsp;|&nbsp; <strong>Execution:</strong> Sequential, real-time status emitted at each stage</p>
+</blockquote>
+<p>This is the core AI pipeline. After the candidate finishes speaking, the raw <code>.webm</code> audio buffer is streamed through two AI services in sequence: first Speech-to-Text transcription, then AI-based evaluation against the question. All intermediate statuses are emitted in real-time to keep the UI updated.</p>
+<div class="mermaid">flowchart TD
+    START(["🎙️ Candidate finishes speaking"]) --&gt; RECORD
+
+    RECORD["🎧 Frontend records audio
+    MediaRecorder API → .webm format
+    Chunks assembled into ArrayBuffer"]
+
+    RECORD --&gt; EMIT_AUDIO["📡 emit('send-audio', {
+      interviewId,
+      currentQuestionText,
+      audioBuffer (ArrayBuffer)
+    })"]
+
+    EMIT_AUDIO --&gt; STATUS1["📢 emit('processing-status',
+    'Transcribing your answer...')"]
+
+    STATUS1 --&gt; STT_SVC
+
+    subgraph STT_BOX ["🎙️ sttService.js — Speech to Text"]
+        STT_SVC["Receive audioBuffer"]
+        STT_SVC --&gt; TMPFILE["📁 Write to temp file
+        path.join(os.tmpdir(), audio-{timestamp}.webm)"]
+        TMPFILE --&gt; WHISPER["☁️ Groq Whisper API
+        ─────────────────────────────
+        model: whisper-large-v3
+        input: fs.createReadStream(tempFile)
+        ─────────────────────────────
+        Returns: transcription.text"]
+        WHISPER --&gt; CLEANUP["🗑️ Delete temp file (finally block)"]
+        CLEANUP --&gt; TEXT["📝 Transcribed text returned"]
+    end
+
+    TEXT --&gt; EMIT_STT["📡 emit('transcription-result',
+    { transcribedText })
+    → Candidate sees their words on screen"]
+
+    EMIT_STT --&gt; STATUS2["📢 emit('processing-status',
+    'Evaluating your answer...')"]
+
+    STATUS2 --&gt; EVAL_SVC
+
+    subgraph EVAL_BOX ["🧪 evaluationService.js — AI Scoring"]
+        EVAL_SVC["evaluateAnswer(question, transcribedText)"]
+        EVAL_SVC --&gt; GROQ_EVAL["☁️ Groq API Call
+        ─────────────────────────────
+        model: llama-3.1-8b-instant
+        temperature: 0.3 (objective, consistent)
+        response_format: json_object (enforced)
+        ─────────────────────────────
+        Prompt: 'You are an expert interviewer.
+        Question: ... | Answer: ...
+        Return pure JSON evaluation'"]
+        GROQ_EVAL --&gt; SCORES["📊 JSON Response
+        ─────────────────────────────
+        semanticScore:   0–100
+        technicalScore:  0–100
+        overallScore:    0–100
+        feedback:        string
+        strengths:       string[]
+        weaknesses:      string[]"]
+    end
+
+    SCORES --&gt; EMIT_EVAL["📡 emit('evaluation-result', { evaluation })
+    → Candidate sees scores + feedback cards"]
+
+    EMIT_EVAL --&gt; PERSIST["💾 Save to MongoDB
+    (see Phase 7)"]
+
+    PERSIST --&gt; NEXT_Q["⏭️ Generate Next Question
+    (see Phase 4)"]
+
+    NEXT_Q --&gt; STATUS3["📢 emit('processing-status', null)
+    → Clear loading state on frontend"]
+
+    style START fill:#4f46e5,color:#fff
+    style WHISPER fill:#b45309,color:#fff
+    style GROQ_EVAL fill:#b45309,color:#fff
+    style SCORES fill:#16a34a,color:#fff
+    style EMIT_EVAL fill:#0891b2,color:#fff
+    style STT_BOX fill:#1e293b,color:#fff
+    style EVAL_BOX fill:#1e293b,color:#fff
+</div><hr>
+<h2 id="7-phase-6--adaptive-difficulty-engine">7. Phase 6 — Adaptive Difficulty Engine </h2>
+<blockquote>
+<p><strong>Location:</strong> <code>interview.socket.js</code> — <code>adjustDifficulty()</code> function &nbsp;|&nbsp; <strong>Trigger:</strong> After every answer is evaluated</p>
+</blockquote>
+<p>The system adapts difficulty in real-time based on performance. This prevents interviews from being too easy for strong candidates and too discouraging for weaker ones — ensuring a fair, dynamic assessment at all levels.</p>
+<div class="mermaid">flowchart LR
+    A(["📊 overallScore received
+    from Evaluation Service"]) --&gt; B
+
+    B{"🎯 Score Range"}
+
+    B --&gt;|"Score &gt; 75
+    ✨ Excellent"| UP
+    B --&gt;|"40 ≤ Score ≤ 75
+    📈 Average"| SAME
+    B --&gt;|"Score &lt; 40
+    ⚠️ Needs Improvement"| DOWN
+
+    UP["⬆️ LEVEL UP
+    ─────────────────
+    easy   → medium
+    medium → hard
+    hard   → hard (cap)"]
+
+    SAME["➡️ MAINTAIN
+    ─────────────────
+    Keep current
+    difficulty level"]
+
+    DOWN["⬇️ LEVEL DOWN
+    ─────────────────
+    hard   → medium
+    medium → easy
+    easy   → easy (floor)"]
+
+    UP --&gt; SAVE
+    SAME --&gt; SAVE
+    DOWN --&gt; SAVE
+
+    SAVE["💾 Update AIInterview.currentDifficulty
+    in MongoDB"]
+    SAVE --&gt; PASS["📤 New difficulty passed
+    to next generateQuestion() call
+    as context.difficulty"]
+
+    style UP fill:#16a34a,color:#fff
+    style SAME fill:#f59e0b,color:#000
+    style DOWN fill:#dc2626,color:#fff
+    style SAVE fill:#7c3aed,color:#fff
+</div><h3 id="difficulty-level-scale">Difficulty Level Scale </h3>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>Label</th>
+<th>Effect</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>&gt; 75</strong></td>
+<td>🟢 Excellent</td>
+<td>Level UP</td>
+<td>Next question at higher difficulty</td>
+</tr>
+<tr>
+<td><strong>40–75</strong></td>
+<td>🟡 Average</td>
+<td>Maintain</td>
+<td>Same difficulty maintained</td>
+</tr>
+<tr>
+<td><strong>&lt; 40</strong></td>
+<td>🔴 Needs Work</td>
+<td>Level DOWN</td>
+<td>Next question at lower difficulty</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-phase-7--database-write-after-each-answer">8. Phase 7 — Database Write After Each Answer </h2>
+<blockquote>
+<p><strong>Trigger:</strong> Successfully processed audio &nbsp;|&nbsp; <strong>Target:</strong> <code>AIInterview</code> MongoDB document</p>
+</blockquote>
+<p>After every evaluation cycle, three sub-arrays in the <code>AIInterview</code> document are updated atomically: <code>answers</code>, <code>scores</code>, and <code>currentDifficulty</code>. The document acts as the single source of truth for the entire interview session.</p>
+<div class="mermaid">flowchart TD
+    START(["✅ Evaluation Complete"]) --&gt; FIND
+
+    FIND["🔍 AIInterview.findById(interviewId)"]
+
+    FIND --&gt; PUSH_ANS["📥 Push to answers[]
+    ─────────────────────────────
+    {
+      questionText: 'What is...?',
+      transcribedText: 'I believe...',
+      answeredAt: Date.now()
+    }"]
+
+    PUSH_ANS --&gt; PUSH_SCORE["📥 Push to scores[]
+    ─────────────────────────────
+    {
+      questionText: '...',
+      semanticScore: 82,
+      technicalScore: 75,
+      overallScore: 79,
+      feedback: 'Well structured...',
+      strengths: ['clarity', 'depth'],
+      weaknesses: ['missed edge case']
+    }"]
+
+    PUSH_SCORE --&gt; UPD_DIFF["🎯 Update currentDifficulty
+    (result of adjustDifficulty())"]
+
+    UPD_DIFF --&gt; MONGO_SAVE["💾 interview.save()
+    → Atomic write to MongoDB"]
+
+    MONGO_SAVE --&gt; DB[("🗄️ AIInterview Collection
+    ─────────────────────────────
+    Now has n+1 answers
+    Now has n+1 scores
+    Difficulty updated for next Q")]
+
+    DB --&gt; NEXT_CTX["📦 Rebuild context with new history
+    history = interview.answers.map(
+      ans =&gt; ({ question, answer })
+    )"]
+
+    NEXT_CTX --&gt; NEXT_Q["⏭️ generateQuestion(context)
+    → Produces next contextual question"]
+
+    NEXT_Q --&gt; EMIT_Q["📡 emit('next-question')
+    → Loop continues"]
+
+    EMIT_Q --&gt; LOOP_LBL(["🔄 Repeat until
+    interview-complete emitted"])
+
+    style START fill:#4f46e5,color:#fff
+    style MONGO_SAVE fill:#b45309,color:#fff
+    style DB fill:#7c3aed,color:#fff
+    style EMIT_Q fill:#16a34a,color:#fff
+</div><hr>
+<h2 id="9-phase-8--interview-completion--final-report">9. Phase 8 — Interview Completion &amp; Final Report </h2>
+<blockquote>
+<p><strong>Trigger:</strong> Candidate emits <code>interview-complete</code> &nbsp;|&nbsp; <strong>Outcome:</strong> Final score computed, <code>InterviewSession</code> status synced, results rendered</p>
+</blockquote>
+<div class="mermaid">flowchart TD
+    START(["👤 Candidate Clicks 'End Interview'"]) --&gt; FS
+
+    FS["🖥️ document.exitFullscreen()
+    if (document.fullscreenElement)"]
+    FS --&gt; EMIT_END["📡 emit('interview-complete',
+    { interviewId })"]
+
+    EMIT_END --&gt; FETCH["🔍 AIInterview.findById(interviewId)"]
+    FETCH --&gt; CALC["🧮 Calculate Final Score
+    ─────────────────────────────
+    totalScore = scores.reduce(
+      (acc, curr) =&gt; acc + curr.overallScore, 0
+    )
+    avgScore = totalScore / scores.length"]
+
+    CALC --&gt; THRESHOLD{"avgScore &gt; 70?"}
+
+    THRESHOLD --&gt;|"✅ Yes — Strong Performance"| PASS_RPT
+    PASS_RPT["📄 finalReport:
+    'Candidate attained avg score of {X}.
+    Recommended for next rounds.'"]
+
+    THRESHOLD --&gt;|"❌ No — Needs Improvement"| FAIL_RPT
+    FAIL_RPT["📄 finalReport:
+    'Candidate attained avg score of {X}.
+    Requires more preparation in
+    technical fundamentals.'"]
+
+    PASS_RPT --&gt; COMPLETE
+    FAIL_RPT --&gt; COMPLETE
+
+    COMPLETE["💾 Set status = 'completed'
+    aiInterview.save()"]
+
+    COMPLETE --&gt; PARENT_CHK{"Has parent
+    interviewSessionId?"}
+
+    PARENT_CHK --&gt;|"✅ Yes"| SYNC
+    SYNC["🔗 InterviewSession.findById(
+      interview.interviewSessionId
+    )
+    ─────────────────────────────
+    Find matching candidate by candidateId
+    Update: candidate.status → 'Completed'
+    session.save()"]
+
+    PARENT_CHK --&gt;|"❌ No"| EMIT_DONE
+    SYNC --&gt; EMIT_DONE
+
+    EMIT_DONE["📡 emit('interview-completed-successfully', {
+      finalReport,
+      averageScore
+    })"]
+
+    EMIT_DONE --&gt; NAV["🖥️ Frontend navigates
+    to Results Page"]
+
+    NAV --&gt; RESULTS_API["GET /candidate/results
+    Fetch AIInterview with all scores"]
+
+    RESULTS_API --&gt; DISPLAY["📊 Display Results Dashboard
+    ─────────────────────────────
+    · Overall Score Gauge
+    · Per-Question Score Cards
+    · Strengths &amp; Weaknesses Lists
+    · Technical vs Semantic Radar Chart
+    · Final Report Text"]
+
+    style START fill:#4f46e5,color:#fff
+    style CALC fill:#7c3aed,color:#fff
+    style PASS_RPT fill:#16a34a,color:#fff
+    style FAIL_RPT fill:#dc2626,color:#fff
+    style SYNC fill:#f59e0b,color:#000
+    style EMIT_DONE fill:#0891b2,color:#fff
+    style DISPLAY fill:#b45309,color:#fff
+</div><hr>
+<h2 id="10-phase-9--admin-audit--monitoring">10. Phase 9 — Admin Audit &amp; Monitoring </h2>
+<blockquote>
+<p><strong>Who:</strong> Admin &nbsp;|&nbsp; <strong>When:</strong> Any time after interviews are conducted &nbsp;|&nbsp; <strong>Purpose:</strong> System-wide reporting and employee management</p>
+</blockquote>
+<div class="mermaid">flowchart TD
+    START(["🛡️ Admin Logs In"]) --&gt; DASH
+
+    DASH["📊 Admin Dashboard"]
+
+    DASH --&gt; STATS_API["GET /api/v1/admin/dashboard-stats"]
+    STATS_API --&gt; STATS_DB[("🗄️ MongoDB Aggregations
+    ─────────────────────────────
+    User.countDocuments({ role: employee })
+    User.countDocuments({ role: candidate })
+    AIInterview.countDocuments()")]
+
+    STATS_DB --&gt; METRICS["📈 KPI Metrics Rendered
+    ─────────────────────────────
+    · 👔 Total Employees
+    · 👤 Total Candidates
+    · 🎤 Total Interviews Conducted
+    · 📊 Score Chart (last 7 completions)
+    · 🗂️ Recent 10 Candidate Summaries"]
+
+    DASH --&gt; HIST_API["GET /api/v1/admin/interviews"]
+    HIST_API --&gt; HIST_DB[("🗄️ AIInterview.find()
+    .populate('candidateId', 'fullName email')
+    .populate('interviewSessionId → createdBy')
+    .sort('-createdAt')")]
+
+    HIST_DB --&gt; TABLE["📋 Full Audit Table
+    ─────────────────────────────
+    · Candidate Name + Email
+    · Role / Position Interviewed For
+    · Created By (Employee Name)
+    · Date + Time
+    · Status (Completed / In Progress)
+    · Average Score"]
+
+    TABLE --&gt; ACTIONS{"Admin Actions"}
+    ACTIONS --&gt; VIEW["🔍 View Full Details
+    Per-question scores, feedback,
+    strengths, weaknesses"]
+    ACTIONS --&gt; PDF["📄 Export to PDF Report"]
+    ACTIONS --&gt; FILTER["🔎 Filter by Status,
+    Date Range, or Role"]
+
+    DASH --&gt; EMP_MGMT["👥 Manage Employees
+    ─────────────────────────────
+    GET /admin/manage-employee
+    POST /admin/add-employee
+    PATCH /admin/update-employee
+    DELETE /admin/employee/:id"]
+
+    EMP_MGMT --&gt; SOCKET_EMP["📡 Real-time updates via Socket.io
+    employeeAdded / employeeUpdated /
+    employeeDeleted events"]
+
+    style START fill:#4f46e5,color:#fff
+    style METRICS fill:#16a34a,color:#fff
+    style TABLE fill:#0891b2,color:#fff
+    style SOCKET_EMP fill:#b45309,color:#fff
+</div><hr>
+<h2 id="11-complete-data-model-relationships">11. Complete Data Model Relationships </h2>
+<div class="mermaid">erDiagram
+    USER {
+        ObjectId _id PK
+        string email UK
+        string password
+        string role "admin | employee | candidate"
+        string fullName
+        string profilePhoto
+        string phoneNumber
+        string organization
+        string professionalBio
+        boolean needsPasswordChange
+        boolean isActive
+        string resetPasswordOTP
+        Date resetPasswordExpires
+        ObjectId createdBy FK
+        Date createdAt
+        Date updatedAt
+    }
+
+    ADMIN {
+        string[] permissions
+        boolean systemLogsAccess
+        string department
+    }
+
+    EMPLOYEE {
+        string jobTitle
+        string department
+        string status "Pending | Verified | Deactivated"
+        string verificationToken
+        Date verificationTokenExpires
+        ObjectId[] assignedCandidates FK
+    }
+
+    CANDIDATE {
+        string resumeUrl
+        string[] skills
+        string location
+        number experience
+        string level "junior | mid | senior"
+        number overallConfidenceScore
+        ObjectId[] performanceReports FK
+    }
+
+    INTERVIEWSESSION {
+        ObjectId _id PK
+        string jobTitle
+        string jobDescription
+        string topic
+        Date scheduledDate
+        string startTime
+        number duration
+        string status "Scheduled | InProgress | Completed"
+        ObjectId createdBy FK
+        Date createdAt
+    }
+
+    SESSION_CANDIDATE {
+        ObjectId candidateId FK
+        string email
+        boolean inviteSent
+        string status "Pending | Completed"
+    }
+
+    AIINTERVIEW {
+        ObjectId _id PK
+        ObjectId candidateId FK
+        ObjectId interviewSessionId FK
+        string role
+        string experience
+        string currentDifficulty "easy | medium | hard"
+        string status "ongoing | completed"
+        string finalReport
+        Date createdAt
+        Date updatedAt
+    }
+
+    QUESTION {
+        string text
+        Date askedAt
+    }
+
+    ANSWER {
+        string questionText
+        string transcribedText
+        Date answeredAt
+    }
+
+    SCORE {
+        string questionText
+        number semanticScore
+        number technicalScore
+        number overallScore
+        string feedback
+        string[] strengths
+        string[] weaknesses
+    }
+
+    USER ||--o| ADMIN : "Mongoose Discriminator"
+    USER ||--o| EMPLOYEE : "Mongoose Discriminator"
+    USER ||--o| CANDIDATE : "Mongoose Discriminator"
+    EMPLOYEE ||--o{ INTERVIEWSESSION : "creates"
+    INTERVIEWSESSION ||--o{ SESSION_CANDIDATE : "contains"
+    SESSION_CANDIDATE }o--|| CANDIDATE : "references"
+    CANDIDATE ||--o{ AIINTERVIEW : "takes"
+    INTERVIEWSESSION ||--o{ AIINTERVIEW : "parent of"
+    AIINTERVIEW ||--o{ QUESTION : "has"
+    AIINTERVIEW ||--o{ ANSWER : "has"
+    AIINTERVIEW ||--o{ SCORE : "has"
+</div><hr>
+<h2 id="12-complete-socketio-event-reference">12. Complete <a href="http://Socket.io">Socket.io</a> Event Reference </h2>
+<h3 id="-client--server-events">📤 Client → Server Events </h3>
+<table>
+<thead>
+<tr>
+<th>Event Name</th>
+<th>Payload Schema</th>
+<th>Description</th>
+<th>Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start-interview</code></td>
+<td><code>{ interviewId: string }</code></td>
+<td>Join the interview room and receive the first question</td>
+<td>Phase 3</td>
+</tr>
+<tr>
+<td><code>send-audio</code></td>
+<td><code>{ interviewId: string, currentQuestionText: string, audioBuffer: ArrayBuffer }</code></td>
+<td>Submit candidate's voice answer for transcription and evaluation</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td><code>interview-complete</code></td>
+<td><code>{ interviewId: string }</code></td>
+<td>Signal the end of the interview and trigger final report generation</td>
+<td>Phase 8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="-server--client-events">📥 Server → Client Events </h3>
+<table>
+<thead>
+<tr>
+<th>Event Name</th>
+<th>Payload Schema</th>
+<th>Description</th>
+<th>Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>next-question</code></td>
+<td><code>{ questionText: string }</code></td>
+<td>AI-generated question, delivered after start or each answer</td>
+<td>Phase 4</td>
+</tr>
+<tr>
+<td><code>transcription-result</code></td>
+<td><code>{ transcribedText: string }</code></td>
+<td>Real-time speech-to-text result shown on screen</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td><code>evaluation-result</code></td>
+<td><code>{ evaluation: ScoreObject }</code></td>
+<td>Full AI evaluation with scores, feedback, strengths, weaknesses</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td><code>processing-status</code></td>
+<td><code>{ message: string | null }</code></td>
+<td>Loading state message during transcription/evaluation, null clears it</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td><code>interview-completed-successfully</code></td>
+<td><code>{ finalReport: string, averageScore: number }</code></td>
+<td>Signals the end of interview with final summary</td>
+<td>Phase 8</td>
+</tr>
+<tr>
+<td><code>interview-error</code></td>
+<td><code>{ message: string }</code></td>
+<td>Error emitted for any pipeline failure</td>
+<td>All</td>
+</tr>
+<tr>
+<td><code>employeeAdded</code></td>
+<td><code>Employee</code></td>
+<td>Broadcasts new employee document to admin dashboard</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>employeeUpdated</code></td>
+<td><code>Employee</code></td>
+<td>Broadcasts updated employee document</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>employeeDeleted</code></td>
+<td><code>string (id)</code></td>
+<td>Broadcasts deleted employee ID</td>
+<td>Admin</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scoreobject-schema">ScoreObject Schema </h3>
+<pre data-role="codeBlock" data-info="json" class="language-json json"><code><span class="token punctuation">{</span>
+  <span class="token property">"semanticScore"</span><span class="token operator">:</span>   <span class="token number">75</span><span class="token punctuation">,</span>
+  <span class="token property">"technicalScore"</span><span class="token operator">:</span>  <span class="token number">80</span><span class="token punctuation">,</span>
+  <span class="token property">"overallScore"</span><span class="token operator">:</span>    <span class="token number">77</span><span class="token punctuation">,</span>
+  <span class="token property">"feedback"</span><span class="token operator">:</span>        <span class="token string">"Good conceptual understanding with clear communication..."</span><span class="token punctuation">,</span>
+  <span class="token property">"strengths"</span><span class="token operator">:</span>       <span class="token punctuation">[</span><span class="token string">"Clear explanation"</span><span class="token punctuation">,</span> <span class="token string">"Relevant example provided"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token property">"weaknesses"</span><span class="token operator">:</span>      <span class="token punctuation">[</span><span class="token string">"Missed time complexity discussion"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre><hr>
+<h2 id="-rest-api-quick-reference">📌 REST API Quick Reference </h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Auth</th>
+<th>Role</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/user/login</code></td>
+<td>❌</td>
+<td>All</td>
+<td>Login and receive JWT cookie</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/user/register</code></td>
+<td>❌</td>
+<td>Admin</td>
+<td>Register new admin account</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/user/change-password</code></td>
+<td>✅</td>
+<td>All</td>
+<td>Update first-time password</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/employee/interview/create</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Create interview session</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/employee/interviews</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>List own interview sessions</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/employee/interview/:id</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Get session details</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/employee/interview/:id</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Update / reschedule session</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/employee/interview/:id/candidate</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Add candidate to session</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/employee/interview/:id</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Delete session</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/employee/interview/generate-prompt</code></td>
+<td>✅</td>
+<td>Employee</td>
+<td>Generate AI system prompt</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/candidate/my-interviews</code></td>
+<td>✅</td>
+<td>Candidate</td>
+<td>Fetch assigned interviews</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/ai-interview/start</code></td>
+<td>✅</td>
+<td>Candidate</td>
+<td>Initialize AI interview session</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/ai-interview/end</code></td>
+<td>✅</td>
+<td>Candidate</td>
+<td>Mark session as completed via REST</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/admin/dashboard-stats</code></td>
+<td>✅</td>
+<td>Admin</td>
+<td>System-wide KPI metrics</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/admin/interviews</code></td>
+<td>✅</td>
+<td>Admin</td>
+<td>All AI interviews (audit)</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/admin/add-employee</code></td>
+<td>✅</td>
+<td>Admin</td>
+<td>Invite new employee</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/v1/admin/update-employee</code></td>
+<td>✅</td>
+<td>Admin</td>
+<td>Update employee record</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/admin/employee/:id</code></td>
+<td>✅</td>
+<td>Admin</td>
+<td>Remove employee</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<div align="center">
+<hr>
+<p><strong>VIRQA AI Interview Platform</strong><br>
+<em>Final Year Project — University of Central Punjab (UCP) — F22</em><br>
+<em>Built with ❤️ by Muhammad Ummar</em></p>
+<hr>
+<p><em>Document generated from live source code analysis — all flows reflect actual implementation</em></p>
+</div>
+
+      </div>
+      
+      
+    
+    
+    <script type="module">
+// TODO: If ZenUML gets integrated into mermaid in the future,
+//      we can remove the following lines.
+
+
+var MERMAID_CONFIG = ({"startOnLoad":false});
+if (typeof MERMAID_CONFIG !== 'undefined') {
+  MERMAID_CONFIG.startOnLoad = false
+  MERMAID_CONFIG.cloneCssStyles = false
+  MERMAID_CONFIG.theme = "default"
+}
+
+mermaid.initialize(MERMAID_CONFIG || {})
+if (typeof(window['Reveal']) !== 'undefined') {
+  function mermaidRevealHelper(event) {
+    var currentSlide = event.currentSlide
+    var diagrams = currentSlide.querySelectorAll('div.mermaid')
+    for (var i = 0; i < diagrams.length; i++) {
+      var diagram = diagrams[i]
+      if (!diagram.hasAttribute('data-processed')) {
+        mermaid.init(null, diagram, ()=> {
+          Reveal.slide(event.indexh, event.indexv)
+        })
+      }
+    }
+  }
+  Reveal.addEventListener('slidetransitionend', mermaidRevealHelper)
+  Reveal.addEventListener('ready', mermaidRevealHelper)
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+} else {
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+}
+</script>
+    
+    
+    
+  
+    </body></html>

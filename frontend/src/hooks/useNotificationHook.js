@@ -1,72 +1,128 @@
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-// notificationService.js
-export const fetchMockNotifications = async ({ pageParam = 1 }) => {
-  await new Promise((res) => setTimeout(res, 300));
-  const total = 20;
-  const pageSize = 5;
-  const start = (pageParam - 1) * pageSize;
-  const end = Math.min(start + pageSize, total);
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api, socket } from '../config/api';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
-  const data = Array.from({ length: end - start }, (_, i) => ({
-    id: start + i + 1,
-    title: `Notification ${start + i + 1}`,
-    message: `This is the message for notification ${start + i + 1}.`,
-    type: ['interview', 'results', 'system', 'reminders'][(start + i) % 4],
-    timestamp: new Date().toLocaleTimeString(),
-    read: Math.random() < 0.5,
-  }));
-
-  return { data, nextPage: end < total ? pageParam + 1 : null };
+// Fetch real notifications from API
+export const fetchNotifications = async ({ pageParam = 1 }) => {
+    const res = await api.get(`/notifications?page=${pageParam}`);
+    // Adjusting based on standard ApiResponse structure { success, data, message }
+    const notifications = res.data?.data || [];
+    // Assuming backend handles pagination, otherwise return simple array
+    return { 
+        data: notifications, 
+        nextPage: notifications.length === 30 ? pageParam + 1 : null 
+    };
 };
 
 export const useNotifications = () => {
-  const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
+    const userId = localStorage.getItem("userId");
 
-  const query = useInfiniteQuery({
-    queryKey: ['notifications'],
-    queryFn: fetchMockNotifications,
-    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
-    staleTime: 1000 * 60,
-  });
-
-  const markAsRead = (id) => {
-    queryClient.setQueryData(['notifications'], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          data: page.data.map((n) => (n.id === id ? { ...n, read: true } : n)),
-        })),
-      };
+    const query = useInfiniteQuery({
+        queryKey: ['notifications'],
+        queryFn: fetchNotifications,
+        getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+        staleTime: 1000 * 60 * 5, // 5 min stale time
     });
-  };
 
-  const markAsUnread = (id) => {
-    queryClient.setQueryData(['notifications'], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          data: page.data.map((n) => (n.id === id ? { ...n, read: false } : n)),
-        })),
-      };
+    // Real-time socket listener
+    useEffect(() => {
+        if (!socket || !userId) return;
+
+        // Join personal room if not already joined
+        socket.emit("join", userId);
+
+        const handleNewNotification = (notification) => {
+            console.log("New notification received:", notification);
+            
+            // Trigger a real-time toast alert
+            toast.info(
+                <div className="flex flex-col gap-1">
+                    <p className="font-bold text-sm">{notification.title}</p>
+                    <p className="text-xs opacity-90">{notification.message}</p>
+                </div>,
+                {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    icon: "🔔"
+                }
+            );
+
+            // Prepend new notification to the first page of cache
+            queryClient.setQueryData(['notifications'], (old) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page, index) => 
+                        index === 0 
+                            ? { ...page, data: [notification, ...page.data] }
+                            : page
+                    ),
+                };
+            });
+        };
+
+        socket.on("new_notification", handleNewNotification);
+        return () => socket.off("new_notification", handleNewNotification);
+    }, [queryClient, userId]);
+
+    const markAsReadMutation = useMutation({
+        mutationFn: (id) => api.patch(`/notifications/${id}`),
+        onSuccess: (_, id) => {
+            queryClient.setQueryData(['notifications'], (old) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page) => ({
+                        ...page,
+                        data: page.data.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
+                    })),
+                };
+            });
+        }
     });
-  };
 
-  const markAllAsRead = () => {
-    queryClient.setQueryData(['notifications'], (old) => {
-      if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => ({
-          ...page,
-          data: page.data.map((n) => ({ ...n, read: true })),
-        })),
-      };
+    const markAllAsReadMutation = useMutation({
+        mutationFn: () => api.patch('/notifications/mark-all-read'),
+        onSuccess: () => {
+            queryClient.setQueryData(['notifications'], (old) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page) => ({
+                        ...page,
+                        data: page.data.map((n) => ({ ...n, isRead: true })),
+                    })),
+                };
+            });
+        }
     });
-  };
 
-  return { ...query, markAsRead, markAsUnread, markAllAsRead };
+    const deleteMutation = useMutation({
+        mutationFn: (id) => api.delete(`/notifications/${id}`),
+        onSuccess: (_, id) => {
+            queryClient.setQueryData(['notifications'], (old) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page) => ({
+                        ...page,
+                        data: page.data.filter((n) => n._id !== id),
+                    })),
+                };
+            });
+        }
+    });
+
+    return { 
+        ...query, 
+        markAsRead: markAsReadMutation.mutate, 
+        markAllAsRead: markAllAsReadMutation.mutate,
+        deleteNotification: deleteMutation.mutate 
+    };
 };

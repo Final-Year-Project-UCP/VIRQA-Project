@@ -18,13 +18,20 @@ app.set("io", io);
 
 io.on("connection", (socket) => {
   console.log("Client connected via socket.io:", socket.id);
+
+  // Join a private room for targeted notifications
+  socket.on("join", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined their private notification room.`);
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
   });
 });
 
 // Register interview-specific socket logic
-registerInterviewSocketHandlers(io);
+registerInterviewSocketHandlers(app, io);
 
 
 if (!process.env.MONGODB_URI || !process.env.DB_NAME) {

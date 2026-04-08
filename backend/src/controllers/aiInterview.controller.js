@@ -1,4 +1,5 @@
 import { AIInterview } from "../models/aiInterview.model.js";
+import mongoose from "mongoose";
 
 /**
  * Initializes a new AI Interview Session
@@ -12,6 +13,19 @@ export const startAIInterview = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields." });
         }
 
+        // Fetch Interview Session to enforce expiration
+        if (interviewSessionId) {
+            const session = await mongoose.model("InterviewSession").findById(interviewSessionId);
+            if (session && session.expiresAt) {
+                if (new Date() > new Date(session.expiresAt)) {
+                    return res.status(403).json({
+                        success: false,
+                        message: "The deadline for this interview has passed. You can no longer start it."
+                    });
+                }
+            }
+        }
+
         // Check for existing session for this specific interview
         const existingSession = await AIInterview.findOne({
             candidateId,
@@ -21,10 +35,10 @@ export const startAIInterview = async (req, res) => {
 
         if (existingSession) {
             if (existingSession.status === "completed") {
-                return res.status(403).json({ 
-                    success: false, 
+                return res.status(403).json({
+                    success: false,
                     message: "Interview already completed. You cannot rejoin.",
-                    data: existingSession 
+                    data: existingSession
                 });
             }
             // Return existing ongoing session to allow persistence
@@ -65,7 +79,12 @@ export const getAIInterview = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const session = await AIInterview.findById(id).populate("candidateId", "fullName email");
+        const session = await AIInterview.findById(id)
+            .populate("candidateId", "fullName email")
+            .populate({
+                path: "interviewSessionId",
+                select: "duration showResultToCandidate"
+            });
         if (!session) {
             return res.status(404).json({ success: false, message: "AI Session not found." });
         }

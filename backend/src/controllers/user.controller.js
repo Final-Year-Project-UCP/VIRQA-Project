@@ -170,6 +170,47 @@ const resetPasswordHandler = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "Password reset successfully!"));
 });
 
+// @desc    Get current user profile
+// @route   GET /api/v1/user/profile
+const getProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    return res.status(200).json(new ApiResponse(200, user, "Profile fetched successfully"));
+});
+
+// @desc    Update user profile
+// @route   PATCH /api/v1/user/profile
+const updateProfile = asyncHandler(async (req, res) => {
+    const { fullName, phoneNumber, professionalBio, organization, location, skills, experience, level, jobTitle, department } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    // Update base fields
+    if (fullName) user.fullName = fullName;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (professionalBio) user.professionalBio = professionalBio;
+    if (organization) user.organization = organization;
+    if (location) user.location = location;
+
+    // Update Role-specific fields
+    if (user.role === 'candidate') {
+        if (skills) user.skills = skills;
+        if (experience !== undefined) user.experience = experience;
+        if (level) user.level = level;
+    } else if (user.role === 'employee') {
+        if (jobTitle) user.jobTitle = jobTitle;
+        if (department) user.department = department;
+    } else if (user.role === 'admin') {
+        if (department) user.department = department;
+    }
+
+    await user.save();
+
+    return res.status(200).json(new ApiResponse(200, user, "Profile updated successfully"));
+});
+
 export {
     registerHandler,
     LoginHandler,
@@ -177,5 +218,7 @@ export {
     changePasswordHandler,
     forgotPasswordHandler,
     verifyOTPHandler,
-    resetPasswordHandler
+    resetPasswordHandler,
+    getProfile,
+    updateProfile
 }

@@ -7,7 +7,7 @@ const NotificationList = ({ notifications, onMarkAsRead }) => {
       <AnimatePresence mode="popLayout">
         {notifications.map((notification, index) => (
           <motion.div
-            key={notification.id}
+            key={notification._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: 1,

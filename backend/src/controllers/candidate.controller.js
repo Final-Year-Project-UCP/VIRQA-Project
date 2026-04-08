@@ -11,8 +11,8 @@ const getMyInterviews = asyncHandler(async (req, res) => {
     const interviews = await InterviewSession.find({
         "candidates.candidateId": req.user._id
     })
-    .populate("createdBy", "fullName organization organizationLogo profilePhoto")
-    .sort("scheduledDate startTime");
+        .populate("createdBy", "fullName organization organizationLogo profilePhoto")
+        .sort("scheduledDate startTime");
 
     return res.status(200).json(
         new ApiResponse(200, interviews, "Upcoming interviews fetched successfully")
@@ -56,13 +56,13 @@ const getMyResults = asyncHandler(async (req, res) => {
         candidateId: req.user._id,
         status: "completed"
     })
-    // populate the associated InterviewSession to get company/createdBy details if needed
-    .populate({
-        path: "interviewSessionId",
-        select: "jobTitle scheduledDate startTime duration createdBy",
-        populate: { path: "createdBy", select: "fullName organization" }
-    })
-    .sort("-createdAt");
+        // populate the associated InterviewSession to get company/createdBy details if needed
+        .populate({
+            path: "interviewSessionId",
+            select: "jobTitle scheduledDate startTime duration showResultToCandidate createdBy",
+            populate: { path: "createdBy", select: "fullName organization" }
+        })
+        .sort("-createdAt");
 
     return res.status(200).json(
         new ApiResponse(200, results, "Candidate results fetched successfully")

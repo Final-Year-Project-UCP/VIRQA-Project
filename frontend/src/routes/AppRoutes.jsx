@@ -33,6 +33,7 @@ import ViewInterview from "../Pages/AdminPages/ViewInterveiw/ViewInterview.jsx";
 import ManageProfile from "../Pages/AdminPages/Profile/ManageProfile.jsx";
 import AdminNotification from "../Pages/AdminPages/Notification/AdminNotification.jsx";
 import EmployeeFeedback from "../Pages/EmployerPages/Feedback/Feedback.jsx";
+import EmployerCandidateResult from "../Pages/EmployerPages/Interview/EmployerCandidateResult.jsx";
 import InterviewConduct from "../Pages/InterviewConduct.jsx";
 
 const AppRoutes = () => {
@@ -73,6 +74,7 @@ const AppRoutes = () => {
           <Route path="profile" element={<ProfileSettings />} />
           <Route path="create-interview" element={<CreateInterviewForm />} />
           <Route path="history" element={<InterviewHistory />} />
+          <Route path="evaluation/:sessionId/:candidateId" element={<EmployerCandidateResult />} />
           <Route path="notifications" element={<EmployeeNotificationsPage />} />
           <Route path="feedback" element={<EmployeeFeedback />} />
         </Route>

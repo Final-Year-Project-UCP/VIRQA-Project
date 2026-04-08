@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, PhoneOff, Maximize2, Minimize2, BarChart2, MessageSquare, BrainCircuit, Send } from 'lucide-react';
+import { Mic, MicOff, PhoneOff, Maximize2, Minimize2, BarChart2, MessageSquare, BrainCircuit, Send, Shield, XCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { api } from '../../../../config/api.js';
 import { io } from 'socket.io-client';
 import axios from 'axios';
@@ -25,7 +26,10 @@ const ActiveSession = ({ onLeave, session }) => {
     const [aiInterviewId, setAiInterviewId] = useState(null);
     const [chatHistory, setChatHistory] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
+    const [displayedQuestion, setDisplayedQuestion] = useState("");
     const [statusMessage, setStatusMessage] = useState("Initializing...");
+    const [violationCount, setViolationCount] = useState(0);
+    const [showViolationAlert, setShowViolationAlert] = useState(false);
     const [finalReport, setFinalReport] = useState("");
 
     // Media States
@@ -99,9 +103,9 @@ const ActiveSession = ({ onLeave, session }) => {
                 newSocket.on("next-question", (data) => {
                     const aiQuestion = data.questionText;
                     setCurrentQuestion(aiQuestion);
-                    setStatusMessage("Listening...");
+                    setDisplayedQuestion(""); // Reset for typewriter
+                    setStatusMessage("AI is speaking...");
                     
-                    // Only add to history if it's NOT the last question that we already have
                     setChatHistory(prev => {
                         const lastMsg = prev[prev.length - 1];
                         if (lastMsg && lastMsg.text === aiQuestion && lastMsg.sender === 'AI Interviewer') {
@@ -110,8 +114,6 @@ const ActiveSession = ({ onLeave, session }) => {
                         return [...prev, { sender: 'AI Interviewer', text: aiQuestion }];
                     });
 
-                    // Only speak if it's a new question or if it's the very first one being resumed
-                    // (Actually, it's safer to just speak it again so the user knows where they are)
                     speak(aiQuestion); 
                 });
 
@@ -158,26 +160,40 @@ const ActiveSession = ({ onLeave, session }) => {
         };
     }, [hasStarted, session, role, onLeave]);
 
-    // Speech Synthesis for TTS
+    // Speech Synthesis for TTS with boundary sync
     const speak = (text) => {
-        if (!window.speechSynthesis) return;
-        window.speechSynthesis.cancel(); // cancel any ongoing speech
+        if (!window.speechSynthesis) {
+            setDisplayedQuestion(text); // Fallback if no speech
+            return;
+        }
+        window.speechSynthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
-        // Look for Google voices to get high quality
-        const preferredVoice = voices.find(v => v.name.includes("Google UK English Female") || v.name.includes("Google US English")) || voices[0];
+        const preferredVoice = voices.find(v => v.name.includes("Google UK English Female") || v.name.includes("Google US English") || v.name.includes("en-GB") || v.name.includes("en-US")) || voices[0];
         if (preferredVoice) utterance.voice = preferredVoice;
 
         utterance.rate = 1.0;
         
-        utterance.onstart = () => setAiSpeaking(true);
+        // Sync text reveal with speech speed
+        // Note: Simple typewriter effect that starts with speech
+        let charIndex = 0;
+        const typeTimer = setInterval(() => {
+            setDisplayedQuestion(text.substring(0, charIndex + 1));
+            charIndex++;
+            if (charIndex >= text.length) clearInterval(typeTimer);
+        }, 50); // roughly syncs with speech speed
+
+        utterance.onstart = () => {
+            setAiSpeaking(true);
+            setControlsVisible(false); // Focus on question
+        };
+
         utterance.onend = () => {
             setAiSpeaking(false);
-            // Automatically start recording User context when AI finishes speaking (if Mic isn't muted)
-            if (isMicOn) {
-                startRecording();
-            }
+            setControlsVisible(true);
+            setStatusMessage("Listening...");
+            if (isMicOn) startRecording();
         };
 
         window.speechSynthesis.speak(utterance);
@@ -203,6 +219,47 @@ const ActiveSession = ({ onLeave, session }) => {
         return () => clearTimeout(timer);
     }, [countdown]);
 
+    // Security: Tab Switching & Fullscreen
+    useEffect(() => {
+        if (!hasStarted) return;
+
+        // Auto-Fullscreen Trigger
+        try {
+            if (!document.fullscreenElement) {
+                containerRef.current?.requestFullscreen().catch(err => console.log("Fullscreen defer:", err));
+            }
+        } catch (e) {
+            console.warn("Fullscreen policy restricted trigger.");
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setViolationCount(prev => prev + 1);
+                setShowViolationAlert(true);
+                toast.error("Tab switching detected! This incident has been logged.");
+            }
+        };
+
+        const handleBlur = () => {
+            // Also fires when tab switches or window loses focus
+            if (!document.hidden) {
+                setViolationCount(prev => prev + 1);
+                setShowViolationAlert(true);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('blur', handleBlur);
+        const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleBlur);
+            document.removeEventListener('fullscreenchange', handleFullScreenChange);
+        };
+    }, [hasStarted]);
+
     const handleToggleFullScreen = () => {
         if (!document.fullscreenElement) {
             containerRef.current?.requestFullscreen().then(() => setIsFullScreen(true)).catch(err => console.log(err));
@@ -210,12 +267,6 @@ const ActiveSession = ({ onLeave, session }) => {
             document.exitFullscreen().then(() => setIsFullScreen(false));
         }
     };
-
-    useEffect(() => {
-        const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', handleFullScreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
-    }, []);
 
     const showControls = () => {
         if (!hasStarted) return;
@@ -366,6 +417,32 @@ const ActiveSession = ({ onLeave, session }) => {
 
                 {/* Central Content Area */}
                 <div className="flex-1 relative flex flex-col">
+                    {/* Proctoring Overlay */}
+                    <AnimatePresence>
+                        {showViolationAlert && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                className="absolute inset-0 z-50 flex items-center justify-center p-6"
+                            >
+                                <div className="bg-red-600/90 backdrop-blur-xl border-2 border-red-400 p-8 rounded-[2.5rem] shadow-[0_0_100px_rgba(220,38,38,0.5)] max-w-md text-center">
+                                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <XCircle size={40} className="text-white" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Security Violation</h3>
+                                    <p className="text-red-100 font-bold mb-8">Tab switching is strictly prohibited. Your session is being monitored. Further violations may result in immediate termination.</p>
+                                    <button 
+                                        onClick={() => setShowViolationAlert(false)}
+                                        className="w-full py-4 bg-white text-red-600 font-black rounded-2xl hover:bg-red-50 transition-all shadow-xl"
+                                    >
+                                        I Understand, Continue
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <AnimatePresence>
                         {controlsVisible && (
                             <motion.div
@@ -374,25 +451,79 @@ const ActiveSession = ({ onLeave, session }) => {
                                 exit={{ y: -50, opacity: 0 }}
                                 className="absolute top-0 left-0 right-0 z-20 p-6 flex justify-between items-start pointer-events-none"
                             >
-                                <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 shadow-lg pointer-events-auto">
-                                    <h2 className="text-white font-semibold text-lg">{role}</h2>
-                                    <div className="flex items-center gap-2 text-indigo-300 text-sm mt-1">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
-                                        <span>Interview with {session?.createdBy?.fullName || "AI Specialist"}</span>
+                                <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 shadow-lg pointer-events-auto flex items-center gap-4">
+                                    <div>
+                                        <h2 className="text-white font-semibold text-lg">{role}</h2>
+                                        <div className="flex items-center gap-2 text-indigo-300 text-sm mt-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
+                                            <span>Interview with {session?.createdBy?.fullName || "AI Specialist"}</span>
+                                        </div>
+                                    </div>
+                                    <div className="h-10 w-[1px] bg-white/10 mx-2"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Status</span>
+                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full">
+                                            <Shield size={12} className="text-emerald-400" />
+                                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-tight">AI PROCTORED</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="text-white font-mono bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-sm tracking-wider pointer-events-auto">
-                                    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <div className="flex items-center gap-3 pointer-events-auto">
+                                    <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl text-red-400 text-xs font-black flex items-center gap-2">
+                                        <AlertCircle size={14} />
+                                        VIOLATIONS: {violationCount}
+                                    </div>
+                                    <div className="text-white font-mono bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-sm tracking-wider">
+                                        {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <div className="flex-1 flex items-center justify-center p-4 lg:p-12">
+                    <div className="flex-1 flex flex-col items-center justify-center p-4 lg:p-12 relative">
+                        {/* Dynamic Question Bubble */}
+                        <AnimatePresence>
+                            {aiSpeaking && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                                    className="absolute top-20 md:top-32 left-1/2 transform -translate-x-1/2 w-full max-w-2xl z-40"
+                                >
+                                    <div className="bg-white p-8 rounded-[2.5rem] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] border border-slate-200 relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600"></div>
+                                        <div className="absolute top-4 right-6 flex gap-1">
+                                            <div className="w-1.5 h-1.5 bg-indigo-200 rounded-full animate-bounce"></div>
+                                            <div className="w-1.5 h-1.5 bg-indigo-300 rounded-full animate-bounce delay-75"></div>
+                                            <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
+                                        </div>
+                                        <p className="text-slate-800 text-lg md:text-xl font-bold leading-relaxed italic">
+                                            "{displayedQuestion}"
+                                            <span className="inline-block w-2.5 h-6 bg-indigo-600 ml-1 animate-pulse align-middle"></span>
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Fullscreen Recovery Button */}
+                        {!isFullScreen && hasStarted && (
+                            <motion.button
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                onClick={handleToggleFullScreen}
+                                className="absolute bottom-32 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all z-40 flex items-center gap-2 border border-indigo-400"
+                            >
+                                <Maximize2 size={16} />
+                                Re-enter Secure View
+                            </motion.button>
+                        )}
+
                         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center">
                             {/* AI Avatar */}
-                            <div className="flex flex-col items-center justify-center space-y-6 md:space-y-8 order-2 md:order-1">
+                            <div className={`flex flex-col items-center justify-center space-y-6 md:space-y-8 order-2 md:order-1 transition-all duration-700 ${aiSpeaking ? 'blur-sm grayscale opacity-30 mt-20' : ''}`}>
                                 <div className="relative">
                                     {aiSpeaking && (
                                         <>
@@ -418,14 +549,14 @@ const ActiveSession = ({ onLeave, session }) => {
 
                                 <div className="text-center">
                                     <h3 className="text-xl md:text-2xl font-bold text-white mb-2">{session?.createdBy?.fullName || "AI Specialist"}</h3>
-                                    <p className="text-indigo-200 text-xs md:text-sm font-medium px-4 py-1 bg-indigo-900/30 rounded-full inline-block border border-indigo-500/30">
-                                        {aiSpeaking ? "Speaking..." : statusMessage.includes("Thinking") ? "Generating..." : "Listening..."}
+                                    <p className="text-indigo-200 text-xs md:text-sm font-medium px-4 py-1 bg-indigo-900/30 rounded-full inline-block border border-indigo-500/30 uppercase tracking-widest">
+                                        {aiSpeaking ? "Speaking..." : statusMessage.includes("Thinking") ? "Evaluating..." : "Listening..."}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Candidate Audio */}
-                            <div className="flex flex-col items-center justify-center space-y-6 md:space-y-8 order-1 md:order-2">
+                            <div className={`flex flex-col items-center justify-center space-y-6 md:space-y-8 order-1 md:order-2 transition-all duration-700 ${aiSpeaking ? 'blur-sm grayscale opacity-30 mt-20' : ''}`}>
                                 <div className="relative">
                                     {isMicOn && !aiSpeaking && (
                                         <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-pulse transform scale-110"></div>
