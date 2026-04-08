@@ -11,10 +11,28 @@ import feedbackRouter from "./routes/feedback.routes.js";
 import cors from "cors";
 const app = express();
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-}));
+app.set("trust proxy", 1);
+
+const allowedOrigins = (process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+app.use(
+    cors({
+        origin: (origin, cb) => {
+            // allow non-browser clients (no Origin header)
+            if (!origin) return cb(null, true);
+            if (allowedOrigins.length === 0) return cb(null, true);
+            return allowedOrigins.includes(origin)
+                ? cb(null, true)
+                : cb(new Error(`CORS blocked origin: ${origin}`));
+        },
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
