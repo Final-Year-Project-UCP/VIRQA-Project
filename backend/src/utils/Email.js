@@ -1,191 +1,111 @@
-import nodemailer from "nodemailer";
+import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
-import { 
-    activationTemplate, 
-    employeeInviteTemplate, 
-    forgotPasswordTemplate, 
-    interviewInviteTemplate, 
-    interviewRescheduleTemplate 
+
+import {
+    activationTemplate,
+    employeeInviteTemplate,
+    forgotPasswordTemplate,
+    interviewInviteTemplate,
+    interviewRescheduleTemplate
 } from "../constants.js";
-const createMailOptions = (from,to, subject,activationLink ) => {
-  return {
-    from,// sender email
-    to, // receiver email
-    subject,//email subject
-    html: activationTemplate
-    .replace("{{activationLink}}", activationLink)
-    .replace("{{year}}", new Date().getFullYear()),
-  };
+
+// Ensure your Brevo API key is stored in your .env as BREVO_API_KEY
+// Ensure your registered Sender Email is GOOGLE_USER (or BREVO_SENDER_EMAIL)
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.GOOGLE_USER || "fypvirqa@gmail.com";
+const SENDER_NAME = "VIRQA Platform";
+
+const sendBrevoEmail = async (to, subject, htmlContent) => {
+    if (!BREVO_API_KEY) {
+        throw new Error("BREVO_API_KEY is missing from environment variables.");
+    }
+
+    try {
+        const response = await axios.post(
+            'https://api.brevo.com/v3/smtp/email',
+            {
+                sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+                to: [{ email: to }],
+                subject: subject,
+                htmlContent: htmlContent
+            },
+            {
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': BREVO_API_KEY,
+                    'content-type': 'application/json'
+                },
+                timeout: 10000 // 10 second timeout for responsiveness
+            }
+        );
+        console.log(`Email sent via Brevo successfully to ${to}. MessageId:`, response.data.messageId);
+        return true;
+    } catch (error) {
+        console.error("Brevo Email Sending Error:", error?.response?.data || error.message);
+        throw error;
+    }
 };
 
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
-const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
-const SMTP_SECURE =
-  (process.env.SMTP_SECURE || "").toLowerCase() === "true"
-    ? true
-    : (process.env.SMTP_SECURE || "").toLowerCase() === "false"
-      ? false
-      : SMTP_PORT === 465;
+const sendEmail = async (from, to, subject, activationLink) => {
+    const html = activationTemplate
+        .replace("{{activationLink}}", activationLink)
+        .replace("{{year}}", new Date().getFullYear());
 
-// Keep API responsive in production: fail fast instead of hanging ~60s on blocked SMTP.
-const SMTP_CONNECTION_TIMEOUT_MS = Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 12_000);
-const SMTP_SOCKET_TIMEOUT_MS = Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 12_000);
-
-const transporter = nodemailer.createTransport({
-  // If you deploy to a host that blocks outbound SMTP, this will time out fast.
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_SECURE,
-  auth: {
-    user: process.env.GOOGLE_USER,
-    pass: process.env.GOOGLE_APP_PASSWORD,
-  },
-  connectionTimeout: SMTP_CONNECTION_TIMEOUT_MS,
-  socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
-  greetingTimeout: SMTP_CONNECTION_TIMEOUT_MS,
-});
-
-// Verify transport only outside production (it can also hang on blocked ports).
-if (process.env.NODE_ENV !== "production") {
-  transporter.verify((error) => {
-    if (error) {
-      console.error("Error connecting to email server:", error);
-    } else {
-      console.log("Email server is ready to send messages");
-    }
-  });
-}
-
-function withTimeout(promise, ms, label) {
-  if (!ms || ms <= 0) return promise;
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
-    ),
-  ]);
-}
-const sendEmail = async (from,to, subject,activationLink) => {
-  const mailOptions = createMailOptions(from,to, subject, activationLink);
-  const info = await withTimeout(
-    transporter.sendMail(mailOptions), // actual sending of the email
-    SMTP_SOCKET_TIMEOUT_MS,
-    "sendEmail"
-  );
-  console.log("Email sent successfully!",info);
-  return info.accepted.length > 0;//{accepted: ['user@gmail.com'],rejected: [],messageId: '<abc123@gmail.com>'
+    return await sendBrevoEmail(to, subject, html);
 };
 
 export const sendEmployeeInvite = async (from, to, password) => {
-  try {
     const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
     const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
-    const html = employeeInviteTemplate
-      .replace("{{email}}", to)
-      .replace("{{password}}", password)
-      .replace("{{loginLink}}", loginLink)
-      .replace("{{year}}", new Date().getFullYear());
 
-    const mailOptions = {
-      from: from || process.env.GOOGLE_USER,
-      to,
-      subject: "Welcome to VIRQA - Account Credentials",
-      html
-    };
-    
-    console.log(`Attempting to send invite email to: ${to}`);
-    const info = await withTimeout(
-      transporter.sendMail(mailOptions),
-      SMTP_SOCKET_TIMEOUT_MS,
-      "sendEmployeeInvite"
-    );
-    console.log("Invite email sent successfully:", info.messageId);
-    return info.accepted.length > 0;
-  } catch (error) {
-    console.error("Nodemailer Error (sendEmployeeInvite):", {
-      message: error?.message,
-      code: error?.code,
-      command: error?.command,
-      response: error?.response,
-      responseCode: error?.responseCode,
-      stack: process.env.NODE_ENV !== "production" ? error?.stack : undefined,
-    });
-    throw error; // Rethrow to be caught by the controller
-  }
+    const html = employeeInviteTemplate
+        .replace("{{email}}", to)
+        .replace("{{password}}", password)
+        .replace("{{loginLink}}", loginLink)
+        .replace("{{year}}", new Date().getFullYear());
+
+    return await sendBrevoEmail(to, "Welcome to VIRQA - Account Credentials", html);
 };
 
 export const sendForgotPasswordOTP = async (email, otpCode) => {
-    const year = new Date().getFullYear();
     const htmlBody = forgotPasswordTemplate
         .replace("{{otpCode}}", otpCode)
-        .replace("{{year}}", year);
+        .replace("{{year}}", new Date().getFullYear());
 
-    const mailOptions = {
-        from: process.env.GOOGLE_USER,
-        to: email,
-        subject: "VIRQA - Secure Password Reset OTP",
-        html: htmlBody
-    };
-    
-    const info = await withTimeout(
-      transporter.sendMail(mailOptions),
-      SMTP_SOCKET_TIMEOUT_MS,
-      "sendForgotPasswordOTP"
-    );
-    return info.accepted.length > 0;
+    return await sendBrevoEmail(email, "VIRQA - Secure Password Reset OTP", htmlBody);
 };
 
 export const sendInterviewInvite = async (to, { jobTitle, date, time, duration, password }) => {
-  const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
-  const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
-  const html = interviewInviteTemplate
-    .replace("{{jobTitle}}", jobTitle)
-    .replace("{{date}}", date)
-    .replace("{{time}}", time)
-    .replace("{{duration}}", duration)
-    .replace("{{email}}", to)
-    .replace("{{password}}", password)
-    .replace("{{loginLink}}", loginLink)
-    .replace("{{year}}", new Date().getFullYear());
+    const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
+    const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
 
-  const mailOptions = {
-    from: process.env.GOOGLE_USER,
-    to,
-    subject: `Interview Invitation: ${jobTitle} at VIRQA`,
-    html
-  };
-  const info = await withTimeout(
-    transporter.sendMail(mailOptions),
-    SMTP_SOCKET_TIMEOUT_MS,
-    "sendInterviewInvite"
-  );
-  return info.accepted.length > 0;
+    const html = interviewInviteTemplate
+        .replace("{{jobTitle}}", jobTitle)
+        .replace("{{date}}", date)
+        .replace("{{time}}", time)
+        .replace("{{duration}}", duration)
+        .replace("{{email}}", to)
+        .replace("{{password}}", password)
+        .replace("{{loginLink}}", loginLink)
+        .replace("{{year}}", new Date().getFullYear());
+
+    return await sendBrevoEmail(to, `Interview Invitation: ${jobTitle} at VIRQA`, html);
 };
 
 export const sendInterviewReschedule = async (to, { jobTitle, date, time, duration }) => {
-  const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
-  const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
-  const html = interviewRescheduleTemplate
-    .replace("{{jobTitle}}", jobTitle)
-    .replace("{{date}}", date)
-    .replace("{{time}}", time)
-    .replace("{{duration}}", duration)
-    .replace("{{loginLink}}", loginLink)
-    .replace("{{year}}", new Date().getFullYear());
+    const frontendUrl = (process.env.FRONTEND_URL || "").split(",")[0]?.trim();
+    const loginLink = frontendUrl ? `${frontendUrl.replace(/\/+$/, "")}/login` : "http://localhost:5173/login";
 
-  const mailOptions = {
-    from: process.env.GOOGLE_USER,
-    to,
-    subject: `RESCHEDULED: Interview for ${jobTitle} at VIRQA`,
-    html
-  };
-  const info = await withTimeout(
-    transporter.sendMail(mailOptions),
-    SMTP_SOCKET_TIMEOUT_MS,
-    "sendInterviewReschedule"
-  );
-  return info.accepted.length > 0;
+    const html = interviewRescheduleTemplate
+        .replace("{{jobTitle}}", jobTitle)
+        .replace("{{date}}", date)
+        .replace("{{time}}", time)
+        .replace("{{duration}}", duration)
+        .replace("{{loginLink}}", loginLink)
+        .replace("{{year}}", new Date().getFullYear());
+
+    return await sendBrevoEmail(to, `RESCHEDULED: Interview for ${jobTitle} at VIRQA`, html);
 };
 
 export default sendEmail;
