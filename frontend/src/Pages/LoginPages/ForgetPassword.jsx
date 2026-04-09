@@ -44,9 +44,9 @@ const ForgotPasswordStageOne = () => {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@gmail\.com$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      const msg = 'Please enter a valid Gmail address';
+      const msg = 'Please enter a valid email address';
       setErrorMessage(msg);
       toast.error(msg);
       return;
@@ -109,7 +109,7 @@ const ForgotPasswordStageOne = () => {
                 ${errorMessage
                     ? 'border-red-500/50 focus:ring-2 focus:ring-red-500/30'
                     : 'border-white/10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30'}`}
-                placeholder="you@gmail.com"
+                placeholder="you@example.com"
                 disabled={forgotPasswordMutation.isPending}
               />
               {/* Error Message */}

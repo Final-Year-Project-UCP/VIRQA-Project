@@ -26,6 +26,9 @@ const VerifyOTPAndResetPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
 
+    // Resend OTP cooldown
+    const [resendCooldown, setResendCooldown] = useState(0);
+
     // Redirect if no email
     useEffect(() => {
         if (!email) {
@@ -33,6 +36,13 @@ const VerifyOTPAndResetPassword = () => {
             navigate('/forget-password');
         }
     }, [email, navigate]);
+
+    // Countdown timer for resend cooldown
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const timer = setTimeout(() => setResendCooldown(c => c - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [resendCooldown]);
 
     // Password strength checking
     const checkStrength = (pass) => {
@@ -96,6 +106,22 @@ const VerifyOTPAndResetPassword = () => {
         setOtp(newOtp);
         otpRefs.current[Math.min(pastedData.length, 5)]?.focus();
     };
+
+    const resendOtpMutation = useMutation({
+        mutationFn: async () => {
+            const res = await api.post('/user/forgot-password', { email });
+            return res.data;
+        },
+        onSuccess: () => {
+            toast.success('New OTP sent! Check your inbox.');
+            setOtp(['', '', '', '', '', '']);
+            otpRefs.current[0]?.focus();
+            setResendCooldown(30);
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.message || 'Failed to resend OTP. Try again.');
+        }
+    });
 
     const verifyOtpMutation = useMutation({
         mutationFn: async (otpCode) => {
@@ -247,8 +273,21 @@ const VerifyOTPAndResetPassword = () => {
 
                             {/* Resend Code */}
                             <div className="text-center">
-                                <button className="text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors">
-                                    Resend Code
+                                <button
+                                    onClick={() => resendOtpMutation.mutate()}
+                                    disabled={resendCooldown > 0 || resendOtpMutation.isPending}
+                                    className={`font-medium text-sm transition-colors ${
+                                        resendCooldown > 0 || resendOtpMutation.isPending
+                                            ? 'text-gray-500 cursor-not-allowed'
+                                            : 'text-blue-400 hover:text-blue-300'
+                                    }`}
+                                >
+                                    {resendCooldown > 0
+                                        ? `Resend Code in ${resendCooldown}s`
+                                        : resendOtpMutation.isPending
+                                            ? 'Sending...'
+                                            : 'Resend Code'
+                                    }
                                 </button>
                             </div>
                         </div>
