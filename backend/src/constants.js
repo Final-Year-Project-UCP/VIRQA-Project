@@ -71,27 +71,148 @@ export const employeeInviteTemplate = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to VIRQA</title>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-        <h2 style="color: #2c3e50;">Welcome to VIRQA!</h2>
-        <p>Hello,</p>
-        <p>You have been invited to join the VIRQA platform as an Employee. Below are your login credentials:</p>
-        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p style="margin: 5px 0;"><strong>Email:</strong> {{email}}</p>
-            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> {{password}}</p>
-        </div>
-        <p>Please log in using the link below. You will be required to change your password upon your first login.</p>
-        <a href="{{loginLink}}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Login to Your Account</a>
-        <p style="margin-top: 30px;">Best regards,<br>VIRQA Team</p>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 0.8em; color: #777; text-align: center;">&copy; {{year}} VIRQA. All rights reserved.</p>
-    </div>
+<body style="margin:0; padding:0; background-color:#0f172a; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0f172a; padding:40px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- Main Card -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background:#1e293b; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+
+          <!-- Header Banner -->
+          <tr>
+            <td style="background:linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); padding:40px 30px; text-align:center;">
+              <!-- Logo Area -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="padding-bottom:20px;">
+                    <div style="display:inline-block; background:rgba(255,255,255,0.15); border-radius:14px; padding:12px 28px;">
+                      <span style="font-size:26px; font-weight:900; color:#ffffff; letter-spacing:3px;">VIRQA</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <h1 style="margin:0; font-size:28px; font-weight:700; color:#ffffff;">You're Invited!</h1>
+                    <p style="margin:10px 0 0; font-size:15px; color:rgba(255,255,255,0.8);">Your AI Interview Platform account is ready</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Wave Divider -->
+          <tr>
+            <td style="background:linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); height:2px;"></td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding:40px 35px; color:#cbd5e1;">
+
+              <!-- Greeting -->
+              <p style="font-size:16px; line-height:1.7; margin:0 0 12px; color:#e2e8f0;">Hello,</p>
+              <p style="font-size:16px; line-height:1.7; margin:0 0 30px; color:#94a3b8;">
+                You have been officially added to the <strong style="color:#ffffff;">VIRQA AI Interview Platform</strong> as an <strong style="color:#7c3aed;">Employee</strong>. Your account has been created and is ready to use. Please find your login credentials below.
+              </p>
+
+              <!-- Credentials Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0f172a; border:1px solid #334155; border-radius:12px; overflow:hidden; margin:0 0 30px;">
+                <!-- Box Header -->
+                <tr>
+                  <td style="background:#1e3a5f; padding:14px 20px; border-bottom:1px solid #334155;">
+                    <span style="font-size:13px; font-weight:700; color:#60a5fa; text-transform:uppercase; letter-spacing:1.5px;">🔐 Your Login Credentials</span>
+                  </td>
+                </tr>
+                <!-- Email Row -->
+                <tr>
+                  <td style="padding:18px 20px; border-bottom:1px solid #1e293b;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:1px; width:140px;">Email Address</td>
+                        <td style="font-size:15px; font-weight:600; color:#e2e8f0; font-family:monospace;">{{email}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <!-- Password Row -->
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:1px; width:140px;">Temp. Password</td>
+                        <td>
+                          <span style="font-family:monospace; font-size:16px; font-weight:700; color:#f8fafc; background:linear-gradient(135deg,#2563eb22,#7c3aed22); border:1px solid #7c3aed55; padding:5px 14px; border-radius:8px; letter-spacing:2px;">{{password}}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Security Notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#422006; border:1px solid #9a3412; border-radius:10px; margin:0 0 35px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0; font-size:13px; color:#fdba74; line-height:1.5;">
+                      ⚠️ <strong>Important:</strong> You will be required to change this temporary password immediately after your first login. Please do not share these credentials with anyone.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" style="padding:5px 0 35px;">
+                    <a href="{{loginLink}}" style="display:inline-block; background:linear-gradient(135deg,#2563eb,#7c3aed); color:#ffffff !important; font-size:16px; font-weight:700; text-decoration:none; padding:16px 50px; border-radius:10px; letter-spacing:0.5px; box-shadow:0 8px 25px rgba(124,58,237,0.4);">
+                      🚀 &nbsp; Login to Your Account
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Website Link -->
+              <p style="text-align:center; font-size:13px; color:#475569; margin:0 0 5px;">
+                Or visit us directly at:
+              </p>
+              <p style="text-align:center; margin:0;">
+                <a href="{{loginLink}}" style="color:#60a5fa; font-size:13px; text-decoration:none;">{{loginLink}}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 35px;"><div style="border-top:1px solid #334155;"></div></td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:25px 35px; text-align:center;">
+              <p style="margin:0 0 8px; font-size:13px; color:#475569;">Warm Regards,</p>
+              <p style="margin:0 0 16px; font-size:14px; font-weight:700; color:#7c3aed;">The VIRQA Team</p>
+              <p style="margin:0; font-size:11px; color:#334155;">&copy; {{year}} VIRQA &mdash; AI-Powered Interview Platform. All rights reserved.</p>
+              <p style="margin:6px 0 0; font-size:11px; color:#334155;">This is an automated message. Please do not reply to this email.</p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- End Card -->
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
 `;
+
 
 export const forgotPasswordTemplate = `
 <!DOCTYPE html>
