@@ -39,5 +39,6 @@ export const socket = io(SOCKET_URL, {
     auth: (cb) => {
         const token = localStorage.getItem('token');
         cb({ token });
+
     }
 });
