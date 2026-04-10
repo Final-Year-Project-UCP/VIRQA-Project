@@ -9,7 +9,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 
 // Ensure this points to correct backend URL
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080';
 
 const ActiveSession = ({ onLeave, session }) => {
     const role = session?.jobTitle || "Technical Resource";
@@ -52,7 +52,9 @@ const ActiveSession = ({ onLeave, session }) => {
         const initializeAI = async () => {
             try {
                 // 1. Create/Resume Interview Session Entry in AI Collection
-                const response = await axios.post(`${SOCKET_URL}/api/v1/ai-interview/start`, {
+                const startUrl = `${SOCKET_URL}/api/v1/ai-interview/start`;
+                console.log("Initializing AI interview at:", startUrl);
+                const response = await axios.post(startUrl, {
                     candidateId: session?.candidates?.[0]?.candidateId || "anonymous",
                     interviewSessionId: session?._id,
                     role: role,

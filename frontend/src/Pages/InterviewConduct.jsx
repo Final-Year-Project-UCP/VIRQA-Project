@@ -6,7 +6,7 @@ import AudioRecorder from '../components/AudioRecorder';
 import { User, Briefcase, Award, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 // Make sure you adjust the server URL if different
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 const InterviewConduct = () => {
     const { id } = useParams();

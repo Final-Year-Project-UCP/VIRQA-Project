@@ -18,15 +18,28 @@ const allowedOrigins = (process.env.FRONTEND_URL || "")
     .map((s) => s.trim())
     .filter(Boolean);
 
+console.log("CORS: Allowed Origins:", allowedOrigins.length > 0 ? allowedOrigins : "ALL (Warning: No FRONTEND_URL set)");
+
 app.use(
     cors({
         origin: (origin, cb) => {
             // allow non-browser clients (no Origin header)
             if (!origin) return cb(null, true);
+            
+            // If no FRONTEND_URL is set, allow all in dev (but we should encourage setting it)
             if (allowedOrigins.length === 0) return cb(null, true);
-            return allowedOrigins.includes(origin)
-                ? cb(null, true)
-                : cb(new Error(`CORS blocked origin: ${origin}`));
+
+            const isAllowed = allowedOrigins.some(allowed => 
+                origin === allowed || 
+                (allowed.endsWith('/') ? origin === allowed.slice(0, -1) : origin === allowed + '/')
+            );
+
+            if (isAllowed) {
+                cb(null, true);
+            } else {
+                console.warn(`CORS: Origin ${origin} blocked. Allowed: ${allowedOrigins.join(", ")}`);
+                cb(new Error(`CORS blocked origin: ${origin}`));
+            }
         },
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],

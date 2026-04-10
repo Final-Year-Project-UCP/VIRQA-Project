@@ -7,17 +7,29 @@ import { Server } from "socket.io";
 import { registerInterviewSocketHandlers } from "./sockets/interview.socket.js";
 
 const httpServer = createServer(app);
+const allowedOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const io = new Server(httpServer, {
   cors: {
-    origin: (process.env.FRONTEND_URL || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.some(allowed =>
+        origin === allowed || (allowed.endsWith('/') ? origin === allowed.slice(0, -1) : origin === allowed + '/')
+      )) {
+        callback(null, true);
+      } else {
+        console.warn(`Socket.io: Rejecting connection from origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   },
 });
 
 app.set("io", io);
+
 
 io.on("connection", (socket) => {
   console.log("Client connected via socket.io:", socket.id);
