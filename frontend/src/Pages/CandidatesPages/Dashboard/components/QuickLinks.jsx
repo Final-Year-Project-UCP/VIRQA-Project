@@ -15,6 +15,12 @@ const QuickLinks = () => {
       description: 'Enter scheduled meetings',
       href: '/api/v1/candidates/join'
     },
+    {
+      icon: FileText,
+      label: 'View Results',
+      description: 'Check your performance history',
+      href: '/api/v1/candidates/results'
+    },
   ];
 
   return (

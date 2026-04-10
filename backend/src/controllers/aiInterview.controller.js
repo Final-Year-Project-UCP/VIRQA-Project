@@ -20,6 +20,7 @@ export const startAIInterview = async (req, res) => {
                 if (new Date() > new Date(session.expiresAt)) {
                     return res.status(403).json({
                         success: false,
+                        code: "INTERVIEW_EXPIRED",
                         message: "The deadline for this interview has passed. You can no longer start it."
                     });
                 }
@@ -37,8 +38,8 @@ export const startAIInterview = async (req, res) => {
             if (existingSession.status === "completed") {
                 return res.status(403).json({
                     success: false,
-                    message: "Interview already completed. You cannot rejoin.",
-                    data: existingSession
+                    code: "INTERVIEW_ALREADY_COMPLETED",
+                    message: "Interview already completed. You cannot rejoin your previous attempt."
                 });
             }
             // Return existing ongoing session to allow persistence

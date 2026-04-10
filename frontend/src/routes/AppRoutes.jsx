@@ -35,6 +35,7 @@ import AdminNotification from "../Pages/AdminPages/Notification/AdminNotificatio
 import EmployeeFeedback from "../Pages/EmployerPages/Feedback/Feedback.jsx";
 import EmployerCandidateResult from "../Pages/EmployerPages/Interview/EmployerCandidateResult.jsx";
 import InterviewConduct from "../Pages/InterviewConduct.jsx";
+import AdminFeedback from "../Pages/AdminPages/Feedback/Feedback.jsx";
 
 const AppRoutes = () => {
   return (
@@ -88,6 +89,7 @@ const AppRoutes = () => {
           <Route path="view/interview" element={<ViewInterview />} />
           <Route path="profile" element={<ManageProfile />} />
           <Route path="notifications" element={<AdminNotification />} />
+          <Route path="feedback" element={<AdminFeedback />} />
           <Route path="comingsoon/settings" element={<ComingSoon />} />
         </Route>
       </Route>

@@ -1,4 +1,4 @@
-import { Bell, User, ClipboardList, Users, Settings, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Bell, User, ClipboardList, Users, Settings, LayoutDashboard, ShieldCheck, MessageSquare } from "lucide-react";
 
 export const notifications = [
     "New system alert",
@@ -10,6 +10,7 @@ export const sidebarItems = [
     { name: "Dashboard", path: "/api/v1/admin", icon: LayoutDashboard },
     { name: "Manage Employees", path: "/api/v1/admin/manage/employee", icon: Users },
     { name: "View Interviews", path: "/api/v1/admin/view/interview", icon: ClipboardList },
+    { name: "System Feedback", path: "/api/v1/admin/feedback", icon: MessageSquare },
     { name: "My Profile", path: "/api/v1/admin/profile", icon: ShieldCheck },
     { name: "Notifications", path: "/api/v1/admin/notifications", icon: Bell },
     { name: "Settings", path: "/api/v1/admin/comingsoon/settings", icon: Settings },

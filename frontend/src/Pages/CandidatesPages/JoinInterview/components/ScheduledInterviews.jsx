@@ -50,75 +50,85 @@ const InterviewCard = ({ interview, onJoin }) => {
         });
     };
 
+    const expiresAt = interview.expiresAt ? new Date(interview.expiresAt) : null;
+    const isExpired = expiresAt && new Date() > expiresAt;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-white rounded-2xl p-6 shadow-sm border ${isReady && !isCompleted ? 'border-indigo-500 ring-1 ring-indigo-500/20' : 'border-slate-200'} hover:shadow-md transition-all duration-300 ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
+            className={`bg-white rounded-2xl p-6 shadow-sm border ${isExpired ? 'opacity-60 border-gray-100 bg-gray-50' : (isReady && !isCompleted ? 'border-indigo-500 ring-1 ring-indigo-500/20' : 'border-slate-200')} hover:shadow-md transition-all duration-300 ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-slate-900">{interview.jobTitle}</h3>
-                        {!isReady && !isCompleted && (
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                <Timer size={10} /> {timeLeft}
+                 <div className="flex-1">
+                     <div className="flex items-center gap-3 mb-2">
+                         <h3 className="text-xl font-bold text-slate-900">{interview.jobTitle}</h3>
+                         {!isReady && !isCompleted && !isExpired && (
+                             <span className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                 <Timer size={10} /> {timeLeft}
+                             </span>
+                         )}
+                         {isExpired && (
+                            <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                Deadline Over
                             </span>
-                        )}
-                        {isCompleted && (
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                Assessment Submitted
-                            </span>
-                        )}
-                    </div>
+                         )}
+                         {isCompleted && (
+                             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                 Assessment Submitted
+                             </span>
+                         )}
+                     </div>
 
-                    <div className="flex items-center gap-2 mt-1 text-slate-600 font-medium">
-                        <Building size={16} className="text-slate-400" />
-                        {interview.createdBy?.organization || "Corporate Hiring"}
-                    </div>
+                     <div className="flex items-center gap-2 mt-1 text-slate-600 font-medium">
+                         <Building size={16} className="text-slate-400" />
+                         {interview.createdBy?.organization || "Corporate Hiring"}
+                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-sm text-slate-500">
-                        <div className="flex items-center gap-1.5">
-                            <Calendar size={16} className="text-indigo-500/80" />
-                            {formatDate(interview.scheduledDate)}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <Clock size={16} className="text-indigo-500/80" />
-                            {interview.startTime} ({interview.duration}m)
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <Video size={16} className="text-indigo-500/80" />
-                            With {interview.createdBy?.fullName || "AI Interviewer"}
-                        </div>
-                    </div>
-                </div>
+                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-sm text-slate-500">
+                         <div className="flex items-center gap-1.5">
+                             <Calendar size={16} className="text-indigo-500/80" />
+                             {formatDate(interview.scheduledDate)}
+                         </div>
+                         <div className="flex items-center gap-1.5">
+                             <Clock size={16} className="text-indigo-500/80" />
+                             {interview.startTime} ({interview.duration}m)
+                         </div>
+                         <div className="flex items-center gap-1.5">
+                             <Video size={16} className="text-indigo-500/80" />
+                             With {interview.createdBy?.fullName || "AI Interviewer"}
+                         </div>
+                     </div>
+                 </div>
 
-                <div className="flex flex-col items-center md:items-end gap-3 min-w-[140px]">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${isCompleted 
-                        ? 'bg-slate-100 text-slate-500' 
-                        : isReady 
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}>
-                        {isCompleted ? 'Completed' : isReady ? 'Ready to Join' : 'Upcoming'}
-                    </span>
+                 <div className="flex flex-col items-center md:items-end gap-3 min-w-[140px]">
+                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${isCompleted 
+                         ? 'bg-slate-100 text-slate-500' 
+                         : isExpired 
+                             ? 'bg-red-50 text-red-700'
+                             : isReady 
+                                 ? 'bg-emerald-100 text-emerald-700'
+                                 : 'bg-slate-100 text-slate-600'
+                         }`}>
+                         {isCompleted ? 'Completed' : isExpired ? 'Expired' : isReady ? 'Ready to Join' : 'Upcoming'}
+                     </span>
 
-                    <button
-                        onClick={() => !isCompleted && isReady && onJoin(interview)}
-                        disabled={isCompleted || !isReady}
-                        className={`w-full md:w-auto px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${isCompleted
-                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                            : isReady
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 hover:scale-[1.02]'
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                            }`}
-                    >
-                        {isCompleted ? 'Assessment Done' : isReady ? 'Join Lobby' : 'Not Started'}
-                        {isReady && !isCompleted && <ArrowRight size={18} />}
-                    </button>
-                </div>
-            </div>
-        </motion.div>
+                     <button
+                         onClick={() => !isCompleted && isReady && !isExpired && onJoin(interview)}
+                         disabled={isCompleted || !isReady || isExpired}
+                         className={`w-full md:w-auto px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${isCompleted || isExpired
+                             ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                             : isReady
+                                 ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 hover:scale-[1.02]'
+                                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                             }`}
+                     >
+                         {isCompleted ? 'Assessment Done' : isExpired ? 'Closed' : isReady ? 'Join Lobby' : 'Not Started'}
+                         {isReady && !isCompleted && !isExpired && <ArrowRight size={18} />}
+                     </button>
+                 </div>
+             </div>
+         </motion.div>
     );
 };
 

@@ -8,6 +8,7 @@ import UpcomingInterview from './components/UpcomingInterview';
 import QuickLinks from './components/QuickLinks';
 import InterviewHistory from './components/InterviewHistory';
 import ProfileCompletionModal from '../../../components/common/Modals/ProfileCompletionModal';
+import { calculateProfileCompletion } from '../../../utils/profileCompletion';
 
 const Dashboard = () => {
     const [showModal, setShowModal] = useState(false);
@@ -18,16 +19,11 @@ const Dashboard = () => {
     });
 
     const profileData = profileResponse?.data?.data;
+    const { isComplete: isProfileComplete } = calculateProfileCompletion(profileData);
 
     useEffect(() => {
         if (!isLoading && profileData) {
-            // Logic to show modal if incomplete
-            const isBioMissing = !profileData.professionalBio;
-            const areSkillsMissing = !profileData.skills || profileData.skills.length === 0;
-            const isPhoneMissing = !profileData.phoneNumber;
-
-            if (isBioMissing || areSkillsMissing || isPhoneMissing) {
-                // Check if we've already shown it this session
+            if (!isProfileComplete) {
                 const sessionshown = sessionStorage.getItem('profileModalShown');
                 if (!sessionshown) {
                     setShowModal(true);
@@ -35,42 +31,50 @@ const Dashboard = () => {
                 }
             }
         }
-    }, [profileData, isLoading]);
+    }, [profileData, isLoading, isProfileComplete]);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 lg:p-6 page-item-search">
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 font-sans">
             <ProfileCompletionModal 
                 isOpen={showModal} 
                 onClose={() => setShowModal(false)} 
                 data={profileData} 
             />
-            <div className="max-w-8xl mx-auto">
+            <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
                 {/* Welcome Section */}
-                <div className="mb-6">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Welcome back, {profileData?.fullName?.split(' ')[0] || 'User'}</h1>
-                    <p className="text-gray-600 mt-2">Here's your interview preparation overview</p>
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                            Welcome back, <span className="text-blue-600">{profileData?.fullName?.split(' ')[0] || 'User'}</span>
+                        </h1>
+                        <p className="text-slate-500 mt-2 font-medium">Here's your real-time interview performance overview.</p>
+                    </div>
                 </div>
 
-                {/* Profile Completion Card - Full Width */}
-                <div className="mb-8">
-                    <ProfileCompletionCard data={profileData} isLoading={isLoading} />
-                </div>
+                {/* Profile Completion Card - Only show if incomplete */}
+                {!isProfileComplete && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+                        <ProfileCompletionCard data={profileData} isLoading={isLoading} />
+                    </div>
+                )}
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Left Column - Upcoming Interviews */}
-                    <div className="lg:col-span-2">
+                <div className={`grid grid-cols-1 ${isProfileComplete ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 md:gap-8`}>
+                    {/* Upcoming Interviews */}
+                    <div className={`${isProfileComplete ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
                         <UpcomingInterview />
                     </div>
 
-                    {/* Right Column - Quick Links */}
+                    {/* Quick Links */}
                     <div className="lg:col-span-1">
                         <QuickLinks />
                     </div>
                 </div>
 
-                {/* Interview History - Full Width */}
-                <InterviewHistory />
+                {/* Interview History */}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <InterviewHistory />
+                </div>
             </div>
         </div>
     );

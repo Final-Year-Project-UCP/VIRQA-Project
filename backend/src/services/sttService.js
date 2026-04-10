@@ -9,26 +9,38 @@ import path from "path";
  * @returns {Promise<string>} The transcribed text
  */
 export const convertAudioToText = async (audioBuffer) => {
-  // We need to write the buffer to a temporary file because 
-  // OpenAI's API library expects a file stream for the whisper model.
   const tempFilePath = path.join(os.tmpdir(), `audio-${Date.now()}.webm`);
   
   try {
     fs.writeFileSync(tempFilePath, audioBuffer);
+    console.log(`STT: Processing transient audio file: ${tempFilePath} (${audioBuffer.length} bytes)`);
     
     const transcription = await openai.audio.transcriptions.create({
       file: fs.createReadStream(tempFilePath),
       model: "whisper-large-v3",
     });
 
+    if (!transcription || !transcription.text) {
+      console.warn("STT: Received empty transcription from Groq.");
+      return "";
+    }
+
+    console.log(`STT: Transcription successful (${transcription.text.length} chars)`);
     return transcription.text;
   } catch (error) {
-    console.error("Error in STT conversion:", error);
-    throw new Error("Speech to text conversion failed.");
+    console.error("STT: Conversion failure DETAILS:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data || "No response data"
+    });
+    throw new Error(`Speech to text failed: ${error.message}`);
   } finally {
-    // Clean up temp file
     if (fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath);
+      try {
+        fs.unlinkSync(tempFilePath);
+      } catch (unlinkErr) {
+        console.error("STT: Failed to delete temp file:", unlinkErr);
+      }
     }
   }
 };

@@ -109,7 +109,7 @@ const LiveInterviewPage = () => {
                 Thank you for your time. Your response has been recorded.
               </p>
               <button
-                onClick={() => navigate('/candidate/results')}
+                onClick={() => navigate('/api/v1/candidates/results')}
                 className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
               >
                 View Results

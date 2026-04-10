@@ -1,10 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, AlertCircle, Edit3, Save, X } from 'lucide-react';
+import { calculateProfileCompletion } from '../../../../utils/profileCompletion';
 
 const ProfileHeader = ({ profile, tempProfile, isEditing, onEdit, onCancel, onSave }) => {
-  const [completion, setCompletion] = useState(0);
-  const [incompleteItems, setIncompleteItems] = useState([]);
+  const [completionData, setCompletionData] = useState({ progress: 0, steps: [] });
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Determine which profile object to check
@@ -12,31 +12,12 @@ const ProfileHeader = ({ profile, tempProfile, isEditing, onEdit, onCancel, onSa
 
   useEffect(() => {
     if (!currentProfile) return;
-
-    let completedCount = 0;
-    const incomplete = [];
-
-    // Basic Info
-    if (currentProfile.fullName?.trim()) completedCount++; else incomplete.push('Name');
-    completedCount++; // Automatically checking email maybe, but let's stick to original behavior
-    if (currentProfile.phoneNumber?.trim()) completedCount++; else incomplete.push('Phone');
-    if (currentProfile.location?.trim()) completedCount++; else incomplete.push('Location');
-    if (currentProfile.jobTitle?.trim()) completedCount++; else incomplete.push('Job Title');
-    if (currentProfile.experience?.trim()) completedCount++; else incomplete.push('Experience');
-
-
-    // Other Sections
-    if (currentProfile.professionalBio?.trim()) completedCount++; else incomplete.push('Bio');
-    if (currentProfile.educations?.length > 0) completedCount++; else incomplete.push('Education');
-    if (currentProfile.skills?.length > 0) completedCount++; else incomplete.push('Skills');
-    if (currentProfile.documents?.length > 0) completedCount++;
-    else incomplete.push('Documents');
-
-    const percentage = Math.round((completedCount / 10) * 100);
-
-    setCompletion(percentage);
-    setIncompleteItems(incomplete);
+    const data = calculateProfileCompletion(currentProfile);
+    setCompletionData(data);
   }, [currentProfile]);
+
+  const completion = completionData.progress;
+  const incompleteItems = completionData.steps.filter(s => !s.completed).map(s => s.label);
 
   const handleSave = () => {
     onSave();

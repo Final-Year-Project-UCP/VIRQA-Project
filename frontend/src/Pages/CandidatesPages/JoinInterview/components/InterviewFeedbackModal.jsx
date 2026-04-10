@@ -122,23 +122,27 @@ const InterviewFeedbackModal = ({ session, onClose, onSubmitSuccess }) => {
                                             <button
                                                 key={star}
                                                 type="button"
-                                                onClick={() => setRating(star)}
+                                                onClick={() => {
+                                                    console.log("Setting rating to:", star);
+                                                    setRating(star);
+                                                }}
                                                 onMouseEnter={() => setHoveredRating(star)}
                                                 onMouseLeave={() => setHoveredRating(0)}
-                                                className="p-1.5 transition-all outline-none"
+                                                className="p-1 px-2 transition-all outline-none group"
                                             >
                                                 <Star
-                                                    size={36}
-                                                    className={`transition-all duration-300 ${
+                                                    size={40}
+                                                    className={`transition-all duration-300 transform group-hover:scale-125 cursor-pointer ${
                                                         star <= (hoveredRating || rating)
-                                                            ? 'fill-yellow-400 text-yellow-400 scale-110 drop-shadow-md'
-                                                            : 'fill-slate-100 text-slate-200 hover:scale-110'
+                                                            ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]'
+                                                            : 'fill-slate-100 text-slate-200'
                                                     }`}
                                                 />
                                             </button>
                                         ))}
                                     </div>
-                                    <p className="h-5 text-sm font-bold text-indigo-600">
+                                    <p className={`h-5 text-sm font-bold transition-all ${rating > 0 ? 'text-indigo-600' : 'text-rose-500 animate-pulse'}`}>
+                                        {rating === 0 && "Select a rating to enable submission"}
                                         {rating === 1 && "Very Dissatisfied"}
                                         {rating === 2 && "Dissatisfied"}
                                         {rating === 3 && "Neutral"}

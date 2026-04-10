@@ -159,13 +159,25 @@ const Lobby = ({ onJoin, session }) => {
                     </div>
 
                     <div className="mt-8">
-                        <button
-                            onClick={onJoin}
-                            className="w-full py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-                        >
-                            <Volume2 size={20} />
-                            Start Interview
-                        </button>
+                        {(() => {
+                            const expiresAt = session?.expiresAt ? new Date(session.expiresAt) : null;
+                            const isExpired = expiresAt && new Date() > expiresAt;
+                            
+                            return (
+                                <button
+                                    onClick={!isExpired ? onJoin : undefined}
+                                    disabled={isExpired}
+                                    className={`w-full py-4 px-6 rounded-xl font-semibold shadow-lg transition-all transform flex items-center justify-center gap-2 ${
+                                        isExpired 
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' 
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98]'
+                                    }`}
+                                >
+                                    {isExpired ? <AlertCircle size={20} /> : <Volume2 size={20} />}
+                                    {isExpired ? 'Deadline Over' : 'Start Interview'}
+                                </button>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>

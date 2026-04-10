@@ -61,18 +61,22 @@ const Results = () => {
       rawScore = Math.round(sum / interview.scores.length);
     }
 
+    const isVisible = interview.interviewSessionId?.showResultToCandidate !== false;
+    const displayScore = isVisible ? rawScore : 'Hidden';
+
     return {
       id: interview._id,
       title: interview.interviewSessionId?.jobTitle || interview.role,
       date: new Date(interview.createdAt).toLocaleDateString(),
       time: new Date(interview.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       duration: 'Completed',
-      score: rawScore,
+      score: displayScore,
       status: interview.status,
       company: interview.interviewSessionId?.createdBy?.organization || 'System',
       interviewer: 'AI Coach',
-      rawScores: interview.scores, // For detail view breakdown
-      rawAnswers: interview.answers // For PDF Transcript mapping
+      rawScores: isVisible ? interview.scores : [], // Hide breakdown if not visible
+      rawAnswers: isVisible ? interview.answers : [], // Hide transcript if not visible
+      isVisible // used for blocking detail view
     };
   });
 
@@ -139,8 +143,14 @@ const Results = () => {
                 interviewHistory.map((interview) => (
                   <div
                     key={interview.id}
-                    className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer group"
-                    onClick={() => setSelectedInterview(interview)}
+                    className={`bg-white rounded-xl p-6 border border-slate-200 shadow-sm transition-all group ${interview.isVisible ? 'hover:shadow-md hover:border-indigo-200 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
+                    onClick={() => {
+                      if (interview.isVisible) {
+                        setSelectedInterview(interview);
+                      } else {
+                        import('react-toastify').then(({ toast }) => toast.info("Detailed results will be released after employer review."));
+                      }
+                    }}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
