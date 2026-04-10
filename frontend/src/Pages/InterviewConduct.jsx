@@ -2,11 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { SOCKET_URL } from '../config/api.js';
 import AudioRecorder from '../components/AudioRecorder';
-import { User, Briefcase, Award, CheckCircle, XCircle, Clock } from 'lucide-react';
-
-// Make sure you adjust the server URL if different
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 const InterviewConduct = () => {
     const { id } = useParams();
@@ -119,7 +116,23 @@ const InterviewConduct = () => {
 
         setSocket(newSocket);
 
-        return () => newSocket.close();
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                window.speechSynthesis.cancel();
+                if (audioRef.current) audioRef.current.pause();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            newSocket.close();
+            window.speechSynthesis.cancel();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.src = "";
+            }
+        };
     }, [id]);
 
     // Timer logic
@@ -167,6 +180,11 @@ const InterviewConduct = () => {
     };
 
     const handleEndInterview = () => {
+        window.speechSynthesis.cancel();
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+        }
         if (socket && id) {
             socket.emit("interview-complete", { interviewId: id });
         }

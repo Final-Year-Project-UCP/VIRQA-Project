@@ -20,7 +20,7 @@ const io = new Server(httpServer, {
       )) {
         callback(null, true);
       } else {
-        console.warn(`Socket.io: Rejecting connection from origin: ${origin}`);
+        console.warn(`Socket.io CORS REJECTED: Origin '${origin}' is not in ALLOWED_ORIGINS: [${allowedOrigins.join(', ')}]`);
         callback(new Error("Not allowed by CORS"));
       }
     },

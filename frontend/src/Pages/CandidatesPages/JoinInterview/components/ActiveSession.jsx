@@ -4,12 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, PhoneOff, Maximize2, Minimize2, BarChart2, MessageSquare, BrainCircuit, Send, Shield, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { api } from '../../../../config/api.js';
+import { api, SOCKET_URL } from '../../../../config/api.js';
 import { io } from 'socket.io-client';
 import axios from 'axios';
-
-// Ensure this points to correct backend URL
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080';
 
 const ActiveSession = ({ onLeave, session }) => {
     const role = session?.jobTitle || "Technical Resource";
@@ -48,13 +45,13 @@ const ActiveSession = ({ onLeave, session }) => {
     // Initialize the WebSocket and request an interview session entry after user enters
     useEffect(() => {
         if (!isRoomEntered) return;
-        
+
         let newSocket;
 
         const initializeAI = async () => {
             try {
                 setStatusMessage("Syncing with AI Server...");
-                
+
                 // 1. Create/Resume Interview Session Entry
                 const response = await api.post('/ai-interview/start', {
                     candidateId: session?.candidates?.[0]?.candidateId || "anonymous",
@@ -89,8 +86,8 @@ const ActiveSession = ({ onLeave, session }) => {
                 // 3. Connect Socket
                 const backendUrl = SOCKET_URL.replace(/\/api\/v1\/?$/, '');
                 const token = localStorage.getItem('token');
-                
-                newSocket = io(backendUrl, { 
+
+                newSocket = io(backendUrl, {
                     withCredentials: true,
                     reconnection: true,
                     auth: { token }
@@ -106,7 +103,7 @@ const ActiveSession = ({ onLeave, session }) => {
                     const aiQuestion = data.questionText;
                     setCurrentQuestion(aiQuestion);
                     setStatusMessage("AI is speaking...");
-                    speak(aiQuestion); 
+                    speak(aiQuestion);
                 });
 
                 newSocket.on("processing-status", (data) => {
@@ -120,7 +117,7 @@ const ActiveSession = ({ onLeave, session }) => {
                 newSocket.on("interview-completed-successfully", (data) => {
                     setFinalReport(data.finalReport);
                     toast.success("Interview completed successfully.");
-                    onLeave(); 
+                    onLeave();
                 });
 
                 newSocket.on("interview-error", (data) => {
@@ -141,12 +138,25 @@ const ActiveSession = ({ onLeave, session }) => {
 
         return () => {
             clearInterval(timeInterval);
+            window.speechSynthesis.cancel();
             if (newSocket) newSocket.close();
             if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
                 mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
             }
         };
     }, [isRoomEntered, session, role, onLeave]);
+
+    // Handle visibility change (tab switch)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                window.speechSynthesis.cancel();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
 
     // Speech Synthesis for TTS with Real-Time Chat Streaming
     const speak = (text) => {
@@ -155,14 +165,14 @@ const ActiveSession = ({ onLeave, session }) => {
             return;
         }
         window.speechSynthesis.cancel();
-        
+
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
         const preferredVoice = voices.find(v => (v.name.includes("Google") || v.name.includes("Female") || v.lang.startsWith("en"))) || voices[0];
         if (preferredVoice) utterance.voice = preferredVoice;
 
         utterance.rate = 1.1;
-        
+
         // Add empty message to history for streaming
         setChatHistory(prev => [...prev, { sender: 'AI Interviewer', text: '', isStreaming: true }]);
 
@@ -281,6 +291,7 @@ const ActiveSession = ({ onLeave, session }) => {
 
     const handleFinish = async () => {
         if (window.confirm("Submit findings and end interview? Result will be analyzed instantly.")) {
+            window.speechSynthesis.cancel();
             if (socket && aiInterviewId) {
                 socket.emit("interview-complete", { interviewId: aiInterviewId });
             }
@@ -304,41 +315,41 @@ const ActiveSession = ({ onLeave, session }) => {
                 <div className="relative z-10 max-w-xl">
                     <AnimatePresence mode="wait">
                         {!hasCountdownFinished ? (
-                             <motion.div
-                                 key="countdown"
-                                 initial={{ scale: 0.8, opacity: 0 }}
-                                 animate={{ scale: 1, opacity: 1 }}
-                                 exit={{ scale: 1.2, opacity: 0 }}
-                                 className="text-8xl md:text-9xl font-black text-white/20 tracking-tighter"
-                             >
-                                 {countdown}
-                             </motion.div>
-                         ) : (
-                             <motion.div
-                                 key="enter"
-                                 initial={{ y: 20, opacity: 0 }}
-                                 animate={{ y: 0, opacity: 1 }}
-                                 className="space-y-8"
-                             >
-                                 <div className="p-8 bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl">
-                                     <h2 className="text-3xl font-bold text-white mb-4">Secure Interview Room</h2>
-                                     <p className="text-slate-400 mb-8 leading-relaxed text-sm">
-                                         Ensure you are in a quiet environment. Once you begin, all browser UI will be hidden for a focused experience.
-                                     </p>
-                                     <button
-                                         onClick={handleEnterRoom}
-                                         className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all flex items-center justify-center gap-3"
-                                     >
-                                         <BrainCircuit className="animate-pulse" />
-                                         Begin Live Interview
-                                     </button>
-                                 </div>
-                                 <div className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest flex items-center justify-center gap-4">
-                                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                                     Encrypted End-to-End Analysis Active
-                                 </div>
-                             </motion.div>
-                         )}
+                            <motion.div
+                                key="countdown"
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 1.2, opacity: 0 }}
+                                className="text-8xl md:text-9xl font-black text-white/20 tracking-tighter"
+                            >
+                                {countdown}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="enter"
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="space-y-8"
+                            >
+                                <div className="p-8 bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl">
+                                    <h2 className="text-3xl font-bold text-white mb-4">Secure Interview Room</h2>
+                                    <p className="text-slate-400 mb-8 leading-relaxed text-sm">
+                                        Ensure you are in a quiet environment. Once you begin, all browser UI will be hidden for a focused experience.
+                                    </p>
+                                    <button
+                                        onClick={handleEnterRoom}
+                                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <BrainCircuit className="animate-pulse" />
+                                        Begin Live Interview
+                                    </button>
+                                </div>
+                                <div className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest flex items-center justify-center gap-4">
+                                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                    Encrypted End-to-End Analysis Active
+                                </div>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
                 </div>
             </div>
@@ -348,7 +359,7 @@ const ActiveSession = ({ onLeave, session }) => {
     return (
         <div ref={containerRef} className="fixed inset-0 z-[9999] bg-slate-950 overflow-hidden flex flex-col lg:flex-row text-slate-100 font-sans select-none">
             <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 opacity-40"></div>
-            
+
             {/* LEFT COLUMN: LIVE TRANSCRIPT & INTERACTION */}
             <div className="w-full lg:w-[400px] xl:w-[450px] h-1/2 lg:h-full flex flex-col bg-slate-900/40 backdrop-blur-3xl border-r border-white/5 relative z-20">
                 <div className="p-6 border-b border-white/5 bg-slate-900/50 flex justify-between items-center">
@@ -372,28 +383,27 @@ const ActiveSession = ({ onLeave, session }) => {
                             <p className="text-sm font-medium">Interview stream starting...</p>
                         </div>
                     )}
-                    
+
                     {chatHistory.map((chat, idx) => (
-                        <motion.div 
-                            key={idx} 
-                            initial={{ opacity: 0, y: 10 }} 
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             className={`flex flex-col ${chat.sender === 'You' ? 'items-end' : 'items-start'}`}
                         >
                             <span className={`text-[10px] font-black uppercase tracking-widest mb-1.5 ${chat.sender === 'You' ? 'text-indigo-400' : 'text-slate-500'}`}>
                                 {chat.sender}
                             </span>
-                            <div className={`max-w-[90%] p-4 text-sm leading-relaxed shadow-sm ${
-                                chat.sender === 'You' 
-                                ? 'bg-indigo-600/10 border border-indigo-500/20 text-indigo-100 rounded-2xl rounded-tr-none' 
-                                : 'bg-slate-800/50 border border-white/5 text-slate-100 rounded-2xl rounded-tl-none font-medium'
-                            }`}>
+                            <div className={`max-w-[90%] p-4 text-sm leading-relaxed shadow-sm ${chat.sender === 'You'
+                                    ? 'bg-indigo-600/10 border border-indigo-500/20 text-indigo-100 rounded-2xl rounded-tr-none'
+                                    : 'bg-slate-800/50 border border-white/5 text-slate-100 rounded-2xl rounded-tl-none font-medium'
+                                }`}>
                                 {chat.text}
                                 {chat.isStreaming && <span className="inline-block w-1.5 h-4 bg-indigo-500 animate-pulse ml-1 align-middle"></span>}
                             </div>
                         </motion.div>
                     ))}
-                    
+
                     {(aiSpeaking || statusMessage.includes("Thinking")) && !chatHistory.some(c => c.isStreaming) && (
                         <div className="flex gap-1.5 ml-2">
                             <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
@@ -407,7 +417,7 @@ const ActiveSession = ({ onLeave, session }) => {
 
             {/* RIGHT COLUMN: VISUALS & CONTROLS */}
             <div className="flex-1 h-1/2 lg:h-full flex flex-col relative z-10">
-                
+
                 {/* Visual Interaction Hub */}
                 <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
                     <div className="relative mb-12">
@@ -424,7 +434,7 @@ const ActiveSession = ({ onLeave, session }) => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="text-center">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3">AI Technical Specialist</p>
                         <h2 className="text-2xl font-black text-white mb-2">{session?.createdBy?.fullName || "VIRQA AI"}</h2>
