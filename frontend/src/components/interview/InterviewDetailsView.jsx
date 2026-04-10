@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
     Calendar, Clock, Users, ArrowLeft, Mail,
     CheckCircle2, XCircle, Edit, Trash2,
     Plus, Send, ExternalLink, Loader2,
@@ -38,7 +38,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
     const [viewingReport, setViewingReport] = useState(false);
     const [reportData, setReportData] = useState(null);
     const [loadingReport, setLoadingReport] = useState(false);
-    
+
     const queryClient = useQueryClient();
 
     // ── Add Candidate Mutation ──
@@ -133,9 +133,9 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
 
     if (viewingReport && reportData) {
         return (
-            <ExecutiveAssessmentReport 
-                data={reportData} 
-                onBack={() => setViewingReport(false)} 
+            <ExecutiveAssessmentReport
+                data={reportData}
+                onBack={() => setViewingReport(false)}
                 isEmployer={true}
             />
         );
@@ -155,7 +155,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
             {/* Header Card */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button 
+                    <button
                         onClick={onBack}
                         className="p-2.5 hover:bg-gray-50 rounded-2xl transition-colors text-gray-500 border border-transparent hover:border-gray-200"
                     >
@@ -180,13 +180,13 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <button 
+                    <button
                         onClick={() => onEdit(session)}
                         className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all border border-gray-50 bg-white shadow-sm"
                     >
                         <Edit size={18} />
                     </button>
-                    <button 
+                    <button
                         onClick={() => { if (window.confirm('Delete this session?')) deleteMutation.mutate(); }}
                         disabled={deleteMutation.isPending}
                         className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all border border-gray-50 bg-white shadow-sm"
@@ -205,7 +205,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                             { label: 'Date', value: new Date(session.scheduledDate).toLocaleDateString(), icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-50' },
                             { label: 'Time', value: session.startTime, icon: Clock, color: 'text-indigo-500', bg: 'bg-indigo-50' },
                             { label: 'Expires', value: session.expiresAt ? new Date(session.expiresAt).toLocaleDateString() : 'N/A', icon: Target, color: 'text-orange-500', bg: 'bg-orange-50' },
-                            { label: 'Visibility', value: session.showResultToCandidate ? 'Visible' : 'Hidden', icon: Eye, color: 'text-red-500', bg: 'bg-red-50'},
+                            { label: 'Visibility', value: session.showResultToCandidate ? 'Visible' : 'Hidden', icon: Eye, color: 'text-red-500', bg: 'bg-red-50' },
                             { label: 'Batch Size', value: session.candidates?.length || 0, icon: Users, color: 'text-purple-500', bg: 'bg-purple-50' },
                             { label: 'Questions', value: selectedQuestions.length, icon: ListChecks, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                         ].map((stat, i) => (
@@ -222,25 +222,25 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                     {/* Question Blueprint */}
                     {selectedQuestions.length > 0 && (
                         <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
-                           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
-                              <Layout size={120} className="text-blue-900" />
-                           </div>
-                           <h2 className="text-lg font-black text-gray-800 mb-8 flex items-center gap-3">
-                              <Sparkles className="text-indigo-500 w-5 h-5" />
-                              Assessment Blueprint
-                           </h2>
-                           <div className="space-y-4 relative z-10">
-                              {selectedQuestions.map((q, idx) => (
-                                 <div key={idx} className="flex gap-4 p-5 rounded-[1.5rem] bg-gray-50/50 border border-gray-100 hover:bg-white hover:shadow-md transition-all group/item">
-                                    <span className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xs font-black text-blue-600 shadow-sm group-hover/item:bg-blue-600 group-hover/item:text-white group-hover/item:border-blue-600 transition-colors">
-                                       {idx + 1}
-                                    </span>
-                                    <div className="flex-1">
-                                       <p className="text-sm font-bold text-gray-800 leading-relaxed">{q.questionText || q}</p>
+                            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+                                <Layout size={120} className="text-blue-900" />
+                            </div>
+                            <h2 className="text-lg font-black text-gray-800 mb-8 flex items-center gap-3">
+                                <Sparkles className="text-indigo-500 w-5 h-5" />
+                                Assessment Blueprint
+                            </h2>
+                            <div className="space-y-4 relative z-10">
+                                {selectedQuestions.map((q, idx) => (
+                                    <div key={idx} className="flex gap-4 p-5 rounded-[1.5rem] bg-gray-50/50 border border-gray-100 hover:bg-white hover:shadow-md transition-all group/item">
+                                        <span className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xs font-black text-blue-600 shadow-sm group-hover/item:bg-blue-600 group-hover/item:text-white group-hover/item:border-blue-600 transition-colors">
+                                            {idx + 1}
+                                        </span>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-bold text-gray-800 leading-relaxed">{q.questionText || q}</p>
+                                        </div>
                                     </div>
-                                 </div>
-                              ))}
-                           </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -260,33 +260,33 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                     {/* Add Candidate Form */}
                     <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
                         <h2 className="text-lg font-black text-gray-800 mb-6 flex items-center gap-2">
-                           <Plus className="w-5 h-5 text-blue-600" /> Add Candidate
+                            <Plus className="w-5 h-5 text-blue-600" /> Add Candidate
                         </h2>
                         <form onSubmit={handleAdd} className="space-y-4">
-                           <input
-                              type="text"
-                              value={newName}
-                              onChange={e => setNewName(e.target.value)}
-                              placeholder="Full Name"
-                              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none transition-all"
-                           />
-                           <input
-                              type="email"
-                              value={newEmail}
-                              onChange={e => setNewEmail(e.target.value)}
-                              placeholder="Email Address *"
-                              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none transition-all"
-                           />
-                           <button
-                              type="submit"
-                              disabled={addCandidateMutation.isPending}
-                              className="w-full py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                           >
-                              {addCandidateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send size={16} />}
-                              Invite Candidate
-                           </button>
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={e => setNewName(e.target.value)}
+                                placeholder="Full Name"
+                                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none transition-all"
+                            />
+                            <input
+                                type="email"
+                                value={newEmail}
+                                onChange={e => setNewEmail(e.target.value)}
+                                placeholder="Email Address *"
+                                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none transition-all"
+                            />
+                            <button
+                                type="submit"
+                                disabled={addCandidateMutation.isPending}
+                                className="w-full py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {addCandidateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send size={16} />}
+                                Invite Candidate
+                            </button>
                         </form>
-                     </div>
+                    </div>
 
                     {/* Session Controls */}
                     <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-5">
@@ -347,23 +347,22 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                                                 <p className="text-sm font-black text-gray-900 truncate">{candidate.name || 'Anonymous User'}</p>
                                                 <p className="text-[10px] font-bold text-gray-400 truncate uppercase mt-0.5">{candidate.email}</p>
                                                 <div className="flex items-center gap-2 mt-2">
-                                                   <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${
-                                                      candidate.status === 'Completed' 
-                                                         ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                                                         : 'bg-gray-50 text-gray-400 border-gray-100'
-                                                   }`}>
-                                                      {candidate.status}
-                                                   </span>
+                                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${candidate.status === 'Completed'
+                                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                            : 'bg-gray-50 text-gray-400 border-gray-100'
+                                                        }`}>
+                                                        {candidate.status}
+                                                    </span>
                                                 </div>
                                             </div>
                                             {candidate.status === 'Completed' && (
-                                                <button 
-                                                   onClick={() => fetchCandidateReport(candidate.candidateId?._id || candidate.candidateId)}
-                                                   disabled={loadingReport}
-                                                   className="p-3 bg-white hover:bg-blue-600 hover:text-white text-blue-600 rounded-2xl shadow-sm border border-gray-100 transition-all active:scale-95 disabled:opacity-50"
-                                                   title="View Evaluation"
+                                                <button
+                                                    onClick={() => fetchCandidateReport(candidate.candidateId?._id || candidate.candidateId)}
+                                                    disabled={loadingReport}
+                                                    className="p-3 bg-white hover:bg-blue-600 hover:text-white text-blue-600 rounded-2xl shadow-sm border border-gray-100 transition-all active:scale-95 disabled:opacity-50"
+                                                    title="View Evaluation"
                                                 >
-                                                   {loadingReport ? <Loader2 size={16} className="animate-spin" /> : <Eye size={18} />}
+                                                    {loadingReport ? <Loader2 size={16} className="animate-spin" /> : <Eye size={18} />}
                                                 </button>
                                             )}
                                         </div>

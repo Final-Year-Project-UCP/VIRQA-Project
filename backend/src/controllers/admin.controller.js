@@ -168,7 +168,7 @@ const handleProfile = asyncHandler(async (req, res) => {
 //Manage Employees(add employee) --POST
 const addEmployee = asyncHandler(async (req, res) => {
     const { email, role } = req.body
-    
+
     // check if employee already exists
     const existingUser = await Employee.findOne({ email });
     if (existingUser) throw new ApiError(400, "Employee with this email already exists");
@@ -192,9 +192,9 @@ const addEmployee = asyncHandler(async (req, res) => {
         // `sendEmployeeInvite` now has a short timeout so the API stays responsive.
         const result = await sendEmployeeInvite(process.env.GOOGLE_USER, email, tempPassword);
         if (!result) {
-             throw new Error("Email service failed to send");
+            throw new Error("Email service failed to send");
         }
-        
+
         // Emit real-time event
         const io = req.app.get("io");
         if (io) io.emit("employeeAdded", user);

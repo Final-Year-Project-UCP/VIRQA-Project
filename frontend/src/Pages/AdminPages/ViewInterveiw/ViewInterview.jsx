@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from "../../../config/api.js";
-import { 
-    Search, 
-    Download, 
-    Filter, 
-    ArrowUpDown, 
-    Loader2, 
-    FileText, 
-    History, 
+import {
+    Search,
+    Download,
+    Filter,
+    ArrowUpDown,
+    Loader2,
+    FileText,
+    History,
     ChevronDown,
     ExternalLink
 } from 'lucide-react';
@@ -132,7 +132,7 @@ const ViewInterview = () => {
                     </div>
                     <p className="text-slate-500 font-medium max-w-xl">Audit, review, and export official recruitment records across the entire organization.</p>
                 </div>
-                
+
                 <div className="flex items-center gap-4 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
                     <div className="px-4 py-2 text-center">
                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Audited</div>
@@ -225,10 +225,9 @@ const ViewInterview = () => {
                                     <td className="px-8 py-6 whitespace-nowrap">
                                         {item.status === 'Completed' && item.score !== null ? (
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${
-                                                    item.score >= 85 ? 'text-emerald-600 border-emerald-100 bg-emerald-50' :
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 ${item.score >= 85 ? 'text-emerald-600 border-emerald-100 bg-emerald-50' :
                                                     item.score >= 70 ? 'text-amber-600 border-amber-100 bg-amber-50' : 'text-rose-600 border-rose-100 bg-rose-50'
-                                                }`}>
+                                                    }`}>
                                                     {item.score}
                                                 </div>
                                                 <div className="text-[10px] font-black text-slate-400">/ 100</div>
@@ -240,7 +239,7 @@ const ViewInterview = () => {
                                     <td className="px-8 py-6 whitespace-nowrap text-right text-sm">
                                         {item.status === 'Completed' ? (
                                             <div className="relative inline-block text-left">
-                                                <button 
+                                                <button
                                                     onClick={() => setActiveMenu(activeMenu === item.id ? null : item.id)}
                                                     className="flex items-center justify-end gap-2 px-4 py-2.5 bg-white text-indigo-600 border border-indigo-100 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm hover:shadow-indigo-200"
                                                 >
@@ -248,17 +247,17 @@ const ViewInterview = () => {
                                                     Download
                                                     <ChevronDown size={14} />
                                                 </button>
-                                                
+
                                                 {activeMenu === item.id && (
                                                     <div className="absolute right-0 mt-2 w-48 rounded-2xl shadow-xl bg-white border border-slate-100 ring-1 ring-black ring-opacity-5 z-50 overflow-hidden">
                                                         <div className="p-2 space-y-1">
-                                                            <button 
+                                                            <button
                                                                 onClick={() => { handleDownloadReport(item); setActiveMenu(null); }}
                                                                 className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all text-left rounded-xl"
                                                             >
                                                                 <FileText size={16} /> Evaluation Report
                                                             </button>
-                                                            <button 
+                                                            <button
                                                                 onClick={() => { handleDownloadTranscript(item); setActiveMenu(null); }}
                                                                 className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all text-left rounded-xl"
                                                             >
@@ -287,7 +286,7 @@ const ViewInterview = () => {
                     )}
                 </div>
             </div>
-            
+
             <div className="mt-10 flex items-center justify-between">
                 <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Authenticated Session: Administrator</div>
                 <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Ledger Module v4.1</div>

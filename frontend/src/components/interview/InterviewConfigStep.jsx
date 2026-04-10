@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Hash, X, ChevronDown, Layers, Target, Gauge, BookOpen, List } from 'lucide-react';
+import { Hash, X, ChevronDown, Layers, Target, Gauge, BookOpen, List, Sparkles, Timer } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const DOMAINS = [
@@ -48,6 +48,10 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
     const [difficulty, setDifficulty] = useState(formData.difficulty || 'Medium');
     const [questionType, setQuestionType] = useState(formData.questionType || '');
     const [numberOfQuestions, setNumberOfQuestions] = useState(formData.numberOfQuestions || 5);
+    const [generalQuestionCount, setGeneralQuestionCount] = useState(formData.generalQuestionCount || 3);
+    const [scenarioQuestionCount, setScenarioQuestionCount] = useState(formData.scenarioQuestionCount || 2);
+    const [answerTimeLimit, setAnswerTimeLimit] = useState(formData.answerTimeLimit || 60);
+    const [jobDescription, setJobDescription] = useState(formData.jobDescription || '');
 
     const suggestedSkills = SKILLS_LIBRARY[domain] || [];
 
@@ -73,11 +77,25 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
         if (!domain) { toast.error('Please select a domain'); return; }
         if (!experienceLevel) { toast.error('Please select an experience level'); return; }
         if (!difficulty) { toast.error('Please select a difficulty level'); return; }
-        if (numberOfQuestions < 1 || numberOfQuestions > 15) {
-            toast.error('Number of questions must be between 1 and 15'); return;
+        
+        const total = generalQuestionCount + scenarioQuestionCount;
+        if (total < 1 || total > 20) {
+            toast.error('Total questions must be between 1 and 20'); return;
         }
 
-        setFormData({ ...formData, domain, skills, experienceLevel, difficulty, questionType, numberOfQuestions });
+        setFormData({ 
+            ...formData, 
+            domain, 
+            skills, 
+            experienceLevel, 
+            difficulty, 
+            questionType, 
+            numberOfQuestions: total,
+            generalQuestionCount,
+            scenarioQuestionCount,
+            answerTimeLimit,
+            jobDescription
+        });
         onNext();
     };
 
@@ -89,9 +107,9 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                 <div className="space-y-5">
 
                     {/* Domain */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <Layers className="w-4 h-4 text-blue-600" /> Domain <span className="text-red-400">*</span>
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8 hover:border-blue-100 transition-colors">
+                        <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                            <Layers className="w-4 h-4 text-blue-600" /> Domain Selection <span className="text-red-400">*</span>
                         </label>
                         <div className="relative">
                             <select
@@ -107,10 +125,10 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                     </div>
 
                     {/* Skills / Tags */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <Hash className="w-4 h-4 text-indigo-600" /> Skills / Tags
-                            <span className="ml-auto text-xs text-gray-400 font-normal">{skills.length}/10</span>
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8">
+                        <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                            <Hash className="w-4 h-4 text-indigo-600" /> Target Skills / Tags <span className="text-red-400">*</span>
+                            <span className="ml-auto text-xs text-gray-300 font-bold">{skills.length}/10</span>
                         </label>
 
                         {/* Custom skill input */}
@@ -164,15 +182,29 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                             </div>
                         )}
                     </div>
+
+                    {/* Job Description / Instructions */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8">
+                        <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                            <BookOpen className="w-4 h-4 text-blue-600" /> Interviewer Focus / JD
+                        </label>
+                        <textarea
+                            value={jobDescription}
+                            onChange={e => setJobDescription(e.target.value)}
+                            placeholder="Provide specific context or requirements for the AI to focus on during the interview..."
+                            rows={4}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 focus:bg-white transition-all resize-none"
+                        />
+                    </div>
                 </div>
 
                 {/* ── Right Column ── */}
                 <div className="space-y-5">
 
                     {/* Experience Level */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <Target className="w-4 h-4 text-purple-600" /> Experience Level <span className="text-red-400">*</span>
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8">
+                        <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                            <Target className="w-4 h-4 text-purple-600" /> Experience Seniority <span className="text-red-400">*</span>
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                             {EXPERIENCE_LEVELS.map(lvl => (
@@ -192,9 +224,9 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                     </div>
 
                     {/* Difficulty */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <Gauge className="w-4 h-4 text-orange-600" /> Difficulty Level <span className="text-red-400">*</span>
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8">
+                        <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                            <Gauge className="w-4 h-4 text-orange-600" /> Adaptive Difficulty <span className="text-red-400">*</span>
                         </label>
                         <div className="grid grid-cols-3 gap-2">
                             {DIFFICULTY_LEVELS.map(lvl => (
@@ -213,63 +245,92 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                         </div>
                     </div>
 
-                    {/* Question Type */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <BookOpen className="w-4 h-4 text-teal-600" /> Question Type
-                            <span className="text-xs text-gray-400 font-normal">(optional)</span>
-                        </label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {QUESTION_TYPES.map(type => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setQuestionType(type)}
-                                    className={`py-2.5 rounded-xl border-2 font-semibold text-xs transition-all ${questionType === type
-                                        ? 'bg-teal-100 text-teal-700 border-teal-300 scale-[1.02]'
-                                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                                    }`}
-                                >
-                                    {type || 'Any / Mixed'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Number of Questions */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                            <List className="w-4 h-4 text-blue-600" /> Number of Questions
-                        </label>
-                        <div className="flex items-center gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setNumberOfQuestions(Math.max(1, numberOfQuestions - 1))}
-                                className="w-10 h-10 rounded-xl border-2 border-gray-200 font-bold text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-all text-lg"
-                            >
-                                −
-                            </button>
-                            <div className="flex-1 text-center">
-                                <span className="text-4xl font-black text-blue-600">{numberOfQuestions}</span>
-                                <p className="text-xs text-gray-400 mt-0.5">questions</p>
+                    {/* Question Counts */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8 space-y-8">
+                        {/* Response Time Limit */}
+                        <div>
+                            <label className="flex items-center gap-3 text-sm font-black text-gray-400 uppercase tracking-widest mb-4">
+                                <Timer className="w-4 h-4 text-emerald-600" /> AI Response Timer
+                            </label>
+                            <div className="grid grid-cols-5 gap-2">
+                                {[
+                                    { label: '30s', value: 30 },
+                                    { label: '1m', value: 60 },
+                                    { label: '90s', value: 90 },
+                                    { label: '2m', value: 120 },
+                                    { label: '3m', value: 180 },
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setAnswerTimeLimit(opt.value)}
+                                        className={`py-2 rounded-xl border-2 font-bold text-xs transition-all ${answerTimeLimit === opt.value
+                                            ? 'bg-emerald-100 text-emerald-700 border-emerald-300 scale-[1.02]'
+                                            : 'border-gray-100 text-gray-400 hover:border-gray-200'
+                                        }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => setNumberOfQuestions(Math.min(15, numberOfQuestions + 1))}
-                                className="w-10 h-10 rounded-xl border-2 border-gray-200 font-bold text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-all text-lg"
-                            >
-                                +
-                            </button>
                         </div>
-                        <input
-                            type="range"
-                            min={1} max={15}
-                            value={numberOfQuestions}
-                            onChange={e => setNumberOfQuestions(parseInt(e.target.value))}
-                            className="w-full mt-3 accent-blue-600"
-                        />
-                        <div className="flex justify-between text-xs text-gray-400 mt-1">
-                            <span>1</span><span>5</span><span>10</span><span>15</span>
+
+                        {/* General Questions */}
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
+                                <List className="w-4 h-4 text-blue-600" /> General Knowledge Questions
+                            </label>
+                            <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setGeneralQuestionCount(Math.max(1, generalQuestionCount - 1))}
+                                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 font-bold text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-all text-lg shadow-sm"
+                                >
+                                    −
+                                </button>
+                                <div className="flex-1 text-center">
+                                    <span className="text-3xl font-black text-blue-600">{generalQuestionCount}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setGeneralQuestionCount(Math.min(10, generalQuestionCount + 1))}
+                                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 font-bold text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-all text-lg shadow-sm"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Scenario Questions */}
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
+                                <Sparkles className="w-4 h-4 text-indigo-600" /> Scenario-Based Questions
+                            </label>
+                            <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setScenarioQuestionCount(Math.max(0, scenarioQuestionCount - 1))}
+                                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 font-bold text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-all text-lg shadow-sm"
+                                >
+                                    −
+                                </button>
+                                <div className="flex-1 text-center">
+                                    <span className="text-3xl font-black text-indigo-600">{scenarioQuestionCount}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setScenarioQuestionCount(Math.min(10, scenarioQuestionCount + 1))}
+                                    className="w-10 h-10 rounded-xl bg-white border border-gray-200 font-bold text-gray-600 hover:border-indigo-400 hover:text-indigo-600 transition-all text-lg shadow-sm"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-400 font-medium">
+                                Total: <span className="text-gray-900 font-bold">{generalQuestionCount + scenarioQuestionCount} questions</span> (General first, then Scenario)
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -287,7 +348,7 @@ const InterviewConfigStep = ({ formData, setFormData, onNext, onBack }) => {
                     onClick={handleNext}
                     className="px-10 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:shadow-blue-300 active:scale-95 transition-all"
                 >
-                    Next: Generate Questions →
+                    Next: Scheduling →
                 </button>
             </div>
         </div>

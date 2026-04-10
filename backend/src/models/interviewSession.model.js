@@ -36,6 +36,18 @@ const interviewSessionSchema = new mongoose.Schema({
         enum: ["Easy", "Medium", "Hard"],
         default: "Medium"
     },
+    generalQuestionCount: {
+        type: Number,
+        default: 3
+    },
+    scenarioQuestionCount: {
+        type: Number,
+        default: 2
+    },
+    answerTimeLimit: {
+        type: Number, // in seconds
+        default: 60
+    },
     questionType: {
         type: String,
         enum: ["Conceptual", "Problem-solving", "Scenario-based", ""],

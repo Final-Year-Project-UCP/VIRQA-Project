@@ -47,12 +47,27 @@ export const registerInterviewSocketHandlers = (app, io) => {
           answer: ans.transcribedText
         }));
 
+        // Fetch parent session for instructions/counts
+        let sessionData = {};
+        if (interview.interviewSessionId) {
+          const session = await InterviewSession.findById(interview.interviewSessionId);
+          if (session) {
+            sessionData = {
+              jobDescription: session.jobDescription,
+              skills: session.skills,
+              generalQuestionCount: session.generalQuestionCount,
+              scenarioQuestionCount: session.scenarioQuestionCount
+            };
+          }
+        }
+        
         const context = {
           role: interview.role,
           experience: interview.experience,
           difficulty: interview.currentDifficulty,
           history,
-          questionIndex: interview.questions.length // 0 for first
+          questionIndex: interview.questions.length,
+          ...sessionData
         };
 
         let questionToEmit;
@@ -72,7 +87,8 @@ export const registerInterviewSocketHandlers = (app, io) => {
         }
 
         socket.emit("next-question", {
-          questionText: questionToEmit
+          questionText: questionToEmit,
+          answerTimeLimit: sessionData.answerTimeLimit || 60
         });
       } catch (error) {
         console.error("Error in start-interview event:", error);
@@ -133,12 +149,28 @@ export const registerInterviewSocketHandlers = (app, io) => {
             answer: ans.transcribedText
           }));
 
+          // Fetch parent session for instructions/counts
+          let sessionData = {};
+          if (interview.interviewSessionId) {
+            const session = await InterviewSession.findById(interview.interviewSessionId);
+            if (session) {
+              sessionData = {
+                jobDescription: session.jobDescription,
+                skills: session.skills,
+                generalQuestionCount: session.generalQuestionCount,
+                scenarioQuestionCount: session.scenarioQuestionCount,
+                answerTimeLimit: session.answerTimeLimit
+              };
+            }
+          }
+
           const context = {
             role: interview.role,
             experience: interview.experience,
             difficulty: interview.currentDifficulty, // Uses updated difficulty
             history,
-            questionIndex: interview.questions.length // Current count before push
+            questionIndex: interview.questions.length,
+            ...sessionData
           };
 
           const newQuestionText = await generateQuestion(context);
@@ -146,7 +178,8 @@ export const registerInterviewSocketHandlers = (app, io) => {
           await interview.save();
 
           socket.emit("next-question", {
-            questionText: newQuestionText
+            questionText: newQuestionText,
+            answerTimeLimit: sessionData.answerTimeLimit || 60
           });
           socket.emit("processing-status", { message: null }); // clear status
         }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, PhoneOff, Maximize2, Minimize2, BarChart2, MessageSquare, BrainCircuit, Send, Shield, XCircle, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, PhoneOff, Maximize2, Minimize2, BarChart2, MessageSquare, BrainCircuit, Send, Shield, XCircle, AlertCircle, Timer, Clock } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { api, SOCKET_URL } from '../../../../config/api.js';
 import { io } from 'socket.io-client';
@@ -29,6 +29,10 @@ const ActiveSession = ({ onLeave, session }) => {
     const [violationCount, setViolationCount] = useState(0);
     const [showViolationAlert, setShowViolationAlert] = useState(false);
     const [finalReport, setFinalReport] = useState("");
+
+    // Timer States
+    const [timeLeft, setTimeLeft] = useState(null);
+    const [maxTimeLimit, setMaxTimeLimit] = useState(60);
 
     // Media States
     const [isMicOn, setIsMicOn] = useState(true);
@@ -101,7 +105,10 @@ const ActiveSession = ({ onLeave, session }) => {
 
                 newSocket.on("next-question", (data) => {
                     const aiQuestion = data.questionText;
+                    const limit = data.answerTimeLimit || 60;
                     setCurrentQuestion(aiQuestion);
+                    setMaxTimeLimit(limit);
+                    setTimeLeft(null); // Reset until AI finishes speaking
                     setStatusMessage("AI is speaking...");
                     speak(aiQuestion);
                 });
@@ -206,6 +213,7 @@ const ActiveSession = ({ onLeave, session }) => {
         utterance.onend = () => {
             setAiSpeaking(false);
             setStatusMessage("Listening...");
+            setTimeLeft(maxTimeLimit);
             if (isMicOn) startRecording();
         };
 
@@ -217,7 +225,7 @@ const ActiveSession = ({ onLeave, session }) => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatHistory]);
 
-    // Countdown Logic
+    // Countdown Logic (Entry)
     useEffect(() => {
         if (countdown === null) return;
         const timer = setTimeout(() => {
@@ -231,6 +239,24 @@ const ActiveSession = ({ onLeave, session }) => {
         }, 1000);
         return () => clearTimeout(timer);
     }, [countdown]);
+
+    // Answer Timer Logic (Auto-submit)
+    useEffect(() => {
+        if (timeLeft === null || aiSpeaking) return;
+
+        if (timeLeft <= 0) {
+            toast.info("Time limit reached! Submitting automatically...");
+            stopRecordingAndSend();
+            setTimeLeft(null);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [timeLeft, aiSpeaking]);
 
     const handleEnterRoom = async () => {
         try {
@@ -264,6 +290,7 @@ const ActiveSession = ({ onLeave, session }) => {
     };
 
     const stopRecordingAndSend = () => {
+        setTimeLeft(null);
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.onstop = () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
@@ -445,12 +472,40 @@ const ActiveSession = ({ onLeave, session }) => {
                         </div>
                     </div>
 
-                    {/* Microphone Visualizer */}
+                    {/* Microphone Visualizer & Answer Timer */}
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                        <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${isRecording ? 'bg-emerald-500 text-slate-950 shadow-[0_0_30px_rgba(16,185,129,0.4)]' : 'bg-slate-800 text-slate-500 border border-white/5'}`}>
-                            {isRecording ? <Mic size={24} className="animate-pulse" /> : <MicOff size={24} />}
+                        <div className="relative group">
+                            {timeLeft !== null && (
+                                <svg className="absolute -inset-4 w-22 h-22 transform -rotate-90">
+                                    <circle
+                                        cx="44" cy="44" r="38"
+                                        stroke="white" strokeWidth="2" fill="transparent"
+                                        className="opacity-10"
+                                    />
+                                    <motion.circle
+                                        cx="44" cy="44" r="38"
+                                        stroke={timeLeft <= 10 ? "#ef4444" : "#4f46e5"}
+                                        strokeWidth="4" fill="transparent"
+                                        strokeDasharray={239}
+                                        animate={{ strokeDashoffset: 239 - (239 * timeLeft) / maxTimeLimit }}
+                                        transition={{ duration: 1, ease: "linear" }}
+                                    />
+                                </svg>
+                            )}
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all relative z-10 ${isRecording ? 'bg-emerald-500 text-slate-950 shadow-[0_0_30px_rgba(16,185,129,0.4)]' : 'bg-slate-800 text-slate-500 border border-white/5'}`}>
+                                {isRecording ? <Mic size={24} className="animate-pulse" /> : <MicOff size={24} />}
+                            </div>
                         </div>
-                        {isRecording && <p className="text-[10px] font-black text-emerald-500 uppercase mt-4 tracking-widest">Voice Capture Active</p>}
+
+                        {timeLeft !== null && (
+                            <div className={`mt-6 px-4 py-1.5 rounded-full border backdrop-blur-md transition-all flex items-center gap-2 ${timeLeft <= 10 ? 'bg-red-500/20 border-red-500/50 text-red-500 animate-pulse' : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 font-bold'}`}>
+                                <Clock size={12} />
+                                <span className="text-xs tabular-nums uppercase tracking-tighter">
+                                    Ends in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                                </span>
+                            </div>
+                        )}
+                        {!timeLeft && isRecording && <p className="text-[10px] font-black text-emerald-500 uppercase mt-4 tracking-widest">Voice Capture Active</p>}
                     </div>
                 </div>
 

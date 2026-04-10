@@ -1,16 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-    BarChart2, Award, TrendingUp, CheckCircle, 
-    Download, ArrowLeft, Sparkles, AlertCircle, 
-    List, FileText, ChevronRight 
+import {
+    BarChart2, Award, TrendingUp, CheckCircle,
+    Download, ArrowLeft, Sparkles, AlertCircle,
+    List, FileText, ChevronRight
 } from 'lucide-react';
 import { Radar } from 'react-chartjs-2';
 import { generateVirginReportPDF, generateVirginTranscriptPDF } from '../../utils/pdfGenerator.js';
 
 const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
     // data is the AIInterview document populated with interviewSessionId/createdBy
-    
+
     const interview = {
         id: data._id,
         title: data.interviewSessionId?.domain || data.interviewSessionId?.jobTitle || data.role,
@@ -123,8 +123,8 @@ const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
                     </div>
                     <div className="mt-10 w-full grid grid-cols-1 gap-3">
                         <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                           <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Status</p>
-                           <p className="font-black text-indigo-700 text-lg uppercase tracking-tight">Executive Grade</p>
+                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Status</p>
+                            <p className="font-black text-indigo-700 text-lg uppercase tracking-tight">Executive Grade</p>
                         </div>
                     </div>
                 </div>
@@ -152,7 +152,7 @@ const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
                         <p className="text-slate-600 font-medium leading-relaxed italic border-l-4 border-indigo-500 pl-6 text-lg">
                             "{overallFeedback || "The assessment indicates strong foundational knowledge and effective articulation of concepts."}"
                         </p>
-                        
+
                         <div className="grid md:grid-cols-2 gap-6 mt-12">
                             <div className="bg-emerald-50/50 p-6 rounded-[1.5rem] border border-emerald-100">
                                 <h4 className="font-black text-emerald-800 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -232,9 +232,9 @@ const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
                             ))}
                         </div>
                     </div>
-                    
+
                     {/* Transcript CTA */}
-                    <button 
+                    <button
                         onClick={() => generateVirginTranscriptPDF(interview, interview.rawAnswers)}
                         className="w-full bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-lg hover:shadow-xl transition-all flex items-center justify-between group"
                     >

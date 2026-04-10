@@ -156,6 +156,9 @@ const createInterview = asyncHandler(async (req, res) => {
         duration,
         showResultToCandidate,
         expiresAt,
+        generalQuestionCount,
+        scenarioQuestionCount,
+        answerTimeLimit,
         // Legacy support
         jobTitle,
         jobDescription,
@@ -206,8 +209,11 @@ const createInterview = asyncHandler(async (req, res) => {
         skills: Array.isArray(skills) ? skills : [],
         experienceLevel: experienceLevel || "Junior",
         difficulty: difficulty || "Medium",
+        generalQuestionCount: parseInt(generalQuestionCount) || 3,
+        scenarioQuestionCount: parseInt(scenarioQuestionCount) || 2,
+        answerTimeLimit: parseInt(answerTimeLimit) || 60,
         questionType: questionType || "",
-        numberOfQuestions: parseInt(numberOfQuestions) || 5,
+        numberOfQuestions: (parseInt(generalQuestionCount) || 3) + (parseInt(scenarioQuestionCount) || 2),
         generatedQuestions: Array.isArray(generatedQuestions) ? generatedQuestions : [],
         selectedQuestions: Array.isArray(selectedQuestions) ? selectedQuestions : [],
         scheduledDate,
@@ -421,41 +427,41 @@ const getCandidateHistory = asyncHandler(async (req, res) => {
 
     // 2. Fetch all AI interviews related to these sessions to extract scores
     const sessionIds = sessions.map(s => s._id);
-    const aiInterviews = await AIInterview.find({ 
-        interviewSessionId: { $in: sessionIds }, 
-        status: "completed" 
+    const aiInterviews = await AIInterview.find({
+        interviewSessionId: { $in: sessionIds },
+        status: "completed"
     });
 
     // Create a lookup map for fast retrieval
     const scoreMap = {};
     aiInterviews.forEach(ai => {
-         const avg = (ai.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / (ai.scores?.length || 1);
-         scoreMap[`${ai.interviewSessionId}_${ai.candidateId}`] = Math.round(avg);
+        const avg = (ai.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / (ai.scores?.length || 1);
+        scoreMap[`${ai.interviewSessionId}_${ai.candidateId}`] = Math.round(avg);
     });
 
     const historyList = [];
     sessions.forEach(session => {
         session.candidates.forEach(candidate => {
-             // Skip malformed candidates without valid IDs
-             if (!candidate.candidateId) return;
-             
-             const key = `${session._id}_${candidate.candidateId._id}`;
-             const score = scoreMap[key] || null;
+            // Skip malformed candidates without valid IDs
+            if (!candidate.candidateId) return;
 
-             // Map to match frontend static structure
-             historyList.push({
-                 id: `${session._id}_${candidate.candidateId._id}`,
-                 candidateId: candidate.candidateId._id,
-                 sessionId: session._id,
-                 name: candidate.candidateId.fullName || candidate.candidateId.email.split("@")[0],
-                 email: candidate.candidateId.email,
-                 interview: session.jobTitle || session.domain || "General Interview",
-                 date: new Date(session.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                 time: session.startTime,
-                 status: candidate.status || "Pending",
-                 score: score,
-                 timestamp: session.scheduledDate // for strict date sorting if needed
-             });
+            const key = `${session._id}_${candidate.candidateId._id}`;
+            const score = scoreMap[key] || null;
+
+            // Map to match frontend static structure
+            historyList.push({
+                id: `${session._id}_${candidate.candidateId._id}`,
+                candidateId: candidate.candidateId._id,
+                sessionId: session._id,
+                name: candidate.candidateId.fullName || candidate.candidateId.email.split("@")[0],
+                email: candidate.candidateId.email,
+                interview: session.jobTitle || session.domain || "General Interview",
+                date: new Date(session.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                time: session.startTime,
+                status: candidate.status || "Pending",
+                score: score,
+                timestamp: session.scheduledDate // for strict date sorting if needed
+            });
         });
     });
 

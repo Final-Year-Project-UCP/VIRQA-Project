@@ -34,11 +34,16 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting 
         <div className="max-w-3xl mx-auto space-y-6">
 
             {/* ── Interview Summary ── */}
-            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-6">
-                <h2 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-600" /> Interview Summary
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] border border-gray-100 rounded-[2rem] p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-base font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
+                        <Sparkles className="w-4 h-4 text-blue-600" /> Session Blueprint
+                    </h2>
+                    <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-tighter rounded-lg border border-blue-100">
+                        Draft Profile
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="bg-white/70 rounded-xl p-3.5 shadow-sm">
                         <div className="flex items-center gap-2 mb-1.5">
                             <Layers className="w-3.5 h-3.5 text-blue-600" />
@@ -91,10 +96,10 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting 
             </div>
 
             {/* ── Scheduling Form ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h2 className="text-base font-bold text-gray-800 mb-5 flex items-center gap-2">
+            <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 p-8">
+                <h2 className="text-base font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-blue-600" />
-                    Schedule Interview
+                    Temporal Settings
                 </h2>
 
                 <div className="space-y-5">
@@ -173,23 +178,28 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting 
 
                     {/* Confirmation preview */}
                     {scheduleData.startDate && scheduleData.startTime && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="font-bold text-green-800 text-sm">Interview will be scheduled for</p>
-                                    <p className="text-sm text-green-700 mt-0.5">
-                                        {new Date(scheduleData.startDate).toLocaleDateString('en-US', {
-                                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                                        })}
-                                        {' at '}
-                                        {new Date(`2000-01-01T${scheduleData.startTime}`).toLocaleTimeString('en-US', {
-                                            hour: 'numeric', minute: '2-digit', hour12: true
-                                        })}
-                                    </p>
-                                    <p className="text-xs text-green-600 mt-0.5">
-                                        Duration: {scheduleData.duration} minutes • {candidateCount} candidate invite{candidateCount !== 1 ? 's' : ''} will be sent
-                                    </p>
+                        <div className="p-6 bg-emerald-50/50 border border-emerald-100 rounded-[1.5rem] transition-all duration-500 animate-in zoom-in-95">
+                            <div className="flex items-start gap-4">
+                                <div className="p-2 bg-white rounded-xl shadow-sm">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-black text-emerald-900 text-sm tracking-tight">Timeline Confirmed</p>
+                                    <div className="mt-2 space-y-1">
+                                        <div className="flex items-center gap-2 text-emerald-700 text-sm font-bold">
+                                            <span>Starts:</span>
+                                            <span className="text-emerald-900">
+                                                {new Date(scheduleData.startDate).toLocaleDateString('en-US', {
+                                                    weekday: 'short', month: 'short', day: 'numeric'
+                                                })}, {new Date(`2000-01-01T${scheduleData.startTime}`).toLocaleTimeString('en-US', {
+                                                    hour: 'numeric', minute: '2-digit', hour12: true
+                                                })}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
+                                            {scheduleData.duration}m Duration • {candidateCount} Invite{candidateCount !== 1 ? 's' : ''}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

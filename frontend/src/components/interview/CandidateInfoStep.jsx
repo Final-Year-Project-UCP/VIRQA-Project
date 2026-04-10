@@ -96,10 +96,12 @@ const CandidateInfoStep = ({ formData, setFormData, onNext }) => {
 
                 {/* ── Left: Manual Entry ── */}
                 <div className="space-y-5">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h2 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-                            <User className="w-5 h-5 text-blue-600" />
-                            Add Candidate
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] p-8">
+                        <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                            <div className="p-2 bg-blue-50 rounded-lg">
+                                <User className="w-5 h-5 text-blue-600" />
+                            </div>
+                            Manual Entry
                         </h2>
 
                         <form onSubmit={handleAdd} className="space-y-4">
@@ -153,14 +155,14 @@ const CandidateInfoStep = ({ formData, setFormData, onNext }) => {
                         </div>
 
                         {/* Excel Upload */}
-                        <label className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-all ${isParsing ? 'bg-blue-50 border-blue-400' : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'}`}>
+                        <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${isParsing ? 'bg-blue-50 border-blue-400' : 'border-gray-100 bg-gray-50/50 hover:border-blue-400 hover:bg-blue-50 hover:shadow-inner'}`}>
                             {isParsing ? (
                                 <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
                             ) : (
                                 <>
-                                    <FileSpreadsheet className="w-7 h-7 text-gray-400 mb-2" />
-                                    <p className="text-sm font-semibold text-gray-600">Import from Excel</p>
-                                    <p className="text-xs text-gray-400 mt-0.5">Columns: Name (optional), Email</p>
+                                    <FileSpreadsheet className="w-8 h-8 text-blue-500/40 mb-2" />
+                                    <p className="text-sm font-black text-gray-700 tracking-tight">Bulk Import (Excel)</p>
+                                    <p className="text-[10px] uppercase font-black text-gray-400 mt-1 tracking-widest">Columns: Name, Email</p>
                                 </>
                             )}
                             <input type="file" className="hidden" accept=".xlsx,.xls" onChange={handleFileUpload} disabled={isParsing} />
@@ -169,13 +171,16 @@ const CandidateInfoStep = ({ formData, setFormData, onNext }) => {
                 </div>
 
                 {/* ── Right: Candidate List ── */}
-                <div>
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                            <h3 className="font-bold text-gray-800">Candidate List</h3>
+                <div className="h-full">
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] overflow-hidden h-full flex flex-col">
+                        <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
+                            <div>
+                                <h3 className="font-black text-gray-900 tracking-tight">Active Roster</h3>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Ready for invitation</p>
+                            </div>
                             {candidates.length > 0 && (
-                                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                    {candidates.length} Added
+                                <span className="px-4 py-1.5 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg shadow-blue-200">
+                                    {candidates.length} Registered
                                 </span>
                             )}
                         </div>
@@ -191,21 +196,21 @@ const CandidateInfoStep = ({ formData, setFormData, onNext }) => {
                         ) : (
                             <div className="max-h-96 overflow-y-auto divide-y divide-gray-50">
                                 {candidates.map((c, i) => (
-                                    <div key={i} className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 group transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                    <div key={i} className="flex items-center justify-between px-8 py-4 hover:bg-gray-50/80 group transition-all duration-300">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-100 flex items-center justify-center text-blue-600 text-sm font-black shadow-sm group-hover:scale-110 group-hover:bg-blue-50 transition-all">
                                                 {(c.name || c.email).charAt(0).toUpperCase()}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-gray-800 leading-tight">
-                                                    {c.name || <span className="text-gray-400 italic font-normal">No name</span>}
+                                                <p className="text-sm font-black text-gray-900 leading-tight tracking-tight">
+                                                    {c.name || <span className="text-gray-400 italic font-normal">No name provided</span>}
                                                 </p>
-                                                <p className="text-xs text-gray-500 truncate max-w-[180px]">{c.email}</p>
+                                                <p className="text-[11px] font-bold text-gray-400 truncate max-w-[200px] mt-0.5">{c.email}</p>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => handleRemove(c.email)}
-                                            className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                                            className="p-2 rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0 translate-x-2"
                                         >
                                             <X className="w-4 h-4" />
                                         </button>

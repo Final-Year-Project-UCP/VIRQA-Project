@@ -29,7 +29,7 @@ const AdminDashboard = () => {
     const chartData = dashboardData?.chartData;
 
     const filtered = candidates.filter(candidate => {
-        const matchesSearch = 
+        const matchesSearch =
             candidate.name.toLowerCase().includes(search.toLowerCase()) ||
             candidate.role.toLowerCase().includes(search.toLowerCase());
         const matchesFilter = filter === 'All' || candidate.status === filter;
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
                     </div>
                     <h2 className="text-xl font-bold text-slate-900 mb-2">Sync Connection Failed</h2>
                     <p className="text-slate-500 mb-6 text-sm leading-relaxed">The analytics engine encountered a communication error with the central server.</p>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98]"
                     >
@@ -115,8 +115,8 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
                     <div className="flex justify-between items-center mb-10">
                         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                             Global Interview Performance
+                            <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                            Global Interview Performance
                         </h2>
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-1 bg-slate-50 rounded-full border border-slate-100">Trend Dataset: Last 7 Sessions</span>
                     </div>
@@ -192,8 +192,8 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="px-8 py-6 whitespace-nowrap">
                                         <div className={`text-sm font-black tabular-nums transition-colors ${candidate.score === null ? 'text-slate-200' :
-                                                candidate.score >= 85 ? 'text-emerald-600' :
-                                                    candidate.score >= 70 ? 'text-amber-600' : 'text-rose-600'
+                                            candidate.score >= 85 ? 'text-emerald-600' :
+                                                candidate.score >= 70 ? 'text-amber-600' : 'text-rose-600'
                                             }`}>
                                             {candidate.score ? `${candidate.score}%` : '--'}
                                         </div>
@@ -220,7 +220,7 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </div>
-            
+
             <div className="mt-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
                 Enterprise Oversight Module v2.0 • Real-time Distributed Analytics
             </div>
