@@ -1,103 +1,83 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Check } from 'lucide-react';
+import { BrainCircuit, Languages, BarChart4, Target } from 'lucide-react';
 
-export default function ProblemSolution() {
-  const problemPoints = [
-    "Static question banks",
-    "No real-time voice analysis",
-    "Unfair or inconsistent evaluations",
-  ];
+const capabilities = [
+  {
+    icon: Target,
+    title: "Semantic Relevance",
+    desc: "Our AI evaluates the technical depth and conceptual accuracy of every response against industry standards.",
+    detail: "Cross-referenced with verified technical documentation."
+  },
+  {
+    icon: Languages,
+    title: "Fluency & Pace",
+    desc: "Analyzes spoken delivery, word choice, and sentence structure to ensure clear technical communication.",
+    detail: "Measures words-per-minute and logical cohesion."
+  },
+  {
+    icon: BrainCircuit,
+    title: "Tone Analysis",
+    desc: "Detects confidence levels and professional sentiment through advanced acoustic processing.",
+    detail: "Identifies hesitation and stress markers in real-time."
+  },
+  {
+    icon: BarChart4,
+    title: "Overall Confidence",
+    desc: "A composite score reflecting the candidate's mastery and readiness for high-stakes roles.",
+    detail: "Compiled into comprehensive executive appraisal reports."
+  }
+];
 
-  const solutionPoints = [
-    "Adaptive LLM-based questions",
-    "Real-time speech-to-text + tone analysis",
-    "Instant AI-generated feedback reports",
-  ];
-
+export default function FeatureShowcase() {
   return (
-    <section id="features"
-    
-    className="relative py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-gray-50 via-neutral-100 to-zinc-100 overflow-hidden">
+    <section id="features" className="py-24 px-6 bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          className="grid lg:grid-cols-2 gap-8 sm:gap-12"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          viewport={{ once: true }}
-        >
-          {/* Problem Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+        <div className="text-center mb-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-linear-to-br from-red-100/60 via-red-50 to-white rounded-3xl p-6 sm:p-8 border border-red-200 shadow-lg hover:shadow-2xl transition-all duration-500"
+            className="text-4xl lg:text-5xl font-black text-gray-900 tracking-tight mb-6"
           >
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
-              The Problem with Traditional Interviews
-            </h3>
+            Technical Appraisal <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500">
+              Powered by Logic
+            </span>
+          </motion.h2>
+          <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">
+            VIRQA evaluates every nuance of a candidate's performance across four core semantic and acoustic dimensions.
+          </p>
+        </div>
 
-            <ul className="space-y-4">
-              {problemPoints.map((p, i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.15 }}
-                  viewport={{ once: true }}
-                  className="flex items-start gap-3 text-gray-700"
-                >
-                  <div className="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mt-0.5 text-sm text-red-800 font-semibold shadow-sm">
-                    <X className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="font-medium text-base">{p}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Solution Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="bg-linear-to-br from-emerald-100/60 via-teal-50 to-white rounded-3xl p-6 sm:p-8 border border-teal-200 shadow-lg hover:shadow-2xl transition-all duration-500"
-          >
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
-              How VIRQA Solves It
-            </h3>
-
-            <ul className="space-y-4">
-              {solutionPoints.map((s, i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.15 }}
-                  viewport={{ once: true }}
-                  className="flex items-start gap-3 text-gray-700"
-                >
-                  <div className="w-6 h-6 bg-teal-200 rounded-full flex items-center justify-center mt-0.5 text-sm text-teal-800 font-semibold shadow-sm">
-                    <Check className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="font-medium text-base">{s}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        </motion.div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {capabilities.map((cap, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="p-8 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-900 mb-8 group-hover:bg-gray-900 group-hover:text-white transition-colors duration-500">
+                <cap.icon size={28} />
+              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-4 tracking-tight">{cap.title}</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-6 text-sm">
+                {cap.desc}
+              </p>
+              <div className="pt-6 border-t border-gray-50">
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 leading-tight">
+                  {cap.detail}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
-
-      {/* Background Accent Glow */}
-      <motion.div
-        className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-radial from-gray-300/20 via-transparent to-transparent blur-3xl opacity-60 -z-10"
-        animate={{ y: [0, -15, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-      />
     </section>
   );
 }
+

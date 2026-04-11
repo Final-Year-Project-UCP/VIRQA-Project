@@ -1,163 +1,117 @@
 
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, Monitor, Cpu, Fingerprint } from 'lucide-react';
 
 export default function DemoSection() {
-  const features = [
-    "Real-time voice analysis",
-    "Adaptive questioning",
-    "Instant feedback",
-    "Confidence scoring",
+  const capabilities = [
+    "Adaptive Linguistic Processing",
+    "Real-time Acoustic Fingerprinting",
+    "Semantic Logic Validation",
+    "Executive Professional Feedback"
   ];
 
   return (
-    <section
-      id="demo"
-      className="relative py-20 px-6 sm:px-8 bg-linear-to-br from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-      
+    <section id="demo" className="py-32 px-6 bg-white overflow-hidden relative">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+
+        {/* Left Side: Content */}
         <motion.div
-          className="space-y-7"
-          initial={{ opacity: 0, x: -60 }}
+          initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true }}
+          className="space-y-10"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold leading-tight">
-            See{" "}
-            <span className="bg-linear-to-r from-gray-700 via-gray-900 to-zinc-800 bg-clip-text text-transparent">
-              VIRQA
-            </span>{" "}
-            in Action
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 border border-gray-200 text-gray-500">
+            <Monitor size={16} />
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-900">Technical Briefing</span>
+          </div>
+
+          <h2 className="text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-[1.1]">
+            Experience the <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-gray-700 to-gray-400">
+              VIRQA Engine
+            </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Watch AI analyze your voice, tone, and confidence in real-time with instant,
-            actionable insights.
+
+          <p className="text-lg text-gray-500 font-medium leading-relaxed max-w-lg">
+            Our platform goes beyond simple transcription. We analyze the technical depth and logical cohesion of every response in real-time.
           </p>
 
-          <ul className="space-y-4 pt-2">
-            {features.map((item, i) => (
-              <motion.li
+          <div className="space-y-4">
+            {capabilities.map((item, i) => (
+              <motion.div
                 key={i}
-                className="flex items-center gap-3"
-                initial={{ opacity: 0, x: -30 }}
+                initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.12 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-center gap-4 group"
               >
-                <div className="w-7 h-7 bg-linear-to-br from-gray-800 to-gray-600 rounded-full flex items-center justify-center shadow-md ring-2 ring-gray-300">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-3.5 h-3.5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={3}
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-gray-900 group-hover:text-white transition-all">
+                  <CheckCircle2 size={18} />
                 </div>
-                <span className="text-gray-700 font-medium">{item}</span>
-              </motion.li>
+                <span className="font-bold text-gray-700 text-sm tracking-tight">{item}</span>
+              </motion.div>
             ))}
-          </ul>
+          </div>
         </motion.div>
 
+        {/* Right Side: Visualizer */}
         <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
           className="relative"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-100px" }}
         >
-          <div className="bg-white/70 backdrop-blur-2xl rounded-3xl p-1 shadow-2xl border border-gray-200/50 hover:shadow-gray-400/40 transition-all duration-500">
-            <div className="bg-linear-to-br from-zinc-900 via-gray-800 to-gray-900 rounded-3xl p-6 md:p-8 relative overflow-hidden">
-            
-              <div className="absolute inset-0 rounded-3xl bg-linear-to-tr from-indigo-600/20 via-cyan-400/10 to-pink-500/20 blur-3xl"></div>
+          <div className="bg-gray-50 p-4 rounded-[3rem] border border-gray-100 shadow-[0_50px_100px_rgba(0,0,0,0.06)]">
+            <div className="bg-gray-900 rounded-[2.5rem] p-10 relative overflow-hidden">
 
-             
-              <div className="flex items-center gap-2 mb-6 relative z-10">
-                <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
-                <div className="ml-3 flex-1 h-px bg-linear-to-r from-gray-500 to-transparent opacity-30"></div>
+              {/* HUD Elements */}
+              <div className="flex justify-between items-center mb-12 relative z-10">
+                <div className="flex items-center gap-3">
+                  <Cpu size={20} className="text-white/20" />
+                  <div className="h-px w-20 bg-white/10" />
+                </div>
+                <Fingerprint size={20} className="text-emerald-500 opacity-50" />
               </div>
 
-           
-              <div className="space-y-6 relative z-10 text-sm font-mono">
-                 <div className="text-center pb-4 border-b border-gray-700">
-                  <motion.p
-                    className="text-3xl font-bold text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]"
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
-                    transition={{
-                      duration: 0.6,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut",
-                    }}
-                  >
-                    87% Confidence
-                  </motion.p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Tone: Clear | Fluency: High | Pace: Optimal
-                  </p>
+              {/* Analysis Content */}
+              <div className="space-y-8 relative z-10">
+                <div className="text-center">
+                  <p className="text-5xl font-black text-white mb-2 tracking-tighter">89.4%</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Composite Integrity Score</p>
                 </div>
 
-              
-                <div className="space-y-5">
-                  <div className="bg-linear-to-r from-gray-800 to-gray-700 rounded-xl p-4 text-gray-300 border border-gray-600">
-                    <p className="text-xs text-gray-400 mb-1">Question:</p>
-                    <p>Tell me about your experience with AI-driven systems...</p>
-                  </div>
+                {/* Logic Chart Mockup */}
+                <div className="flex gap-1 items-end h-24 justify-center">
+                  {[0.4, 0.7, 0.9, 0.6, 0.8, 0.5, 0.9, 0.7, 0.4].map((h, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ height: [`${h * 100}%`, `${h * 80}%`, `${h * 100}%`] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                      className="w-4 bg-white/20 rounded-full"
+                    />
+                  ))}
+                </div>
 
-                  <motion.div
-                    className="bg-linear-to-r from-cyan-600 via-indigo-500 to-pink-500 rounded-xl p-4 text-white shadow-lg border border-gray-700"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    <p className="text-xs">Analyzing speech patterns, tone, and clarity...</p>
-                  </motion.div>
-
-              
-                  <div className="flex gap-1 items-end h-16 justify-center">
-                    {[0.6, 1.2, 1.8, 1.4, 2.1, 1.6, 1.0, 0.8].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        className="w-2 rounded-full bg-linear-to-t from-pink-500 via-cyan-400 to-indigo-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"
-                        style={{ height: `${h * 20}px` }}
-                        animate={{
-                          height: [`${h * 15}px`, `${h * 35}px`, `${h * 15}px`],
-                        }}
-                        transition={{
-                          duration: 1.2,
-                          repeat: Infinity,
-                          delay: i * 0.08,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    ))}
+                <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Acoustic Logic Node</span>
                   </div>
+                  <p className="text-white/80 text-sm font-medium italic">"Logical progression identified in technical explanation..."</p>
                 </div>
               </div>
+
+              {/* Grid Background */}
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
             </div>
           </div>
         </motion.div>
+
       </div>
-
-      <div className="absolute top-1/3 -right-20 w-96 h-96 bg-gradient-radial from-cyan-400/20 via-transparent to-transparent blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute bottom-10 -left-20 w-80 h-80 bg-gradient-radial from-pink-400/15 via-transparent to-transparent blur-3xl -z-10 animate-pulse"></div>
-
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
-        }
-        .animate-pulse { animation: pulse 8s ease-in-out infinite; }
-        .bg-gradient-radial {
-          background: radial-gradient(circle at center, var(--tw-gradient-stops));
-        }
-      `}</style>
     </section>
   );
 }
+

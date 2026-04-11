@@ -1,122 +1,109 @@
-"use client";
 
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ScrollText, ShieldCheck, X } from 'lucide-react';
 
-export default function TermsSection() {
+export default function TermsModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
   return (
-    <section
-      id="terms"
-      className="relative py-20 px-6 sm:px-8 bg-gradient-to-b from-black via-zinc-950 to-gray-900 text-gray-300 overflow-hidden"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        {/* Backdrop */}
         <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-100 via-gray-300 to-gray-500 bg-clip-text text-transparent animate-gradient-x">
-            Terms & Conditions
-          </h2>
-          <p className="mt-3 text-gray-400 max-w-2xl mx-auto text-sm sm:text-base">
-            Please read these terms carefully before using VIRQA.
-          </p>
-        </motion.div>
-
-        {/* Content */}
-        <motion.div
-          className="space-y-7 text-gray-400 leading-relaxed text-justify"
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-gray-900/60 backdrop-blur-md"
+        />
+
+        {/* Modal Card */}
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-gray-100"
         >
-          <p>
-            <span className="text-gray-100 font-semibold">1. Introduction:</span>{" "}
-            Welcome to <span className="text-gray-200 font-medium">VIRQA</span>, an AI-powered
-            interview preparation platform that helps users enhance their communication and
-            confidence through intelligent feedback. By accessing or using our services, you agree to
-            comply with and be bound by these Terms & Conditions.
-          </p>
+          {/* Header */}
+          <div className="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gray-50 rounded-xl text-gray-900">
+                <ScrollText size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-gray-900 tracking-tight">Terms & Conditions</h2>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Updated: April 2026</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-3 hover:bg-gray-100 rounded-2xl transition-all text-gray-400 hover:text-gray-900"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-          <p>
-            <span className="text-gray-100 font-semibold">2. Use of the Platform:</span>{" "}
-            VIRQA is intended for educational and professional preparation purposes only. You agree
-            not to use the service for any illegal, harmful, or misleading activities. You are
-            responsible for maintaining the confidentiality of your account information.
-          </p>
+          {/* Scrollable Content */}
+          <div className="p-8 md:p-12 overflow-y-auto custom-scrollbar">
+            <div className="grid md:grid-cols-2 gap-12">
+              <div className="space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-900" />
+                  1. Platform Usage
+                </h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  VIRQA is intended for professional appraisal and practice. Users must engage with the system in a manner that respects intellectual property and professional ethics.
+                </p>
+              </div>
 
-          <p>
-            <span className="text-gray-100 font-semibold">3. Data Privacy:</span>{" "}
-            Your privacy is important to us. VIRQA processes your voice and responses in real-time
-            without storing, selling, or sharing your data. All interactions are securely handled to
-            ensure confidentiality and safety.
-          </p>
+              <div className="space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-900" />
+                  2. Data Attribution
+                </h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  Evaluations generated by VIRQA are based on semantic analysis of user input. These reports remain the property of the account holder but are subject to our internal data security protocols.
+                </p>
+              </div>
 
-          <p>
-            <span className="text-gray-100 font-semibold">4. AI Accuracy Disclaimer:</span>{" "}
-            While VIRQA uses advanced AI technologies to provide feedback and analysis, we do not
-            guarantee the absolute accuracy of the system’s interpretations or recommendations.
-            Users are encouraged to use AI feedback as a supportive guide rather than a definitive
-            evaluation.
-          </p>
+              <div className="space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-900" />
+                  3. Inference Accuracy
+                </h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  While our AI utilizes state-of-the-art models, feedback should be used as a high-fidelity guide. Technical benchmarks are cross-referenced with public industry standards.
+                </p>
+              </div>
 
-          <p>
-            <span className="text-gray-100 font-semibold">5. Modifications:</span>{" "}
-            VIRQA reserves the right to update, modify, or discontinue any part of the platform or
-            these Terms & Conditions at any time without prior notice. Continued use of the platform
-            implies acceptance of any changes made.
-          </p>
+              <div className="space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-900" />
+                  4. Privacy Protocol
+                </h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                  We adhere to strict data compartmentalization. User sessions are transcribed and analyzed for the express purpose of generating professional appraisal reports.
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <p>
-            <span className="text-gray-100 font-semibold">6. Limitation of Liability:</span>{" "}
-            VIRQA shall not be held responsible for any damages, losses, or issues arising from the
-            use or inability to use the platform, including inaccuracies in AI feedback.
-          </p>
-
-          <p>
-            <span className="text-gray-100 font-semibold">7. Governing Law:</span>{" "}
-            These Terms & Conditions are governed by and construed in accordance with applicable
-            laws. Any disputes arising under these terms will be subject to the jurisdiction of the
-            respective courts.
-          </p>
-
-          <p className="text-gray-500 italic mt-10 text-sm">
-            By using VIRQA, you acknowledge that you have read, understood, and agreed to these
-            Terms & Conditions.
-          </p>
+          {/* Footer */}
+          <div className="p-8 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <ShieldCheck size={16} />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Enterprise Compliant</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all"
+            >
+              I Understand
+            </button>
+          </div>
         </motion.div>
       </div>
-
-      {/* Ambient lighting */}
-      <div className="absolute top-1/4 -left-24 w-96 h-96 bg-gradient-radial from-gray-600/20 via-transparent to-transparent blur-3xl -z-10 animate-fade"></div>
-      <div className="absolute bottom-1/3 -right-32 w-96 h-96 bg-gradient-radial from-gray-500/15 via-transparent to-transparent blur-3xl -z-10 animate-fade"></div>
-
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 6s ease infinite;
-        }
-
-        @keyframes fade {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.7; }
-        }
-        .animate-fade {
-          animation: fade 10s ease-in-out infinite;
-        }
-
-        .bg-gradient-radial {
-          background: radial-gradient(circle at center, var(--tw-gradient-stops));
-        }
-      `}</style>
-    </section>
+    </AnimatePresence>
   );
 }

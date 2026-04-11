@@ -1,173 +1,84 @@
 
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 const faqs = [
   {
-    q: "What is VIRQA?",
-    a: "VIRQA is an AI-powered interview assistant that analyzes your speech, tone, and confidence to give real-time feedback and help you prepare for interviews effectively.",
+    question: "How does the AI evaluate my technical accuracy?",
+    answer: "Our engine uses large language models (LLMs) to perform semantic analysis on your transcripts. It cross-references your answers with specific domain knowledge to measure 'Semantic Relevance' and technical depth."
   },
   {
-    q: "How does the voice analysis work?",
-    a: "Our system uses advanced speech processing and LLM-based evaluation to assess your fluency, tone, and clarity in real-time.",
+    question: "Is my voice recording stored on the servers?",
+    answer: "To provide detailed analytical reports and employer dashboards, we securely store the transcripts and metric analysis of your session. Raw audio is handled with strict encryption and is only accessible for legitimate appraisal purposes."
   },
   {
-    q: "Can I choose my interview domain?",
-    a: "Yes! You can select from multiple domains like MERN Stack, Data Science, AI, or custom topics before starting your session.",
+    question: "Can I customize the interview for specific job roles?",
+    answer: "Yes, VIRQA allows employers to configure domain-specific interviews. You can define the technical stack, seniority level, and even specific behavioral competency frameworks for the AI to follow."
   },
   {
-    q: "Is my voice data stored?",
-    a: "No. VIRQA processes your voice locally during the session. We do not store or share any recordings or responses.",
-  },
-  {
-    q: "Can I access feedback reports later?",
-    a: "Yes, you can download your AI-generated interview feedback reports anytime after the session.",
-  },
+    question: "What metrics are included in the final report?",
+    answer: "Every report includes a quantitative breakdown of Semantic Relevance, Fluency, Tone, and Confidence, alongside a qualitative executive summary and a full transcript of the session."
+  }
 ];
 
-export default function FaqSection() {
-  // removed the TypeScript generic so this works in plain JS/JSX
+export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section
-      id="faqs"
-      className="relative py-20 px-6 sm:px-8 bg-linear-to-b from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-gray-800 via-gray-900 to-zinc-800 bg-clip-text text-transparent animate-gradient-x">
-            Frequently Asked Questions
+    <section id="faqs" className="py-32 px-6 bg-gray-50 overflow-hidden">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-400 mb-6">
+            <HelpCircle size={16} />
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-900">Knowledge Base</span>
+          </div>
+          <h2 className="text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">
+            Common Inquiries
           </h2>
-          <p className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
-            Find quick answers to the most common questions about VIRQA
-          </p>
-        </motion.div>
-
-        {/* FAQ Accordion */}
-        <div className="max-w-3xl mx-auto space-y-5 ">
-          {faqs.map((item, i) => {
-            const isOpen = openIndex === i;
-
-            return (
-              <motion.div
-                key={i}
-                className="group "
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: i * 0.1, ease: "easeOut" }}
-              >
-                <div className="bg-white/80 backdrop-blur-xl border  border-gray-200/70 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-400">
-                  {/* Question Button */}
-                  <button
-                    onClick={() => setOpenIndex(isOpen ? null : i)}
-                    className="w-full flex justify-between items-center text-left px-6 sm:px-8 py-5 sm:py-6 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-2xl"
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-answer-${i}`}
-                  >
-                    <h3 className="text-base cursor-pointer sm:text-lg font-semibold text-gray-900 group-hover:text-gray-800 transition-colors pr-4">
-                      {item.q}
-                    </h3>
-
-                    {/* Animated Chevron */}
-                    <motion.div
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                      className="shrink-0"
-                    >
-                      <ChevronDown
-                        size={22}
-                        className="text-gray-600 group-hover:text-gray-800 transition-colors cursor-pointer"
-                      />
-                    </motion.div>
-                  </button>
-
-                  {/* Answer Panel */}
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        id={`faq-answer-${i}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.35, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-6 sm:px-8 pb-5 sm:pb-6 pt-2 border-t border-gray-200/60">
-                          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                            {item.a}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            );
-          })}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          className="text-center mt-14"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          <p className="text-gray-600 mb-3">Still have questions?</p>
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 text-gray-800 font-semibold hover:text-gray-900 transition-colors"
-          >
-            Contact Support
-            <motion.span
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <motion.div
+              key={i}
+              className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
             >
-              →
-            </motion.span>
-          </a>
-        </motion.div>
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full px-8 py-7 flex items-center justify-between text-left hover:bg-gray-50/50 transition-colors"
+              >
+                <span className="text-lg font-bold text-gray-900">{faq.question}</span>
+                <div className={`p-2 rounded-full transition-all duration-300 ${openIndex === i ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                  {openIndex === i ? <Minus size={18} /> : <Plus size={18} />}
+                </div>
+              </button>
+
+              <AnimatePresence mode="wait">
+                {openIndex === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  >
+                    <div className="px-8 pb-8 text-gray-500 font-medium leading-relaxed">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
       </div>
-
-      {/* Subtle Ambient Glows (Neutral) */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gradient-radial from-gray-300/20 via-transparent to-transparent blur-3xl -z-10 animate-float-slow"></div>
-      <div className="absolute bottom-1/3 -right-28 w-80 h-80 bg-gradient-radial from-zinc-300/15 via-transparent to-transparent blur-3xl -z-10 animate-float-slow"></div>
-
-      {/* Reusable Animations */}
-      <style jsx>{`
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 6s ease infinite;
-        }
-
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        .animate-float-slow {
-          animation: float-slow 14s ease-in-out infinite;
-        }
-
-        .bg-gradient-radial {
-          background: radial-gradient(circle at center, var(--tw-gradient-stops));
-        }
-      `}</style>
     </section>
   );
 }
+
+

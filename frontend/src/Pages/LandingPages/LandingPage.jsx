@@ -10,11 +10,13 @@ import HowItWorks from '../../components/other/LandingPage/HowItWorks';
 import DemoSection from '../../components/other/LandingPage/DemoSection';
 import WhoItsFor from '../../components/other/LandingPage/WhoItsFor';
 import Footer from '../../components/other/LandingPage/Footer';
-import FaqSection from '../../components/other/LandingPage/FAQs';
-import TermsSection from '../../components/other/LandingPage/Term&Condition';
+import FAQSection from '../../components/other/LandingPage/FAQs';
+import TermsModal from '../../components/other/LandingPage/Term&Condition';
+import FinalCTA from '../../components/other/LandingPage/FinalCTA';
 
 const LandingPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,85 +32,42 @@ const LandingPage = () => {
   };
 
   return (
-    <>
-      <div className="w-full overflow-x-hidden relative bg-gray-50">
-        <Nav />
-        <Hero />
+    <div className="w-full relative bg-white selection:bg-gray-900 selection:text-white">
+      <Nav />
+      <Hero />
+      <div id="features">
         <Feature />
+      </div>
+      <div id="how-it-works">
         <HowItWorks />
+      </div>
+      <div id="demo">
         <DemoSection />
-        <WhoItsFor />
-        <FaqSection />
-        <Footer />
+      </div>
+      <WhoItsFor />
+      <div id="faqs">
+        <FAQSection />
       </div>
 
+
+      <Footer openTerms={() => setIsTermsOpen(true)} />
+
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
 
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{
-              duration: 0.4,
-              ease: 'easeOut',
-              type: 'spring',
-              stiffness: 300,
-              damping: 20
-            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="
-              fixed bottom-8 right-8 z-50 
-              flex items-center justify-center 
-              w-14 h-14 
-              bg-black/80 backdrop-blur-xl 
-              border border-white/20 
-              rounded-full 
-              shadow-2xl 
-              cursor-pointer 
-              group 
-              overflow-hidden
-              transition-all duration-300
-            "
-            whileHover={{
-              scale: 1.15,
-              boxShadow: '0 0 30px rgba(255, 255, 255, 0.3)',
-            }}
-            whileTap={{ scale: 0.95 }}
+            className="fixed bottom-10 right-10 z-[60] w-14 h-14 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all group"
           >
-
-            <div className="absolute inset-0 rounded-full bg-linear-to-tr from-white/10 via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut'
-              }}
-              className="relative z-10"
-            >
-              <ArrowUp className="w-6 h-6 text-white drop-shadow-md" />
-            </motion.div>
-
-
-            <motion.div
-              className="absolute inset-0 rounded-full border border-white/30"
-              animate={{
-                scale: [1, 1.4],
-                opacity: [0.5, 0]
-              }}
-              transition={{
-                duration: 1.8,
-                repeat: Infinity,
-                ease: 'easeOut'
-              }}
-            />
+            <ArrowUp size={24} className="group-hover:-translate-y-1 transition-transform" />
           </motion.button>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 

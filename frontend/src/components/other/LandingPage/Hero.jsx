@@ -6,7 +6,7 @@ export default function HeroSection() {
   return (
     <section className="relative pt-20 pb-24 px-6 sm:px-8 bg-linear-to-b from-neutral-50 via-gray-100 to-zinc-100 overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
-        
+
         {/* Left Side — Text */}
         <div className="flex-1 text-center md:text-left space-y-8 order-1">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
