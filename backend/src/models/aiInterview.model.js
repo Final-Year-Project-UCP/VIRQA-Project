@@ -39,6 +39,11 @@ const aiInterviewSchema = new Schema({
         required: true,
         trim: true
     },
+    candidateName: {
+        type: String,
+        default: "Candidate",
+        trim: true
+    },
     experience: {
         type: String,
         required: true,

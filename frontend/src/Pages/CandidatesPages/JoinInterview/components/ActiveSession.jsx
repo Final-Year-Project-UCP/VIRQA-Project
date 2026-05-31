@@ -30,8 +30,9 @@ const ActiveSession = ({ onLeave, session }) => {
     const [aiInterviewId, setAiInterviewId] = useState(null);
     const [chatHistory, setChatHistory] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
-    const [displayedQuestion, setDisplayedQuestion] = useState("");
     const [statusMessage, setStatusMessage] = useState("Preparing Session...");
+    const [textInput, setTextInput] = useState("");
+    const streamingIndexRef = useRef(null);
     const [violationCount, setViolationCount] = useState(0);
     const [showViolationAlert, setShowViolationAlert] = useState(false);
     const [finalReport, setFinalReport] = useState("");
@@ -39,6 +40,10 @@ const ActiveSession = ({ onLeave, session }) => {
     // Timer States
     const [timeLeft, setTimeLeft] = useState(null);
     const [maxTimeLimit, setMaxTimeLimit] = useState(60);
+
+    // Overall Interview Countdown
+    const totalInterviewSeconds = (session?.duration || 30) * 60;
+    const [totalTimeLeft, setTotalTimeLeft] = useState(totalInterviewSeconds);
 
     // Media States
     const [isMicOn, setIsMicOn] = useState(true);
@@ -62,13 +67,33 @@ const ActiveSession = ({ onLeave, session }) => {
             try {
                 setStatusMessage("Syncing with AI Server...");
 
+                let candidateId = localStorage.getItem("userId");
+                let candidateName = "Candidate";
+                try {
+                    const profileRes = await api.get("/user/profile");
+                    const profile = profileRes.data?.data || profileRes.data;
+                    candidateId = profile?._id || candidateId;
+                    candidateName = profile?.fullName || candidateName;
+                } catch {
+                    const myEntry = session?.candidates?.find(
+                        (c) => c.candidateId?._id || c.candidateId
+                    );
+                    if (myEntry) {
+                        candidateId = myEntry.candidateId?._id || myEntry.candidateId;
+                    }
+                }
+
+                const experienceLevel = session?.experienceLevel || "Junior";
+                const sessionDifficulty = (session?.difficulty || "Medium").toLowerCase();
+
                 // 1. Create/Resume Interview Session Entry
                 const response = await api.post('/ai-interview/start', {
-                    candidateId: session?.candidates?.[0]?.candidateId || "anonymous",
+                    candidateId: candidateId || session?.candidates?.[0]?.candidateId,
+                    candidateName,
                     interviewSessionId: session?._id,
                     role: role,
-                    experience: "Intermediate",
-                    difficulty: "medium"
+                    experience: experienceLevel,
+                    difficulty: sessionDifficulty,
                 });
 
                 const interviewData = response.data.data;
@@ -109,18 +134,56 @@ const ActiveSession = ({ onLeave, session }) => {
                     newSocket.emit("start-interview", { interviewId });
                 });
 
-                newSocket.on("next-question", (data) => {
+                newSocket.on("ai-response-chunk", ({ chunk }) => {
+                    setStatusMessage("Interviewer is speaking...");
+                    setChatHistory((prev) => {
+                        const next = [...prev];
+                        const idx = streamingIndexRef.current;
+                        if (idx === null || idx === undefined || !next[idx]?.isStreaming) {
+                            streamingIndexRef.current = next.length;
+                            next.push({ sender: "AI Interviewer", text: chunk, isStreaming: true });
+                        } else {
+                            next[idx] = { ...next[idx], text: next[idx].text + chunk };
+                        }
+                        return next;
+                    });
+                });
+
+                newSocket.on("ai-response-complete", (data) => {
                     const aiQuestion = data.questionText;
                     const limit = data.answerTimeLimit || 60;
                     setCurrentQuestion(aiQuestion);
                     setMaxTimeLimit(limit);
-                    setTimeLeft(null); // Reset until AI finishes speaking
+                    setTimeLeft(null);
+                    streamingIndexRef.current = null;
+
+                    setChatHistory((prev) => {
+                        const next = [...prev];
+                        const streamingIdx = next.findIndex((m) => m.isStreaming);
+                        if (streamingIdx >= 0) {
+                            next[streamingIdx] = {
+                                sender: "AI Interviewer",
+                                text: aiQuestion,
+                                isStreaming: false,
+                            };
+                        } else if (!next.some((m) => m.sender === "AI Interviewer" && m.text === aiQuestion)) {
+                            next.push({ sender: "AI Interviewer", text: aiQuestion });
+                        }
+                        return next;
+                    });
+
                     setStatusMessage("AI is speaking...");
                     speak(aiQuestion);
                 });
 
+                newSocket.on("next-question", (data) => {
+                    if (!data?.questionText) return;
+                    setCurrentQuestion(data.questionText);
+                    setMaxTimeLimit(data.answerTimeLimit || 60);
+                });
+
                 newSocket.on("processing-status", (data) => {
-                    setStatusMessage(data.message || "Thinking...");
+                    setStatusMessage(data.message || "Listening...");
                 });
 
                 newSocket.on("transcription-result", (data) => {
@@ -203,51 +266,24 @@ const ActiveSession = ({ onLeave, session }) => {
         };
     }, []);
 
-    // Speech Synthesis for TTS with Real-Time Chat Streaming
     const speak = (text) => {
-        if (!window.speechSynthesis) {
-            setChatHistory(prev => [...prev, { sender: 'AI Interviewer', text }]);
-            return;
-        }
-        window.speechSynthesis.cancel();
+        if (!text?.trim()) return;
+        if (!window.speechSynthesis) return;
 
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => (v.name.includes("Google") || v.name.includes("Female") || v.lang.startsWith("en"))) || voices[0];
+        const preferredVoice =
+            voices.find(
+                (v) =>
+                    v.name.includes("Google") ||
+                    v.name.includes("Female") ||
+                    v.lang.startsWith("en")
+            ) || voices[0];
         if (preferredVoice) utterance.voice = preferredVoice;
+        utterance.rate = 1.05;
 
-        utterance.rate = 1.1;
-
-        // Add empty message to history for streaming
-        setChatHistory(prev => [...prev, { sender: 'AI Interviewer', text: '', isStreaming: true }]);
-
-        let charIndex = 0;
-        const typeTimer = setInterval(() => {
-            setChatHistory(prev => {
-                const newHistory = [...prev];
-                const last = newHistory[newHistory.length - 1];
-                if (last && last.isStreaming) {
-                    last.text = text.substring(0, charIndex + 1);
-                }
-                return newHistory;
-            });
-            charIndex++;
-            if (charIndex >= text.length) {
-                clearInterval(typeTimer);
-                // Mark as finished streaming
-                setChatHistory(prev => {
-                    const newHistory = [...prev];
-                    const last = newHistory[newHistory.length - 1];
-                    if (last) last.isStreaming = false;
-                    return newHistory;
-                });
-            }
-        }, 30);
-
-        utterance.onstart = () => {
-            setAiSpeaking(true);
-        };
-
+        utterance.onstart = () => setAiSpeaking(true);
         utterance.onend = () => {
             setAiSpeaking(false);
             setStatusMessage("Listening...");
@@ -297,6 +333,25 @@ const ActiveSession = ({ onLeave, session }) => {
         return () => clearInterval(interval);
     }, [timeLeft, aiSpeaking]);
 
+    // Overall Interview Countdown — starts when room is entered
+    useEffect(() => {
+        if (!isRoomEntered) return;
+        setTotalTimeLeft(totalInterviewSeconds);
+        const interval = setInterval(() => {
+            setTotalTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    toast.warning("Interview time is up!");
+                    handleFinish();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isRoomEntered]);
+
     const handleEnterRoom = async () => {
         try {
             if (containerRef.current?.requestFullscreen) {
@@ -328,26 +383,40 @@ const ActiveSession = ({ onLeave, session }) => {
         }
     };
 
-    const stopRecordingAndSend = () => {
+    const submitCandidateTurn = (payload) => {
+        if (!socket || !aiInterviewId || !currentQuestion) return;
         setTimeLeft(null);
+        window.speechSynthesis?.cancel();
+        socket.emit(payload.event, {
+            interviewId: aiInterviewId,
+            currentQuestionText: currentQuestion,
+            ...payload.data,
+        });
+    };
+
+    const stopRecordingAndSend = () => {
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.onstop = () => {
-                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-                mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
+                const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                mediaRecorderRef.current.stream.getTracks().forEach((t) => t.stop());
                 setIsRecording(false);
 
-                if (socket && aiInterviewId) {
-                    audioBlob.arrayBuffer().then(buffer => {
-                        socket.emit("send-audio", {
-                            interviewId: aiInterviewId,
-                            currentQuestionText: currentQuestion,
-                            audioBuffer: buffer
-                        });
+                audioBlob.arrayBuffer().then((buffer) => {
+                    submitCandidateTurn({
+                        event: "send-audio",
+                        data: { audioBuffer: buffer },
                     });
-                }
+                });
             };
             mediaRecorderRef.current.stop();
         }
+    };
+
+    const sendTextMessage = () => {
+        const msg = textInput.trim();
+        if (!msg || aiSpeaking) return;
+        setTextInput("");
+        submitCandidateTurn({ event: "send-message", data: { message: msg } });
     };
 
     const toggleMic = () => {
@@ -479,10 +548,86 @@ const ActiveSession = ({ onLeave, session }) => {
                     )}
                     <div ref={chatEndRef} />
                 </div>
+
+                <div className="p-4 border-t border-white/5 bg-slate-900/60">
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={textInput}
+                            onChange={(e) => setTextInput(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && sendTextMessage()}
+                            disabled={aiSpeaking || !currentQuestion}
+                            placeholder="Type a reply instead of speaking..."
+                            className="flex-1 px-4 py-3 bg-slate-950/80 border border-white/10 rounded-xl text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 disabled:opacity-40"
+                        />
+                        <button
+                            type="button"
+                            onClick={sendTextMessage}
+                            disabled={!textInput.trim() || aiSpeaking || !currentQuestion}
+                            className="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-colors"
+                            aria-label="Send message"
+                        >
+                            <Send size={18} />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* RIGHT COLUMN: VISUALS & CONTROLS */}
             <div className="flex-1 h-1/2 lg:h-full flex flex-col relative z-10">
+
+                {/* Total Interview Countdown — top right */}
+                {(() => {
+                    const totalMins = Math.floor(totalTimeLeft / 60);
+                    const totalSecs = totalTimeLeft % 60;
+                    const pct = totalTimeLeft / totalInterviewSeconds;
+                    const radius = 20;
+                    const circ = 2 * Math.PI * radius;
+                    const offset = circ * (1 - pct);
+                    const isLow = totalTimeLeft <= 300; // last 5 min
+                    return (
+                        <motion.div
+                            initial={{ opacity: 0, y: -12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className={`absolute top-4 right-4 z-30 flex items-center gap-3 px-4 py-2 rounded-2xl backdrop-blur-xl border shadow-xl ${
+                                isLow
+                                    ? 'bg-red-500/20 border-red-500/40 animate-pulse'
+                                    : 'bg-slate-900/70 border-white/10'
+                            }`}
+                        >
+                            {/* Circular progress */}
+                            <svg width="48" height="48" className="-rotate-90 shrink-0">
+                                <circle
+                                    cx="24" cy="24" r={radius}
+                                    fill="transparent"
+                                    stroke="white"
+                                    strokeWidth="3"
+                                    strokeOpacity="0.1"
+                                />
+                                <circle
+                                    cx="24" cy="24" r={radius}
+                                    fill="transparent"
+                                    stroke={isLow ? '#ef4444' : '#4f46e5'}
+                                    strokeWidth="3"
+                                    strokeDasharray={circ}
+                                    strokeDashoffset={offset}
+                                    strokeLinecap="round"
+                                    style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+                                />
+                                {/* Clock icon inside — rendered upright via nested transform */}
+                            </svg>
+                            <div className="flex flex-col leading-tight">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Session Time</span>
+                                <span className={`text-lg font-black tabular-nums ${
+                                    isLow ? 'text-red-400' : 'text-white'
+                                }`}>
+                                    {String(totalMins).padStart(2, '0')}:{String(totalSecs).padStart(2, '0')}
+                                </span>
+                            </div>
+                        </motion.div>
+                    );
+                })()}
 
                 {/* Visual Interaction Hub */}
                 <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">

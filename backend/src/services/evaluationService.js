@@ -12,6 +12,12 @@ You are an expert technical interviewer evaluating a candidate's answer.
 Question Asked: "${question}"
 Candidate's Answer: "${answer}"
 
+### SPECIAL EVALUATION RULES:
+1. If the question asked is a casual greeting, introduction, ice-breaker, or hobby question (e.g. asking about hobbies, what they did today, how they got into the field, or introductions):
+   - Do NOT evaluate it based on technical programming skills or programming code accuracy.
+   - Evaluate it based on communication clarity, enthusiasm, responsiveness, and how warmly they introduced themselves.
+   - Award a high "technicalScore" and "overallScore" (between 90 and 100) automatically to reward their initial communication and ensure their technical average grade is not penalized by these non-technical greeting questions.
+
 Provide a highly objective evaluation of the candidate's answer.
 Output the evaluation in pure JSON format exactly matching this structure (no markdown code blocks, just raw JSON):
 

@@ -1,4 +1,5 @@
 import { AIInterview } from "../models/aiInterview.model.js";
+import InterviewSession from "../models/interviewSession.model.js";
 import mongoose from "mongoose";
 
 /**
@@ -7,7 +8,7 @@ import mongoose from "mongoose";
  */
 export const startAIInterview = async (req, res) => {
     try {
-        const { candidateId, role, experience, difficulty, interviewSessionId } = req.body;
+        const { candidateId, candidateName, role, experience, difficulty, interviewSessionId } = req.body;
 
         if (!candidateId || !role || !experience) {
             return res.status(400).json({ success: false, message: "Missing required fields." });
@@ -15,7 +16,7 @@ export const startAIInterview = async (req, res) => {
 
         // Fetch Interview Session to enforce expiration
         if (interviewSessionId) {
-            const session = await mongoose.model("InterviewSession").findById(interviewSessionId);
+            const session = await InterviewSession.findById(interviewSessionId);
             if (session && session.expiresAt) {
                 if (new Date() > new Date(session.expiresAt)) {
                     return res.status(403).json({
@@ -52,10 +53,11 @@ export const startAIInterview = async (req, res) => {
 
         const newSession = new AIInterview({
             candidateId,
+            candidateName: candidateName || "Candidate",
             interviewSessionId: interviewSessionId || undefined,
             role,
             experience,
-            currentDifficulty: difficulty || "medium",
+            currentDifficulty: (difficulty || "medium").toLowerCase(),
             status: "ongoing"
         });
 
