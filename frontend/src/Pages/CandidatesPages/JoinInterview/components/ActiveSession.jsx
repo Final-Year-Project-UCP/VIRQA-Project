@@ -40,6 +40,10 @@ const ActiveSession = ({ onLeave, session }) => {
     const [timeLeft, setTimeLeft] = useState(null);
     const [maxTimeLimit, setMaxTimeLimit] = useState(60);
 
+    // Overall Interview Countdown
+    const totalInterviewSeconds = (session?.duration || 30) * 60;
+    const [totalTimeLeft, setTotalTimeLeft] = useState(totalInterviewSeconds);
+
     // Media States
     const [isMicOn, setIsMicOn] = useState(true);
     const [aiSpeaking, setAiSpeaking] = useState(false);
@@ -297,6 +301,25 @@ const ActiveSession = ({ onLeave, session }) => {
         return () => clearInterval(interval);
     }, [timeLeft, aiSpeaking]);
 
+    // Overall Interview Countdown — starts when room is entered
+    useEffect(() => {
+        if (!isRoomEntered) return;
+        setTotalTimeLeft(totalInterviewSeconds);
+        const interval = setInterval(() => {
+            setTotalTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    toast.warning("Interview time is up!");
+                    handleFinish();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isRoomEntered]);
+
     const handleEnterRoom = async () => {
         try {
             if (containerRef.current?.requestFullscreen) {
@@ -483,6 +506,59 @@ const ActiveSession = ({ onLeave, session }) => {
 
             {/* RIGHT COLUMN: VISUALS & CONTROLS */}
             <div className="flex-1 h-1/2 lg:h-full flex flex-col relative z-10">
+
+                {/* Total Interview Countdown — top right */}
+                {(() => {
+                    const totalMins = Math.floor(totalTimeLeft / 60);
+                    const totalSecs = totalTimeLeft % 60;
+                    const pct = totalTimeLeft / totalInterviewSeconds;
+                    const radius = 20;
+                    const circ = 2 * Math.PI * radius;
+                    const offset = circ * (1 - pct);
+                    const isLow = totalTimeLeft <= 300; // last 5 min
+                    return (
+                        <motion.div
+                            initial={{ opacity: 0, y: -12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className={`absolute top-4 right-4 z-30 flex items-center gap-3 px-4 py-2 rounded-2xl backdrop-blur-xl border shadow-xl ${
+                                isLow
+                                    ? 'bg-red-500/20 border-red-500/40 animate-pulse'
+                                    : 'bg-slate-900/70 border-white/10'
+                            }`}
+                        >
+                            {/* Circular progress */}
+                            <svg width="48" height="48" className="-rotate-90 shrink-0">
+                                <circle
+                                    cx="24" cy="24" r={radius}
+                                    fill="transparent"
+                                    stroke="white"
+                                    strokeWidth="3"
+                                    strokeOpacity="0.1"
+                                />
+                                <circle
+                                    cx="24" cy="24" r={radius}
+                                    fill="transparent"
+                                    stroke={isLow ? '#ef4444' : '#4f46e5'}
+                                    strokeWidth="3"
+                                    strokeDasharray={circ}
+                                    strokeDashoffset={offset}
+                                    strokeLinecap="round"
+                                    style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+                                />
+                                {/* Clock icon inside — rendered upright via nested transform */}
+                            </svg>
+                            <div className="flex flex-col leading-tight">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Session Time</span>
+                                <span className={`text-lg font-black tabular-nums ${
+                                    isLow ? 'text-red-400' : 'text-white'
+                                }`}>
+                                    {String(totalMins).padStart(2, '0')}:{String(totalSecs).padStart(2, '0')}
+                                </span>
+                            </div>
+                        </motion.div>
+                    );
+                })()}
 
                 {/* Visual Interaction Hub */}
                 <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">

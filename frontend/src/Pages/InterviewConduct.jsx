@@ -34,6 +34,7 @@ const InterviewConduct = () => {
             // For testing the module easily, we create an ad-hoc session if no ID exists.
             const res = await axios.post(`${SOCKET_URL}/api/v1/ai-interview/start`, {
                 candidateId: "650c1f1f1c9d440000a1b1c1", // Fake ObjectID for demo
+                candidateName: "Demo Candidate",
                 role: "MERN Stack Developer",
                 experience: "Intermediate"
             });

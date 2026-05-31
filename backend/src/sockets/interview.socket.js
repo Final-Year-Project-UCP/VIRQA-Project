@@ -50,13 +50,14 @@ export const registerInterviewSocketHandlers = (app, io) => {
         // Fetch parent session for instructions/counts
         let sessionData = {};
         if (interview.interviewSessionId) {
-          const session = await InterviewSession.findById(interview.interviewSessionId);
+          const session = await InterviewSession.findById(interview.interviewSessionId).populate('createdBy', 'fullName');
           if (session) {
             sessionData = {
               jobDescription: session.jobDescription,
               skills: session.skills,
               generalQuestionCount: session.generalQuestionCount,
-              scenarioQuestionCount: session.scenarioQuestionCount
+              scenarioQuestionCount: session.scenarioQuestionCount,
+              interviewerName: session.createdBy?.fullName || "VIRQA AI"
             };
           }
         }
@@ -67,6 +68,7 @@ export const registerInterviewSocketHandlers = (app, io) => {
           difficulty: interview.currentDifficulty,
           history,
           questionIndex: interview.questions.length,
+          candidateName: interview.candidateName || "Candidate",
           ...sessionData
         };
 
@@ -152,14 +154,15 @@ export const registerInterviewSocketHandlers = (app, io) => {
           // Fetch parent session for instructions/counts
           let sessionData = {};
           if (interview.interviewSessionId) {
-            const session = await InterviewSession.findById(interview.interviewSessionId);
+            const session = await InterviewSession.findById(interview.interviewSessionId).populate('createdBy', 'fullName');
             if (session) {
               sessionData = {
                 jobDescription: session.jobDescription,
                 skills: session.skills,
                 generalQuestionCount: session.generalQuestionCount,
                 scenarioQuestionCount: session.scenarioQuestionCount,
-                answerTimeLimit: session.answerTimeLimit
+                answerTimeLimit: session.answerTimeLimit,
+                interviewerName: session.createdBy?.fullName || "VIRQA AI"
               };
             }
           }
@@ -170,6 +173,7 @@ export const registerInterviewSocketHandlers = (app, io) => {
             difficulty: interview.currentDifficulty, // Uses updated difficulty
             history,
             questionIndex: interview.questions.length,
+            candidateName: interview.candidateName || "Candidate",
             ...sessionData
           };
 
