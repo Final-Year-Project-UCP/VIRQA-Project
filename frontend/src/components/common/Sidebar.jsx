@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -18,8 +16,9 @@ import {
   KeyRound,
   PhoneCall,
   MessageSquare,
-
 } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../../config/api';
 import clsx from 'clsx';
 import NavButton from './NavButton.jsx';
 import Logo from './Logo.jsx';
@@ -27,6 +26,21 @@ import Logo from './Logo.jsx';
 const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  const logoutMutation = useMutation({
+    mutationFn: () => api.post('/user/logout'),
+    onSuccess: () => {
+      localStorage.removeItem('userRole');
+      queryClient.clear();
+      navigate('/login');
+    },
+    onError: () => {
+      localStorage.removeItem('userRole');
+      queryClient.clear();
+      navigate('/login');
+    },
+  });
   const menuSections = [
     {
       id: 'main',
@@ -225,9 +239,10 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
             )}
 
             <button
-              className="p-1 rounded-lg transition-all shrink-0 text-gray-500 hover:bg-gray-100"
+              className="p-1 rounded-lg transition-all shrink-0 text-gray-500 hover:bg-gray-100 disabled:opacity-60"
               title="Logout"
-              onClick={() => navigate('/login')}
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
             >
               <LogOut size={16} />
             </button>

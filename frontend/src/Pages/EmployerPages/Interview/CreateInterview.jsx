@@ -13,6 +13,7 @@ import InterviewListView from '../../../components/interview/InterviewListView';
 import EmptyInterviewState from '../../../components/interview/EmptyInterviewState';
 import InterviewDetailsView from '../../../components/interview/InterviewDetailsView';
 import { api } from '../../../config/api.js';
+import { getErrorMessage } from '../../../utils/errorParser.js';
 
 const STEPS = [
     { title: 'Candidates',    subtitle: 'Name & Email' },
@@ -122,7 +123,7 @@ const CreateInterview = () => {
             handleBackToList();
         },
         onError: (err) => {
-            toast.error(err.response?.data?.message || 'Action failed. Please try again.');
+            toast.error(getErrorMessage(err, 'Action failed. Please try again.'));
         }
     });
 

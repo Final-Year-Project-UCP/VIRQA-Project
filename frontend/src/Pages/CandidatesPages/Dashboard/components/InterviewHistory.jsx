@@ -6,7 +6,7 @@ import { Trophy, Clock, User, Building, AlertCircle } from 'lucide-react';
 const InterviewHistory = () => {
   const { data: resultsResponse, isLoading } = useQuery({
     queryKey: ['interviewResults'],
-    queryFn: () => api.get('/candidates/results')
+    queryFn: () => api.get('/candidate/my-results')
   });
 
   const historyData = resultsResponse?.data?.data || [];

@@ -1,8 +1,27 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../config/api.js";
 
 export const AdminSidebar = ({ sidebarOpen, items }) => {
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    const logoutMutation = useMutation({
+        mutationFn: () => api.post("/user/logout"),
+        onSuccess: () => {
+            localStorage.removeItem("userRole");
+            queryClient.clear();
+            navigate("/login");
+        },
+        onError: () => {
+            localStorage.removeItem("userRole");
+            queryClient.clear();
+            navigate("/login");
+        },
+    });
+
     return (
         <aside
             className={`fixed lg:relative top-16 lg:top-0 z-40 h-[calc(100vh-4rem)] bg-white border-r border-gray-100 flex flex-col w-72
@@ -65,13 +84,16 @@ export const AdminSidebar = ({ sidebarOpen, items }) => {
 
             {/* Logout Section */}
             <div className="p-4 bg-gray-50 border-t border-gray-100">
-                <NavLink
-                    to="/logout"
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
+                <button
+                    onClick={() => logoutMutation.mutate()}
+                    disabled={logoutMutation.isPending}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group disabled:opacity-60"
                 >
                     <LogOut size={20} className="text-gray-500 group-hover:text-red-500 transition-colors" />
-                    <span className="font-medium text-sm">Sign Out</span>
-                </NavLink>
+                    <span className="font-medium text-sm">
+                        {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
+                    </span>
+                </button>
 
                 <div className="mt-4 px-4 text-center">
                     <p className="text-[10px] text-gray-400 font-medium tracking-wider">

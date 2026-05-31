@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, User, Mail, Briefcase, Lock, Upload, Save, Loader2 } from "lucide-react";
 import { api } from "../../../config/api.js";
+import { getErrorMessage } from "../../../utils/errorParser";
 
 // ---------------------------
 // Reusable Input Component
@@ -136,7 +137,7 @@ const ProfileSettings = () => {
       setPhotoFile(null);
       setPhotoPreview(null);
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to update profile"),
+    onError: (err) => toast.error(getErrorMessage(err, "Failed to update profile")),
   });
 
   // ---------------------------
@@ -153,7 +154,7 @@ const ProfileSettings = () => {
       toast.success("Password changed successfully!");
       setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to update password"),
+    onError: (err) => toast.error(getErrorMessage(err, "Failed to update password")),
   });
 
   // ---------------------------

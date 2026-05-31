@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import { api } from '../../config/api.js';
 import axios from 'axios';
 import ExecutiveAssessmentReport from './ExecutiveAssessmentReport';
+import { getErrorMessage } from '../../utils/errorParser';
 
 const DIFFICULTY_BADGE = {
     Easy: 'bg-green-100 text-green-700 border-green-200',
@@ -66,7 +67,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
             queryClient.invalidateQueries(['myInterviews']);
             onBack();
         },
-        onError: () => { toast.error('Failed to delete session'); }
+        onError: (err) => { toast.error(getErrorMessage(err, 'Failed to delete session')); }
     });
 
     // ── Toggle Result Visibility Mutation ──
@@ -80,7 +81,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
             queryClient.invalidateQueries(['myInterviews']);
             queryClient.invalidateQueries(['interview', session._id]);
         },
-        onError: () => { toast.error('Failed to update visibility.'); }
+        onError: (err) => { toast.error(getErrorMessage(err, 'Failed to update visibility.')); }
     });
 
     // ── Extend Interview Time Mutation ──
@@ -94,7 +95,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
             queryClient.invalidateQueries(['myInterviews']);
             queryClient.invalidateQueries(['interview', session._id]);
         },
-        onError: () => { toast.error('Failed to extend deadline.'); }
+        onError: (err) => { toast.error(getErrorMessage(err, 'Failed to extend deadline.')); }
     });
 
     const handleExtendTime = () => {
@@ -103,6 +104,26 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
         const base = session.expiresAt ? new Date(session.expiresAt) : new Date();
         const newExpiry = new Date(base.getTime() + hrs * 60 * 60 * 1000).toISOString();
         extendTimeMutation.mutate(newExpiry);
+    };
+
+    // ── Extend Interview Duration Mutation ──
+    const extendDurationMutation = useMutation({
+        mutationFn: async (newDuration) => {
+            const res = await api.patch(`/employee/interview/${session._id}`, { duration: newDuration });
+            return res.data;
+        },
+        onSuccess: (data) => {
+            toast.success(`Interview duration extended to ${data?.data?.duration || 'new'} minutes successfully.`);
+            queryClient.invalidateQueries(['myInterviews']);
+            queryClient.invalidateQueries(['interview', session._id]);
+        },
+        onError: (err) => { toast.error(getErrorMessage(err, 'Failed to extend duration.')); }
+    });
+
+    const handleExtendDuration = (minutes) => {
+        const currentDuration = parseInt(session.duration) || 60;
+        const newDuration = currentDuration + minutes;
+        extendDurationMutation.mutate(newDuration);
     };
 
     const handleAdd = (e) => {
@@ -204,6 +225,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                         {[
                             { label: 'Date', value: new Date(session.scheduledDate).toLocaleDateString(), icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-50' },
                             { label: 'Time', value: session.startTime, icon: Clock, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                            { label: 'Duration', value: `${session.duration || 60}m`, icon: Clock, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                             { label: 'Expires', value: session.expiresAt ? new Date(session.expiresAt).toLocaleDateString() : 'N/A', icon: Target, color: 'text-orange-500', bg: 'bg-orange-50' },
                             { label: 'Visibility', value: session.showResultToCandidate ? 'Visible' : 'Hidden', icon: Eye, color: 'text-red-500', bg: 'bg-red-50' },
                             { label: 'Batch Size', value: session.candidates?.length || 0, icon: Users, color: 'text-purple-500', bg: 'bg-purple-50' },
@@ -322,6 +344,23 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                                 {extendTimeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Clock size={14} />}
                                 Extend Deadline
                             </button>
+                        </div>
+                        {/* Extend Duration */}
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p className="text-xs font-black text-gray-700 uppercase tracking-wide mb-1">Interview Duration</p>
+                            <p className="text-xs text-gray-400 mb-3">Current: <span className="font-bold text-gray-700">{session.duration || 60} minutes</span></p>
+                            <div className="flex gap-2">
+                                {[15, 20, 30].map((mins) => (
+                                    <button
+                                        key={mins}
+                                        onClick={() => handleExtendDuration(mins)}
+                                        disabled={extendDurationMutation.isPending}
+                                        className="flex-1 py-2.5 bg-white border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-700 text-xs font-black rounded-xl transition-all disabled:opacity-50 active:scale-95 flex items-center justify-center gap-1 shadow-sm"
+                                    >
+                                        +{mins}m
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

@@ -95,6 +95,7 @@ export const Header = ({ sidebarOpen, toggleSidebar }) => {
           iconBorder="border-white"
           iconSize={22}
           dropdownBg="bg-[#1a56db]"
+          viewAllPath="/api/v1/employee/notifications"
         />
 
         {/* Profile Dropdown */}
@@ -151,7 +152,7 @@ export const Header = ({ sidebarOpen, toggleSidebar }) => {
               {/* My Profile */}
               <button
                 onClick={() => {
-                  navigate("/employer/profile");
+                  navigate("/api/v1/employee/profile");
                   setProfileDropdownOpen(false);
                 }}
                 className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors group"

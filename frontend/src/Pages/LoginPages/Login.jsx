@@ -1,14 +1,13 @@
-// pages/Auth/AuthPage.jsx
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Logo from '../../components/common/Logo.jsx';
-
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../../config/api.js';
+import { getErrorMessage } from '../../utils/errorParser';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -39,7 +38,7 @@ const Login = () => {
       }
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Login failed');
+      toast.error(getErrorMessage(error, 'Login failed. Please check your credentials.'));
     }
   });
 

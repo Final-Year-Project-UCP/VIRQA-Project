@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../config/api.js';
+import { getErrorMessage } from '../../../utils/errorParser.js';
 
 import BioSection from './components/BioSection';
 import EducationSection from './components/EducationSection';
@@ -79,7 +80,7 @@ const MyProfile = () => {
       setIsEditing(false);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update profile.");
+      toast.error(getErrorMessage(error, "Failed to update profile."));
     }
   });
 
