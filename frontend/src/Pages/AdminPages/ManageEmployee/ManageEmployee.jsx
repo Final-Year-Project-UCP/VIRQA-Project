@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AddEmployeeForm from '../../../components/admin/ManageEmployee/AddEmployeeForm';
 import EmployeeList from '../../../components/admin/ManageEmployee/EmployeeList';
 import { api, socket } from '../../../config/api.js';
+import { getErrorMessage } from '../../../utils/errorParser';
 
 const ManageEmployee = () => {
     const queryClient = useQueryClient();
@@ -52,7 +53,8 @@ const ManageEmployee = () => {
             return response.data;
         },
         // Invalidation is mainly handled by socket, but we can do it here too as fallback
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] })
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['employees'] }),
+        onError: (err) => toast.error(getErrorMessage(err, 'Failed to add employee. Please try again.')),
     });
 
     const updateMutation = useMutation({
@@ -67,7 +69,8 @@ const ManageEmployee = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employees'] });
             setEditingEmployee(null);
-        }
+        },
+        onError: (err) => toast.error(getErrorMessage(err, 'Failed to update employee. Please try again.')),
     });
 
     const deleteMutation = useMutation({
@@ -77,7 +80,8 @@ const ManageEmployee = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employees'] });
             toast.success('Employee removed successfully');
-        }
+        },
+        onError: (err) => toast.error(getErrorMessage(err, 'Failed to remove employee. Please try again.')),
     });
 
     const handleAddEmployee = async (newEmployee) => {

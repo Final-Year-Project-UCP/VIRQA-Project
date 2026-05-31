@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Mail, UserPlus, Edit2, X, CheckCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../../../utils/errorParser';
 
 const AddEmployeeForm = ({ onAddEmployee, onUpdateEmployee, editingEmployee, onCancelEdit }) => {
     const [email, setEmail] = useState('');
@@ -40,8 +41,7 @@ const AddEmployeeForm = ({ onAddEmployee, onUpdateEmployee, editingEmployee, onC
                 setEmail('');
             }
         } catch (error) {
-            const errorMessage = error.response?.data?.message || "Failed to process request. Please try again.";
-            toast.error(errorMessage);
+            toast.error(getErrorMessage(error, "Failed to process request. Please try again."));
             console.error("Employee Request Failed:", error);
         } finally {
             setIsSubmitting(false);

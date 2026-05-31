@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, X, Menu, Clock, User, LogOut, ChevronDown } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../config/api';
 import NotificationDropdown from './NotificationDropDown';
 
@@ -13,9 +13,27 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
     queryFn: () => api.get('/user/profile')
   });
 
+  const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const profileData = profileResponse?.data?.data;
   const firstName = profileData?.fullName?.split(' ')[0] || 'User';
   const initials = profileData?.fullName ? profileData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+
+  const logoutMutation = useMutation({
+    mutationFn: () => api.post('/user/logout'),
+    onSuccess: () => {
+      localStorage.removeItem('userRole');
+      queryClient.clear();
+      navigate('/login');
+    },
+    onError: () => {
+      localStorage.removeItem('userRole');
+      queryClient.clear();
+      navigate('/login');
+    },
+  });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [resultStats, setResultStats] = useState({ visible: 0, total: 0 });
@@ -25,8 +43,6 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const inputRef = useRef(null);
   const profileRef = useRef(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   // Update clock every second
   useEffect(() => {
@@ -342,14 +358,16 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
                       <button
                         onClick={() => {
-                          // TODO: Implement logout logic
-                          console.log('Logging out...');
+                          logoutMutation.mutate();
                           setProfileDropdownOpen(false);
                         }}
-                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-red-50 transition-colors group"
+                        disabled={logoutMutation.isPending}
+                        className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-red-50 transition-colors group disabled:opacity-60"
                       >
                         <LogOut size={16} className="text-gray-500 group-hover:text-red-600 transition-colors" />
-                        <span className="text-sm font-medium text-gray-700 group-hover:text-red-600">Sign Out</span>
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-red-600">
+                          {logoutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                        </span>
                       </button>
                     </div>
                   )}
@@ -365,17 +383,19 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
 const getPageTitle = (path) => {
   const titles = {
-    '/api/v1/candidates/home': 'Dashboard',
+    '/api/v1/candidates': 'Dashboard',
     '/api/v1/candidates/profile': 'My Profile',
     '/api/v1/candidates/join': 'Join Interview',
     '/api/v1/candidates/results': 'Results',
     '/api/v1/candidates/notifications': 'Notifications',
-    '/api/v1/candidates/transcription': 'Transcription',
-    '/api/v1/candidates/topic-coverage': 'Topic Coverage',
-    '/api/v1/candidates/scorecard': 'Scorecard',
     '/api/v1/candidates/interview-history': 'Interview History',
-    '/api/v1/candidates/files': 'Files',
-    '/api/v1/candidates/security': 'Security',
+    '/api/v1/candidates/passwordreset': 'Password Reset',
+    '/api/v1/candidates/contactus': 'Contact Us',
+    '/api/v1/candidates/feedback': 'Feedback',
+    '/api/v1/candidates/comingsoon/transcription': 'Transcription',
+    '/api/v1/candidates/comingsoon/coverage': 'Topic Coverage',
+    '/api/v1/candidates/comingsoon/files': 'Files',
+    '/api/v1/candidates/comingsoon/security': 'Security',
   };
   return titles[path] || 'Dashboard';
 };

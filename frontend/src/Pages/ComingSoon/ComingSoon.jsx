@@ -32,7 +32,7 @@ const ComingSoon = () => {
 
       {/* Button */}
       <NavLink
-        to="/api/v1/candidates/home"
+        to="/api/v1/candidates"
         className="mt-7 inline-block px-7 py-3 bg-black text-white rounded-lg text-sm font-medium shadow-md hover:opacity-90 active:scale-95 transition-transform flex items-center gap-2"
       >
         <Zap size={16} /> Go Back Home

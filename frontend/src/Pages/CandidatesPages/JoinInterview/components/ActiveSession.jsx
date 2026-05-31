@@ -11,6 +11,12 @@ import axios from 'axios';
 const ActiveSession = ({ onLeave, session }) => {
     const role = session?.jobTitle || "Technical Resource";
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const isFullscreenSupported = typeof document !== 'undefined' && !!(
+        document.fullscreenEnabled || 
+        document.webkitFullscreenEnabled || 
+        document.mozFullScreenEnabled || 
+        document.msFullscreenEnabled
+    );
     const [controlsVisible, setControlsVisible] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -165,6 +171,38 @@ const ActiveSession = ({ onLeave, session }) => {
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, []);
 
+    // Monitor fullscreen state
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            const isCurrentlyFull = !!(
+                document.fullscreenElement || 
+                document.webkitFullscreenElement || 
+                document.mozFullScreenElement || 
+                document.msFullScreenElement
+            );
+            setIsFullScreen(isCurrentlyFull);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullScreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullScreenChange);
+
+        setIsFullScreen(!!(
+            document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement || 
+            document.msFullScreenElement
+        ));
+
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullScreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
+            document.removeEventListener('mozfullscreenchange', handleFullScreenChange);
+            document.removeEventListener('MSFullscreenChange', handleFullScreenChange);
+        };
+    }, []);
+
     // Speech Synthesis for TTS with Real-Time Chat Streaming
     const speak = (text) => {
         if (!window.speechSynthesis) {
@@ -235,6 +273,7 @@ const ActiveSession = ({ onLeave, session }) => {
             } else if (countdown === 'READY') {
                 setCountdown(null);
                 setHasCountdownFinished(true);
+                setIsRoomEntered(true); // Automatically enter room and start interview
             }
         }, 1000);
         return () => clearTimeout(timer);
@@ -487,7 +526,8 @@ const ActiveSession = ({ onLeave, session }) => {
                                         stroke={timeLeft <= 10 ? "#ef4444" : "#4f46e5"}
                                         strokeWidth="4" fill="transparent"
                                         strokeDasharray={239}
-                                        animate={{ strokeDashoffset: 239 - (239 * timeLeft) / maxTimeLimit }}
+                                        initial={{ strokeDashoffset: 239 }}
+                                        animate={{ strokeDashoffset: timeLeft !== null && maxTimeLimit ? 239 - (239 * timeLeft) / maxTimeLimit : 239 }}
                                         transition={{ duration: 1, ease: "linear" }}
                                     />
                                 </svg>
@@ -531,9 +571,6 @@ const ActiveSession = ({ onLeave, session }) => {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <button onClick={toggleFullScreen} className="p-4 bg-slate-800/50 text-slate-500 hover:text-white rounded-2xl transition-all border border-white/5">
-                                {isFullScreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                            </button>
                             <button
                                 onClick={handleFinish}
                                 className="px-8 py-4 bg-white/5 border border-white/10 text-slate-400 font-bold rounded-2xl hover:bg-red-600 hover:text-white hover:border-red-600 transition-all text-xs uppercase tracking-widest"
@@ -544,6 +581,44 @@ const ActiveSession = ({ onLeave, session }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Secure Fullscreen Guard Overlay */}
+            {!isFullScreen && isFullscreenSupported && isRoomEntered && (
+                <div className="fixed inset-0 z-[10000] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none">
+                    <div className="max-w-md p-8 bg-slate-900/80 border border-white/10 rounded-[2rem] shadow-2xl relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-red-500/10 opacity-30 rounded-[2rem] pointer-events-none"></div>
+                        <div className="w-16 h-16 mx-auto mb-6 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 animate-pulse">
+                            <Maximize2 size={32} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-3">Fullscreen Mode Required</h2>
+                        <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+                            To maintain interview security and integrity, you must remain in fullscreen mode. Minimizing the window or exiting fullscreen is not allowed until the interview is complete.
+                        </p>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    const elem = containerRef.current || document.documentElement;
+                                    if (elem.requestFullscreen) {
+                                        await elem.requestFullscreen();
+                                    } else if (elem.webkitRequestFullscreen) {
+                                        await elem.webkitRequestFullscreen();
+                                    } else if (elem.mozRequestFullScreen) {
+                                        await elem.mozRequestFullScreen();
+                                    } else if (elem.msRequestFullscreen) {
+                                        await elem.msRequestFullscreen();
+                                    }
+                                } catch (err) {
+                                    console.error("Fullscreen restoration failed:", err);
+                                }
+                            }}
+                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            <Maximize2 size={16} />
+                            Restore Fullscreen
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

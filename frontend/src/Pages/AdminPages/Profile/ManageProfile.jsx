@@ -17,6 +17,8 @@ import {
     CheckCircle2 
 } from "lucide-react";
 
+import { getErrorMessage } from "../../../utils/errorParser.js";
+
 // ---------------------------
 // Reusable Input Component
 // ---------------------------
@@ -172,7 +174,7 @@ const ProfileSettings = () => {
             setForm(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));
         },
         onError: (err) => {
-            toast.error(err.response?.data?.message || "Critical Synchronization Error");
+            toast.error(getErrorMessage(err, "Critical Synchronization Error"));
         }
     });
 
