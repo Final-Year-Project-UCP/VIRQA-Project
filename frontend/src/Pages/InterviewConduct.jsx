@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { CheckCircle, Briefcase, User, Award, Clock } from 'lucide-react';
 import { SOCKET_URL } from '../config/api.js';
 import AudioRecorder from '../components/AudioRecorder';
 
@@ -19,7 +20,9 @@ const InterviewConduct = () => {
     const [lastEvaluation, setLastEvaluation] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
     const [finalReport, setFinalReport] = useState("");
-    
+    const [textInput, setTextInput] = useState("");
+    const streamingRef = useRef("");
+
     // Timer state
     const [timeLeft, setTimeLeft] = useState(null);
     const [isTimeUp, setIsTimeUp] = useState(false);
@@ -80,17 +83,32 @@ const InterviewConduct = () => {
             console.log("Connected to AI Interview Server");
         });
 
-        newSocket.on("next-question", (data) => {
-            setCurrentQuestion(data.questionText);
-            setTranscription(null); // Clear previous
+        newSocket.on("ai-response-chunk", ({ chunk }) => {
+            streamingRef.current += chunk;
+            setCurrentQuestion(streamingRef.current);
+            setProcessingStatus("Interviewer is responding...");
+        });
 
-            if (data.audioBase64) {
-                const audioUrl = `data:audio/mp3;base64,${data.audioBase64}`;
-                if (audioRef.current) {
-                    audioRef.current.src = audioUrl;
-                    audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
-                }
+        newSocket.on("ai-response-complete", (data) => {
+            streamingRef.current = "";
+            const text = data.questionText;
+            setCurrentQuestion(text);
+            setTranscription(null);
+            setProcessingStatus(null);
+
+            if (data.audioBase64 && audioRef.current) {
+                audioRef.current.src = `data:audio/mp3;base64,${data.audioBase64}`;
+                audioRef.current.play().catch((e) => console.error("Audio playback failed:", e));
+            } else if (window.speechSynthesis && text) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.05;
+                window.speechSynthesis.speak(utterance);
             }
+        });
+
+        newSocket.on("next-question", (data) => {
+            if (data?.questionText) setCurrentQuestion(data.questionText);
         });
 
         newSocket.on("processing-status", (data) => {
@@ -169,15 +187,25 @@ const InterviewConduct = () => {
 
     const handleAudioRecorded = (audioBlob) => {
         if (socket && id && currentQuestion) {
-            // Using ArrayBuffer over socket.io is fully supported
-            audioBlob.arrayBuffer().then(buffer => {
+            audioBlob.arrayBuffer().then((buffer) => {
                 socket.emit("send-audio", {
                     interviewId: id,
                     currentQuestionText: currentQuestion,
-                    audioBuffer: buffer
+                    audioBuffer: buffer,
                 });
             });
         }
+    };
+
+    const handleSendText = () => {
+        const msg = textInput.trim();
+        if (!socket || !id || !currentQuestion || !msg) return;
+        setTextInput("");
+        socket.emit("send-message", {
+            interviewId: id,
+            currentQuestionText: currentQuestion,
+            message: msg,
+        });
     };
 
     const handleEndInterview = () => {
@@ -297,6 +325,26 @@ const InterviewConduct = () => {
                                 onRecordingComplete={handleAudioRecorded}
                                 isProcessing={!!processingStatus}
                             />
+
+                            <div className="flex gap-2 mt-4">
+                                <input
+                                    type="text"
+                                    value={textInput}
+                                    onChange={(e) => setTextInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handleSendText()}
+                                    disabled={!!processingStatus}
+                                    placeholder="Or type your answer here..."
+                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 disabled:opacity-50"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleSendText}
+                                    disabled={!textInput.trim() || !!processingStatus}
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold disabled:opacity-50"
+                                >
+                                    Send
+                                </button>
+                            </div>
                         </div>
 
                         {/* Side Panel for Transcriptions and Feedback */}

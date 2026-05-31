@@ -1,37 +1,149 @@
 import { AIInterview } from "../models/aiInterview.model.js";
 import InterviewSession from "../models/interviewSession.model.js";
-import { generateQuestion } from "../services/questionService.js";
+import {
+  streamInterviewerReply,
+  buildContextFromInterview,
+} from "../services/conversationService.js";
 import { convertAudioToText } from "../services/sttService.js";
 import { evaluateAnswer } from "../services/evaluationService.js";
 import { createNotification } from "../utils/notificationUtils.js";
 
-/**
- * Adjusts difficulty string based on score.
- * > 75 -> harder, < 40 -> easier
- */
 const adjustDifficulty = (currentDifficulty, overallScore) => {
   const levels = ["easy", "medium", "hard"];
   let currentIndex = levels.indexOf(currentDifficulty);
-  
+  if (currentIndex < 0) currentIndex = 1;
+
   if (overallScore > 75) {
     currentIndex = Math.min(levels.length - 1, currentIndex + 1);
   } else if (overallScore < 40) {
     currentIndex = Math.max(0, currentIndex - 1);
   }
-  
   return levels[currentIndex];
 };
+
+async function loadSessionData(interview) {
+  if (!interview.interviewSessionId) {
+    return { interviewerName: "VIRQA AI", answerTimeLimit: 60 };
+  }
+
+  const session = await InterviewSession.findById(interview.interviewSessionId).populate(
+    "createdBy",
+    "fullName"
+  );
+  if (!session) {
+    return { interviewerName: "VIRQA AI", answerTimeLimit: 60 };
+  }
+
+  return {
+    jobDescription: session.jobDescription,
+    skills: session.skills,
+    generalQuestionCount: session.generalQuestionCount,
+    scenarioQuestionCount: session.scenarioQuestionCount,
+    answerTimeLimit: session.answerTimeLimit,
+    interviewerName: session.createdBy?.fullName || "VIRQA AI",
+  };
+}
+
+/**
+ * Streams AI reply, persists question, emits completion events.
+ */
+async function emitInterviewerReply(socket, interview, sessionData, { resumeLast = false } = {}) {
+  let replyText;
+
+  if (resumeLast && interview.questions.length > interview.answers.length) {
+    replyText = interview.questions[interview.questions.length - 1].text;
+    socket.emit("ai-response-complete", {
+      questionText: replyText,
+      answerTimeLimit: sessionData.answerTimeLimit || 60,
+    });
+    socket.emit("next-question", {
+      questionText: replyText,
+      answerTimeLimit: sessionData.answerTimeLimit || 60,
+    });
+    socket.emit("processing-status", { message: null });
+    return replyText;
+  }
+
+  const context = buildContextFromInterview(interview, sessionData);
+
+  socket.emit("processing-status", { message: "Interviewer is responding..." });
+
+  replyText = await streamInterviewerReply(context, (chunk) => {
+    socket.emit("ai-response-chunk", { chunk });
+  });
+
+  interview.questions.push({ text: replyText });
+  await interview.save();
+
+  const payload = {
+    questionText: replyText,
+    answerTimeLimit: sessionData.answerTimeLimit || 60,
+  };
+
+  socket.emit("ai-response-complete", payload);
+  socket.emit("next-question", payload);
+  socket.emit("processing-status", { message: null });
+
+  return replyText;
+}
+
+/**
+ * Saves answer, evaluates in background, streams next AI turn.
+ */
+async function handleCandidateMessage(socket, interviewId, currentQuestionText, answerText) {
+  const interview = await AIInterview.findById(interviewId);
+  if (!interview) {
+    socket.emit("interview-error", { message: "Interview session not found." });
+    return;
+  }
+
+  interview.answers.push({
+    questionText: currentQuestionText,
+    transcribedText: answerText,
+  });
+  await interview.save();
+
+  const sessionData = await loadSessionData(interview);
+
+  // Score in background — do not block the live conversation
+  const questionForEval = currentQuestionText;
+  const answerForEval = answerText;
+  const interviewIdForEval = interviewId;
+
+  evaluateAnswer(questionForEval, answerForEval)
+    .then(async (evaluation) => {
+      const doc = await AIInterview.findById(interviewIdForEval);
+      if (!doc) return;
+
+      doc.scores.push({
+        questionText: questionForEval,
+        semanticScore: evaluation.semanticScore,
+        technicalScore: evaluation.technicalScore,
+        overallScore: evaluation.overallScore,
+        feedback: evaluation.feedback,
+        strengths: evaluation.strengths,
+        weaknesses: evaluation.weaknesses,
+      });
+      doc.currentDifficulty = adjustDifficulty(doc.currentDifficulty, evaluation.overallScore);
+      await doc.save();
+
+      socket.emit("evaluation-result", { evaluation });
+    })
+    .catch((err) => {
+      console.error("Background evaluation failed:", err);
+    });
+
+  const refreshed = await AIInterview.findById(interviewId);
+  await emitInterviewerReply(socket, refreshed, sessionData);
+}
 
 export const registerInterviewSocketHandlers = (app, io) => {
   io.on("connection", (socket) => {
     console.log("Interview module: Client connected", socket.id);
 
-    // Join a specific interview session room
     socket.on("start-interview", async (data) => {
       try {
-        const { interviewId } = data; // the AIInterview document ID
-        
-        // Find existing record
+        const { interviewId } = data;
         const interview = await AIInterview.findById(interviewId);
         if (!interview) {
           socket.emit("interview-error", { message: "Interview session not found." });
@@ -39,206 +151,100 @@ export const registerInterviewSocketHandlers = (app, io) => {
         }
 
         socket.join(interviewId);
-        console.log(`Socket ${socket.id} joined interview ${interviewId}`);
+        const sessionData = await loadSessionData(interview);
 
-        // Format history for question generation
-        const history = interview.answers.map(ans => ({
-          question: ans.questionText,
-          answer: ans.transcribedText
-        }));
+        const resumeLast =
+          interview.questions.length > 0 &&
+          interview.questions.length > interview.answers.length;
 
-        // Fetch parent session for instructions/counts
-        let sessionData = {};
-        if (interview.interviewSessionId) {
-          const session = await InterviewSession.findById(interview.interviewSessionId).populate('createdBy', 'fullName');
-          if (session) {
-            sessionData = {
-              jobDescription: session.jobDescription,
-              skills: session.skills,
-              generalQuestionCount: session.generalQuestionCount,
-              scenarioQuestionCount: session.scenarioQuestionCount,
-              interviewerName: session.createdBy?.fullName || "VIRQA AI"
-            };
-          }
-        }
-        
-        const context = {
-          role: interview.role,
-          experience: interview.experience,
-          difficulty: interview.currentDifficulty,
-          history,
-          questionIndex: interview.questions.length,
-          candidateName: interview.candidateName || "Candidate",
-          ...sessionData
-        };
-
-        let questionToEmit;
-
-        // Resume: Check if last question was actually answered
-        if (interview.questions.length > 0 && interview.questions.length > interview.answers.length) {
-          // Re-emit the last question instead of generating a new one
-          questionToEmit = interview.questions[interview.questions.length - 1].text;
-          console.log(`Resuming: Re-emitting last question for interview ${interviewId}`);
-        } else {
-          // Generate first question (or next question if all previous are answered)
-          questionToEmit = await generateQuestion(context);
-          
-          // Save question to DB
-          interview.questions.push({ text: questionToEmit });
-          await interview.save();
-        }
-
-        socket.emit("next-question", {
-          questionText: questionToEmit,
-          answerTimeLimit: sessionData.answerTimeLimit || 60
-        });
+        await emitInterviewerReply(socket, interview, sessionData, { resumeLast });
       } catch (error) {
-        console.error("Error in start-interview event:", error);
+        console.error("Error in start-interview:", error);
         socket.emit("interview-error", { message: "Failed to start interview." });
       }
     });
 
-    // Handle incoming audio from candidate
     socket.on("send-audio", async (data) => {
       try {
         const { interviewId, currentQuestionText, audioBuffer } = data;
-        
-        // Ensure buffer is handled properly. Note: socket.io handles ArrayBuffers well,
-        // but if it comes as a distinct type from frontend, we cast it to node Buffer.
         const audioFileBuffer = Buffer.from(audioBuffer);
-        
-        socket.emit("processing-status", { message: "Transcribing your answer..." });
+
+        socket.emit("processing-status", { message: "Listening..." });
         const transcribedText = await convertAudioToText(audioFileBuffer);
-        
         socket.emit("transcription-result", { transcribedText });
-        
-        socket.emit("processing-status", { message: "Evaluating your answer..." });
-        const evaluation = await evaluateAnswer(currentQuestionText, transcribedText);
-        
-        socket.emit("evaluation-result", { evaluation });
 
-        // Update database
-        const interview = await AIInterview.findById(interviewId);
-        if (interview) {
-          // Save answer
-          interview.answers.push({
-            questionText: currentQuestionText,
-            transcribedText
-          });
-          
-          // Save score
-          interview.scores.push({
-            questionText: currentQuestionText,
-            semanticScore: evaluation.semanticScore,
-            technicalScore: evaluation.technicalScore,
-            overallScore: evaluation.overallScore,
-            feedback: evaluation.feedback,
-            strengths: evaluation.strengths,
-            weaknesses: evaluation.weaknesses
-          });
-
-          // Adjust difficulty
-          interview.currentDifficulty = adjustDifficulty(interview.currentDifficulty, evaluation.overallScore);
-          
-          await interview.save();
-
-          // Move to next question automatically, or you could let the front-end trigger it.
-          // For simplicity in this loop, we'll auto-generate the next question.
-          socket.emit("processing-status", { message: "Generating next question..." });
-          
-          const history = interview.answers.map(ans => ({
-            question: ans.questionText,
-            answer: ans.transcribedText
-          }));
-
-          // Fetch parent session for instructions/counts
-          let sessionData = {};
-          if (interview.interviewSessionId) {
-            const session = await InterviewSession.findById(interview.interviewSessionId).populate('createdBy', 'fullName');
-            if (session) {
-              sessionData = {
-                jobDescription: session.jobDescription,
-                skills: session.skills,
-                generalQuestionCount: session.generalQuestionCount,
-                scenarioQuestionCount: session.scenarioQuestionCount,
-                answerTimeLimit: session.answerTimeLimit,
-                interviewerName: session.createdBy?.fullName || "VIRQA AI"
-              };
-            }
-          }
-
-          const context = {
-            role: interview.role,
-            experience: interview.experience,
-            difficulty: interview.currentDifficulty, // Uses updated difficulty
-            history,
-            questionIndex: interview.questions.length,
-            candidateName: interview.candidateName || "Candidate",
-            ...sessionData
-          };
-
-          const newQuestionText = await generateQuestion(context);
-          interview.questions.push({ text: newQuestionText });
-          await interview.save();
-
-          socket.emit("next-question", {
-            questionText: newQuestionText,
-            answerTimeLimit: sessionData.answerTimeLimit || 60
-          });
-          socket.emit("processing-status", { message: null }); // clear status
-        }
+        await handleCandidateMessage(socket, interviewId, currentQuestionText, transcribedText);
       } catch (error) {
-        console.error("Error in send-audio processing loop:", error);
-        socket.emit("interview-error", { message: "Failed to process audio answer." });
+        console.error("Error in send-audio:", error);
+        socket.emit("interview-error", { message: "Failed to process your response." });
+        socket.emit("processing-status", { message: null });
+      }
+    });
+
+    socket.on("send-message", async (data) => {
+      try {
+        const { interviewId, currentQuestionText, message } = data;
+        const text = (message || "").trim();
+        if (!text) {
+          socket.emit("interview-error", { message: "Message cannot be empty." });
+          return;
+        }
+
+        socket.emit("transcription-result", { transcribedText: text });
+        await handleCandidateMessage(socket, interviewId, currentQuestionText, text);
+      } catch (error) {
+        console.error("Error in send-message:", error);
+        socket.emit("interview-error", { message: "Failed to process your message." });
+        socket.emit("processing-status", { message: null });
       }
     });
 
     socket.on("interview-complete", async (data) => {
-        try {
-            const { interviewId } = data;
-            const interview = await AIInterview.findById(interviewId);
-            if (interview) {
-                // Determine final report from scores
-                const totalScore = interview.scores.reduce((acc, curr) => acc + curr.overallScore, 0);
-                const avgScore = totalScore / (interview.scores.length || 1);
-                
-                interview.finalReport = `Candidate attained an average score of ${avgScore.toFixed(2)}. ${avgScore > 70 ? 'Recommended for next rounds.' : 'Requires more preparation in technical fundamentals.'}`;
-                interview.status = "completed";
-                await interview.save();
+      try {
+        const { interviewId } = data;
+        const interview = await AIInterview.findById(interviewId);
+        if (interview) {
+          const totalScore = interview.scores.reduce((acc, curr) => acc + curr.overallScore, 0);
+          const avgScore = totalScore / (interview.scores.length || 1);
 
-                // SYNC: Update the parent InterviewSession candidate status
-                if (interview.interviewSessionId) {
-                    const session = await InterviewSession.findById(interview.interviewSessionId);
-                    if (session) {
-                        const candidateIndex = session.candidates.findIndex(
-                            c => c.candidateId.toString() === interview.candidateId.toString()
-                        );
-                        if (candidateIndex !== -1) {
-                            session.candidates[candidateIndex].status = "Completed";
-                            await session.save();
-                            console.log(`Sync success: Updated candidate status to Completed in InterviewSession ${session._id}`);
+          interview.finalReport = `Candidate attained an average score of ${avgScore.toFixed(2)}. ${
+            avgScore > 70
+              ? "Recommended for next rounds."
+              : "Requires more preparation in technical fundamentals."
+          }`;
+          interview.status = "completed";
+          await interview.save();
 
-                            // Notify the employer
-                            await createNotification(app, {
-                                recipientId: session.createdBy,
-                                senderId: interview.candidateId,
-                                title: "Interview Completed",
-                                message: `Candidate has completed the interview for ${session.jobTitle}. You can now view the results.`,
-                                type: "interview_completed",
-                                data: { sessionId: session._id, candidateId: interview.candidateId }
-                            });
-                        }
-                    }
-                }
+          if (interview.interviewSessionId) {
+            const session = await InterviewSession.findById(interview.interviewSessionId);
+            if (session) {
+              const candidateIndex = session.candidates.findIndex(
+                (c) => c.candidateId.toString() === interview.candidateId.toString()
+              );
+              if (candidateIndex !== -1) {
+                session.candidates[candidateIndex].status = "Completed";
+                await session.save();
 
-                socket.emit("interview-completed-successfully", { 
-                    finalReport: interview.finalReport,
-                    averageScore: avgScore
+                await createNotification(app, {
+                  recipientId: session.createdBy,
+                  senderId: interview.candidateId,
+                  title: "Interview Completed",
+                  message: `Candidate has completed the interview for ${session.jobTitle}. You can now view the results.`,
+                  type: "interview_completed",
+                  data: { sessionId: session._id, candidateId: interview.candidateId },
                 });
+              }
             }
-        } catch (error) {
-            console.error("Error in interview-complete:", error);
+          }
+
+          socket.emit("interview-completed-successfully", {
+            finalReport: interview.finalReport,
+            averageScore: avgScore,
+          });
         }
+      } catch (error) {
+        console.error("Error in interview-complete:", error);
+      }
     });
   });
 };
