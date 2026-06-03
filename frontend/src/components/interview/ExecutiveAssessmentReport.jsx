@@ -12,13 +12,13 @@ const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
     // data is the AIInterview document populated with interviewSessionId/createdBy
 
     const interview = {
-        id: data._id,
-        title: data.interviewSessionId?.domain || data.interviewSessionId?.jobTitle || data.role,
-        company: data.interviewSessionId?.createdBy?.organization || "VIRQA AI",
-        date: new Date(data.createdAt).toLocaleDateString(),
-        score: Math.round((data.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / (data.scores?.length || 1)),
-        rawScores: data.scores,
-        rawAnswers: data.answers
+        id: data?._id || '',
+        title: data?.interviewSessionId?.domain || data?.interviewSessionId?.jobTitle || data?.role || 'Technical Interview',
+        company: data?.interviewSessionId?.createdBy?.organization || "VIRQA AI",
+        date: data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+        score: Math.round((data?.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / (data?.scores?.length || 1)),
+        rawScores: data?.scores || [],
+        rawAnswers: data?.answers || []
     };
 
     const metricsData = [

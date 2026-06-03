@@ -183,14 +183,14 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
         }
       `}</style>
 
-      <header className="w-full h-16 bg-white border-b border-gray-200 z-40 sticky top-0 left-0 shadow-sm">
+      <header className="w-full h-16 bg-[#1a56db] text-white border-b border-blue-700/50 z-40 sticky top-0 left-0 shadow-md">
         <div className="flex items-center justify-between h-full px-4 lg:px-8">
           {/* Left Section */}
           <div className="flex items-center gap-4">
             {(isMobile || !sidebarOpen) && !isSearchExpanded && (
               <button
                 onClick={onMenuToggle}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-white/10 text-white transition-colors"
               >
                 <Menu size={20} />
               </button>
@@ -198,7 +198,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
             {/* Page Title - Hidden when search expanded on mobile */}
             {(!isMobile || !isSearchExpanded) && (
-              <h1 className={`font-semibold text-gray-800 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+              <h1 className={`font-semibold text-white ${isMobile ? 'text-lg' : 'text-xl'}`}>
                 {getPageTitle(location.pathname)}
               </h1>
             )}
@@ -208,8 +208,8 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
           <div className="flex items-center gap-4">
             {/* SEARCH - DESKTOP */}
             {!isMobile && (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 group-focus-within:text-gray-400 transition-colors" size={18} />
 
                 <input
                   ref={inputRef}
@@ -217,16 +217,16 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search this page..."
-                  className="pl-10 pr-11 py-2.5 w-96 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm font-medium placeholder-gray-400"
+                  className="pl-10 pr-11 py-2.5 w-96 bg-white/10 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:bg-white focus:text-gray-900 transition-all text-sm font-medium placeholder-white/50 text-white"
                 />
 
                 {/* Clear Button */}
                 {searchQuery && (
                   <button
                     onClick={handleSearchClose}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-black/10 transition-colors"
                   >
-                    <X size={16} className="text-gray-500" />
+                    <X size={16} className="text-white/80 group-focus-within:text-gray-500" />
                   </button>
                 )}
 
@@ -234,11 +234,11 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                 {hasSearched && (
                   <div className="absolute -bottom-8 left-0 text-xs font-medium flex items-center gap-2">
                     {showNoResults ? (
-                      <span className="text-red-600 flex items-center gap-1">
+                      <span className="text-red-300 flex items-center gap-1">
                         <span>●</span> No matches found
                       </span>
                     ) : (
-                      <span className="text-green-600 flex items-center gap-1">
+                      <span className="text-green-300 flex items-center gap-1">
                         <span>✓</span> {resultStats.visible} {resultStats.visible === 1 ? 'match' : 'matches'} found
                       </span>
                     )}
@@ -254,7 +254,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                 {!isSearchExpanded && (
                   <button
                     onClick={handleSearchToggle}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+                    className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
                   >
                     <Search size={18} />
                   </button>
@@ -262,21 +262,21 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
 
                 {/* Expanded Search Input */}
                 {isSearchExpanded && (
-                  <div className="relative flex items-center">
-                    <Search className="absolute left-3 text-gray-400" size={16} />
+                  <div className="relative flex items-center group">
+                    <Search className="absolute left-3 text-white/70 group-focus-within:text-gray-400 transition-colors" size={16} />
                     <input
                       ref={inputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search..."
-                      className="pl-9 pr-8 py-2 w-40 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium placeholder-gray-400"
+                      className="pl-9 pr-8 py-2 w-40 bg-white/10 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:bg-white focus:text-gray-900 transition-all text-sm font-medium placeholder-white/50 text-white"
                     />
                     <button
                       onClick={handleSearchClose}
-                      className="absolute right-2 p-1 rounded hover:bg-gray-200 transition-colors"
+                      className="absolute right-2 p-1 rounded hover:bg-black/10 transition-colors"
                     >
-                      <X size={14} className="text-gray-500" />
+                      <X size={14} className="text-white/80 group-focus-within:text-gray-500 animate-in" />
                     </button>
                   </div>
                 )}
@@ -288,16 +288,16 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
               <>
                 {/* Animated Clock - Desktop Only */}
                 {!isMobile && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl border border-white/10 shadow-sm hover:bg-white/15 transition-all duration-300 group">
                     <div className="relative">
                       <Clock
                         size={18}
-                        className="text-blue-600 group-hover:rotate-12 transition-transform duration-300"
+                        className="text-white group-hover:rotate-12 transition-transform duration-300"
                       />
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-gray-800 tabular-nums tracking-tight">
+                      <span className="text-xs font-bold text-white tabular-nums tracking-tight">
                         {currentTime.toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -305,7 +305,7 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                           hour12: true
                         })}
                       </span>
-                      <span className="text-[10px] text-gray-500 font-medium">
+                      <span className="text-[10px] text-blue-100/70 font-medium">
                         {currentTime.toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -316,24 +316,34 @@ const TopNavbar = ({ onMenuToggle, sidebarOpen, isMobile }) => {
                   </div>
                 )}
 
-                <NotificationDropdown />
+                <NotificationDropdown
+                  iconColor="text-white"
+                  iconHoverColor="text-gray-200"
+                  iconBg="bg-white/10"
+                  iconBorder="border-none"
+                  iconSize={20}
+                />
 
                 {/* Profile Dropdown */}
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 transition-colors"
+                    className="flex items-center gap-3 hover:bg-white/10 rounded-xl p-2 transition-colors text-white"
                   >
                     <div className="hidden sm:flex flex-col items-end">
-                      <span className="text-sm font-medium text-gray-800">{profileData?.fullName || 'User'}</span>
-                      <span className="text-xs text-gray-500">{profileData?.role?.charAt(0).toUpperCase() + profileData?.role?.slice(1) || 'Candidate'}</span>
+                      <span className="text-sm font-medium text-white">{profileData?.fullName || 'User'}</span>
+                      <span className="text-xs text-blue-100/70">{profileData?.role?.charAt(0).toUpperCase() + profileData?.role?.slice(1) || 'Candidate'}</span>
                     </div>
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold">
-                      {initials}
+                    <div className="w-9 h-9 rounded-full bg-white/20 border-2 border-white shadow-md flex items-center justify-center text-white text-sm font-bold overflow-hidden">
+                      {profileData?.profilePhoto ? (
+                        <img src={profileData.profilePhoto} alt={firstName} className="w-full h-full object-cover" />
+                      ) : (
+                        initials
+                      )}
                     </div>
                     <ChevronDown
                       size={16}
-                      className={`text-gray-500 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`}
+                      className={`text-white transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -389,13 +399,9 @@ const getPageTitle = (path) => {
     '/api/v1/candidates/results': 'Results',
     '/api/v1/candidates/notifications': 'Notifications',
     '/api/v1/candidates/interview-history': 'Interview History',
-    '/api/v1/candidates/passwordreset': 'Password Reset',
     '/api/v1/candidates/contactus': 'Contact Us',
     '/api/v1/candidates/feedback': 'Feedback',
-    '/api/v1/candidates/comingsoon/transcription': 'Transcription',
-    '/api/v1/candidates/comingsoon/coverage': 'Topic Coverage',
     '/api/v1/candidates/comingsoon/files': 'Files',
-    '/api/v1/candidates/comingsoon/security': 'Security',
   };
   return titles[path] || 'Dashboard';
 };

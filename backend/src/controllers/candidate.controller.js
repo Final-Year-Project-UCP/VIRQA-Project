@@ -12,7 +12,7 @@ const getMyInterviews = asyncHandler(async (req, res) => {
         "candidates.candidateId": req.user._id
     })
         .populate("createdBy", "fullName organization organizationLogo profilePhoto")
-        .sort("scheduledDate startTime");
+        .sort("-createdAt");
 
     return res.status(200).json(
         new ApiResponse(200, interviews, "Upcoming interviews fetched successfully")

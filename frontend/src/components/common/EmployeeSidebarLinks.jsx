@@ -1,10 +1,10 @@
 import { NavLink } from "react-router-dom";
 
 const linkClass = (isActive, className) =>
-  `flex items-center gap-3 p-3 rounded-r-lg transition-colors relative ${
+  `flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 relative ${
     isActive
-      ? "bg-blue-50 text-blue-700 font-medium border-l-4 border-blue-500 pl-2.5"
-      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-l-4 border-transparent pl-3"
+      ? "text-white bg-blue-600 shadow-md shadow-blue-100 font-medium"
+      : "text-gray-600 hover:bg-blue-50 hover:text-blue-600 font-medium"
   } ${className || ""}`;
 
 export const SidebarLink = ({ to, icon: Icon, children, className, onClick }) => {
@@ -14,7 +14,7 @@ export const SidebarLink = ({ to, icon: Icon, children, className, onClick }) =>
         onClick={onClick}
         className={`w-full text-left ${linkClass(false, className)}`}
       >
-        {Icon && <Icon size={20} />}
+        {Icon && <Icon size={20} className="shrink-0" />}
         <span>{children}</span>
       </button>
     );
@@ -25,7 +25,7 @@ export const SidebarLink = ({ to, icon: Icon, children, className, onClick }) =>
       to={to}
       className={({ isActive }) => linkClass(isActive, className)}
     >
-      {Icon && <Icon size={20} />}
+      {Icon && <Icon size={20} className="shrink-0" />}
       <span>{children}</span>
     </NavLink>
   );

@@ -29,19 +29,19 @@ export const generateVirginReportPDF = (interviewData, metricsData) => {
     doc.text("EXECUTIVE EVALUATION REPORT", pageWidth - 85, 25);
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text(`ID: ${interviewData.id.toUpperCase()}`, pageWidth - 85, 32);
-    doc.text(`DATE: ${new Date(interviewData.date).toUpperCase()}`, pageWidth - 85, 37);
+    doc.text(`ID: ${(interviewData.id || '').toUpperCase()}`, pageWidth - 85, 32);
+    doc.text(`DATE: ${(interviewData.date || '').toUpperCase()}`, pageWidth - 85, 37);
 
     // 2. --- CANDIDATE & SESSION INFO ---
     doc.setTextColor(30, 41, 59); // Slate 800
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text(interviewData.title, 20, 70);
+    doc.text(interviewData.title || '', 20, 70);
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 116, 139); // Slate 500
-    doc.text(`Organization: ${interviewData.company}`, 20, 78);
+    doc.text(`Organization: ${interviewData.company || 'System'}`, 20, 78);
     doc.text(`Evaluation Type: Technical Interview`, 20, 83);
 
     // Score Highlight Box
@@ -94,7 +94,8 @@ export const generateVirginReportPDF = (interviewData, metricsData) => {
     currentY += 8;
 
     // Strengths
-    const strengths = interviewData.rawScores?.flatMap(s => s.strengths || []).slice(0, 4) || ["Exceptional technical clarity", "Structured problem-solving approach"];
+    const rawStrengths = (interviewData.rawScores || []).flatMap(s => s.strengths || []).slice(0, 4);
+    const strengths = rawStrengths.length > 0 ? rawStrengths : ["Exceptional technical clarity", "Structured problem-solving approach"];
     doc.setFillColor(236, 253, 245); // Emerald 50
     doc.roundedRect(20, currentY, 80, 45, 3, 3, 'F');
     doc.setTextColor(5, 150, 105); // Emerald 600
@@ -107,7 +108,8 @@ export const generateVirginReportPDF = (interviewData, metricsData) => {
     });
 
     // Weaknesses
-    const weaknesses = interviewData.rawScores?.flatMap(s => s.weaknesses || []).slice(0, 4) || ["Deepen knowledge in edge-case handling", "Optimize response delivery speed"];
+    const rawWeaknesses = (interviewData.rawScores || []).flatMap(s => s.weaknesses || []).slice(0, 4);
+    const weaknesses = rawWeaknesses.length > 0 ? rawWeaknesses : ["Deepen knowledge in edge-case handling", "Optimize response delivery speed"];
     doc.setFillColor(254, 242, 242); // Rose 50
     doc.roundedRect(110, currentY, 80, 45, 3, 3, 'F');
     doc.setTextColor(225, 29, 72); // Rose 600
@@ -123,7 +125,7 @@ export const generateVirginReportPDF = (interviewData, metricsData) => {
     currentY += 55;
 
     // 5. --- NARRATIVE FEEDBACK ---
-    const feedback = interviewData.rawScores?.[0]?.feedback || "The candidate displayed strong potential with consistent performance.";
+    const feedback = (interviewData.rawScores && interviewData.rawScores[0]?.feedback) || "The candidate displayed strong potential with consistent performance.";
     doc.setFillColor(241, 245, 249);
     doc.roundedRect(20, currentY, 170, 25, 3, 3, 'F');
     doc.setTextColor(51, 65, 85);
@@ -152,7 +154,7 @@ export const generateVirginReportPDF = (interviewData, metricsData) => {
     doc.text("VIRQA", pageWidth - 42, footerY);
     doc.text("CERTIFIED", pageWidth - 45, footerY + 3);
 
-    doc.save(`${interviewData.title.replace(/\s+/g, '_')}_Analytics_Report.pdf`);
+    doc.save(`${(interviewData.title || 'report').replace(/\s+/g, '_')}_Analytics_Report.pdf`);
 };
 
 export const generateVirginTranscriptPDF = (interviewData, rawAnswersArray) => {
@@ -169,7 +171,7 @@ export const generateVirginTranscriptPDF = (interviewData, rawAnswersArray) => {
     doc.text("INTERVIEW TRANSCRIPT", 20, 22);
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text(`Position: ${interviewData.title.toUpperCase()}`, 20, 30);
+    doc.text(`Position: ${(interviewData.title || '').toUpperCase()}`, 20, 30);
     doc.text(`Date: ${interviewData.date}`, pageWidth - 70, 22);
 
     const tableColumn = ["Speaker", "Dialogue Content"];
@@ -206,5 +208,5 @@ export const generateVirginTranscriptPDF = (interviewData, rawAnswersArray) => {
     doc.setTextColor(148, 163, 184);
     doc.text("--- END OF OFFICIAL TRANSCRIPT ---", pageWidth / 2, finalY, { align: 'center' });
 
-    doc.save(`${interviewData.title.replace(/\s+/g, '_')}_Transcript.pdf`);
+    doc.save(`${(interviewData.title || 'transcript').replace(/\s+/g, '_')}_Transcript.pdf`);
 };

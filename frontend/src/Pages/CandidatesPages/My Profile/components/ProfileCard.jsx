@@ -9,8 +9,12 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log('Uploading image:', file);
-      // Handle image upload logic here
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onChange('profilePhotoFile', file);
+        onChange('profilePhotoPreview', reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -23,14 +27,20 @@ const ProfileCard = ({ profile, isEditing, tempProfile, onChange }) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  const displayPhoto = tempProfile?.profilePhotoPreview || profile?.profilePhotoPreview || profile?.profilePhoto;
+
   return (
     <div className="bg-white rounded-xl lg:rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 p-4 lg:p-6">
       {/* Profile Photo Section */}
       <div className="flex flex-col items-center mb-6 lg:mb-8">
         <div className="relative group">
           {/* Profile Image Container */}
-          <div className="w-24 h-24 lg:w-36 lg:h-36 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center text-white text-xl lg:text-3xl font-bold shadow-lg">
-            {getInitials(profile.fullName)}
+          <div className="w-24 h-24 lg:w-36 lg:h-36 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl lg:rounded-2xl flex items-center justify-center text-white text-xl lg:text-3xl font-bold shadow-lg overflow-hidden">
+            {displayPhoto ? (
+              <img src={displayPhoto} className="w-full h-full object-cover" alt="Profile" />
+            ) : (
+              getInitials(profile.fullName)
+            )}
           </div>
 
           {/* Camera Upload Button */}
