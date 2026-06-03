@@ -3,28 +3,19 @@
 import React, { useState } from 'react';
 import { User, CheckCircle, Circle, Edit3, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { calculateProfileCompletion } from '../../../../utils/profileCompletion';
 
 const ProfileCompletionCard = ({ data, isLoading }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (isLoading) return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-6 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-        <div className="h-2 bg-gray-100 rounded w-full"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+      <div className="h-2 bg-gray-100 rounded w-full"></div>
     </div>
   );
 
-  const steps = [
-    { id: 1, label: 'Basic Info', completed: !!data?.fullName && !!data?.email },
-    { id: 2, label: 'Profile Photo', completed: !!data?.profilePhoto },
-    { id: 3, label: 'Professional Bio', completed: !!data?.professionalBio },
-    { id: 4, label: 'Experience Level', completed: !!data?.level },
-    { id: 5, label: 'Technical Skills', completed: data?.skills?.length > 0 },
-    { id: 6, label: 'Contact Number', completed: !!data?.phoneNumber },
-  ];
-
-  const completed = steps.filter(s => s.completed).length;
-  const progress = Math.round((completed / steps.length) * 100);
+  const { progress, steps } = calculateProfileCompletion(data);
 
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-6 transition-all hover:shadow-md">
