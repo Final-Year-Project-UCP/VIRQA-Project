@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,15 @@ const LiveInterviewPage = () => {
     }
   });
 
+  const sortedInterviews = useMemo(() => {
+    if (!interviews) return [];
+    return [...interviews].sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.scheduledDate);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.scheduledDate);
+      return dateB - dateA;
+    });
+  }, [interviews]);
+
   const handleSelectInterview = (interview) => {
     setSelectedInterview(interview);
     setInterviewStatus('lobby');
@@ -44,7 +53,7 @@ const LiveInterviewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100vh-200px)] w-full flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
         <p className="text-slate-500 font-medium">Syncing upcoming interviews...</p>
       </div>
@@ -53,7 +62,7 @@ const LiveInterviewPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[calc(100vh-200px)] w-full flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md border border-gray-200">
           <h2 className="text-xl font-bold text-red-600 mb-2">Connection Error</h2>
           <p className="text-slate-500 mb-6 font-medium">Failed to load your scheduled interviews. Please check your connection and try again.</p>
@@ -68,7 +77,7 @@ const LiveInterviewPage = () => {
       case 'scheduled':
         return (
           <ScheduledInterviews
-            interviews={interviews}
+            interviews={sortedInterviews}
             onJoin={handleSelectInterview}
           />
         );
@@ -100,7 +109,7 @@ const LiveInterviewPage = () => {
       case 'ended':
       default:
         return (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50 relative">
+          <div className="min-h-[calc(100vh-200px)] w-full flex items-center justify-center relative">
             <div className="text-center p-12 bg-white rounded-3xl shadow-xl border border-gray-100 max-w-lg z-0">
               <h1 className="text-3xl font-bold text-gray-900 mb-3">Interview Completed</h1>
               <p className="text-gray-600 font-medium mb-8">
@@ -138,7 +147,7 @@ const LiveInterviewPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="w-full min-h-screen"
+        className="w-full"
       >
         {renderContent()}
       </motion.div>

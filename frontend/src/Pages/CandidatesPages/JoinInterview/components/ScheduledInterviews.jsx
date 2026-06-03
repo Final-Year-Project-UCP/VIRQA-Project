@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Building, ArrowRight, Video, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }
+};
+
 const InterviewCard = ({ interview, onJoin }) => {
     const [timeLeft, setTimeLeft] = useState('');
     const [isReady, setIsReady] = useState(false);
@@ -134,10 +140,15 @@ const InterviewCard = ({ interview, onJoin }) => {
 
 const ScheduledInterviews = ({ interviews, onJoin }) => {
     return (
-        <div className="min-h-screen bg-slate-50 p-4 lg:p-6 font-sans">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="mb-10 text-center md:text-left">
+        <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full"
+        >
+            {/* Header */}
+            <div className="mb-8 text-center md:text-left">
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Scheduled Interviews</h1>
                     <p className="mt-2 text-slate-500">View and join your upcoming technical interview sessions.</p>
                 </div>
@@ -159,8 +170,7 @@ const ScheduledInterviews = ({ interviews, onJoin }) => {
                         ))
                     )}
                 </div>
-            </div>
-        </div>
+        </motion.div>
     );
 };
 

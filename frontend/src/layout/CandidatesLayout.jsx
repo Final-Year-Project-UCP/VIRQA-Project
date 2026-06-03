@@ -32,7 +32,7 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <Sidebar 
         isOpen={sidebarOpen} 
         setIsOpen={setSidebarOpen}
@@ -41,7 +41,7 @@ const MainLayout = () => {
       
       {/* Main Content Area */}
       <div className={clsx(
-        'flex-1 flex flex-col min-w-0 transition-all duration-300',
+        'flex-1 flex flex-col min-w-0 transition-all duration-300 h-full overflow-hidden',
         sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
       )}>
         <TopNavbar 
@@ -50,8 +50,10 @@ const MainLayout = () => {
           isMobile={isMobile}
         />
         
-        <main className="flex-1 p-6">
-          <Outlet />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

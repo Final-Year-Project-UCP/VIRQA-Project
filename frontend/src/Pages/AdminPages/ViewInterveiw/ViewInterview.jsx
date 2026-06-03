@@ -86,9 +86,9 @@ const ViewInterview = () => {
             score: item.score
         };
 
-        const metricsData = item.scores.map(s => ({
-            name: s.questionText.length > 30 ? s.questionText.substring(0, 30) + '...' : s.questionText,
-            score: s.overallScore
+        const metricsData = (item.scores || []).map(s => ({
+            name: s.questionText && s.questionText.length > 30 ? s.questionText.substring(0, 30) + '...' : (s.questionText || ''),
+            score: s.overallScore || 0
         }));
 
         generateVirginReportPDF(interviewData, metricsData);
@@ -97,8 +97,9 @@ const ViewInterview = () => {
     const handleDownloadTranscript = (item) => {
         const interviewData = {
             title: item.interview,
+            date: item.date || new Date().toLocaleDateString()
         };
-        generateVirginTranscriptPDF(interviewData, item.answers);
+        generateVirginTranscriptPDF(interviewData, item.answers || []);
     };
 
     const getStatusColor = (status) => {

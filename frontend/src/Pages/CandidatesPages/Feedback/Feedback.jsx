@@ -7,6 +7,12 @@ import { Star, Send, CheckCircle, MessageSquare } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../../../config/api';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }
+};
+
 const Feedback = () => {
     const [rating, setRating] = useState(0);
     const [hoveredRating, setHoveredRating] = useState(0);
@@ -53,15 +59,14 @@ const Feedback = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
-            <div className="max-w-8xl mx-auto flex flex-col items-center">
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full max-w-2xl"
-                >
+        <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="flex flex-col items-center w-full"
+        >
+            <div className="w-full max-w-2xl">
                     {/* Header */}
                     <div className="text-center mb-10">
                         <div className="inline-flex items-center justify-center p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4 shadow-sm">
@@ -196,9 +201,8 @@ const Feedback = () => {
 
                         </form>
                     </div>
-                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

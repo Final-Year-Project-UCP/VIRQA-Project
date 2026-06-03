@@ -1,44 +1,100 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Upload, Download, Eye, Trash2, FileText } from 'lucide-react';
+import { Upload, Download, Eye, Trash2, FileText, Loader2 } from 'lucide-react';
+import { api } from '../../../../config/api.js';
+import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
+import { getErrorMessage } from '../../../../utils/errorParser.js';
 
 const DocumentsSection = ({ isEditing, tempProfile, onChange }) => {
   const fileInputRef = useRef(null);
+  const queryClient = useQueryClient();
 
-  // Use tempProfile.documents as initial state
+  // Sync documents list from parent (e.g. after profile loads or save completes)
   const [documents, setDocuments] = useState(tempProfile.documents || []);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Whenever documents change, update the parent
   useEffect(() => {
-    onChange('documents', documents);
-  }, [documents]);
+    setDocuments(tempProfile.documents || []);
+  }, [tempProfile.documents]);
 
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      toast.error('File size must be less than 5MB');
       return;
     }
 
-    const newDoc = {
-      id: Date.now(),
-      name: file.name,
-      size: `${(file.size / 1024).toFixed(1)} KB`,
-      url: URL.createObjectURL(file),
-      file,
-    };
+    setIsUploading(true);
+    setUploadProgress(0);
 
-    setDocuments((prev) => [...prev, newDoc]);
+    const formData = new FormData();
+    formData.append('resume', file);
 
-    // Clear input value so same file can be uploaded again if needed
-    e.target.value = '';
+    try {
+      const response = await api.patch('/user/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
+
+      const updatedUser = response.data?.data;
+      if (updatedUser?.resumeUrl) {
+        toast.success('CV uploaded successfully!');
+        
+        // Update local documents
+        const newDoc = {
+          id: 'resume',
+          name: updatedUser.resumeName || file.name,
+          size: updatedUser.resumeSize || `${(file.size / 1024).toFixed(1)} KB`,
+          url: updatedUser.resumeUrl,
+        };
+        const updated = [newDoc];
+        setDocuments(updated);
+        onChange('documents', updated);
+        onChange('resumeUrl', updatedUser.resumeUrl);
+        onChange('resumeFile', null); // cleared because it's already uploaded
+
+        // Invalidate queries to refresh parent profile and TopNav/Sidebar
+        queryClient.invalidateQueries(['candidateProfile']);
+        queryClient.invalidateQueries(['profile']);
+      } else {
+        throw new Error('Upload succeeded but no resume URL was returned');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(getErrorMessage(err, 'Failed to upload CV. Please try again.'));
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(null);
+      e.target.value = '';
+    }
   };
 
-  const removeDocument = (id) => {
-    setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+  const removeDocument = async (id) => {
+    if (window.confirm("Are you sure you want to remove your resume?")) {
+      try {
+        await api.patch('/user/profile', { resumeUrl: '' });
+        toast.success("Resume removed successfully!");
+        
+        setDocuments([]);
+        onChange('documents', []);
+        onChange('resumeFile', null);
+        onChange('resumeUrl', '');
+        
+        queryClient.invalidateQueries(['candidateProfile']);
+        queryClient.invalidateQueries(['profile']);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to remove resume.");
+      }
+    }
   };
 
   const getFileIcon = (name) => {
@@ -103,19 +159,34 @@ const DocumentsSection = ({ isEditing, tempProfile, onChange }) => {
       )}
 
       {isEditing && (
-        <>
-          <input type="file" ref={fileInputRef} onChange={handleUpload} className="hidden" />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center gap-3 text-gray-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition"
-          >
-            <Upload size={32} />
-            <div className="text-center">
-              <p className="font-medium">Upload Document</p>
-              <p className="text-sm">PDF, Word, or Image • Max 5MB</p>
+        <div className="mt-4">
+          <input type="file" ref={fileInputRef} onChange={handleUpload} className="hidden" disabled={isUploading} />
+          {isUploading ? (
+            <div className="w-full border-2 border-dashed border-blue-300 bg-blue-50/20 rounded-xl p-8 flex flex-col items-center justify-center gap-4">
+              <div className="flex items-center gap-2 text-blue-600 font-semibold animate-pulse">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                <span>Uploading CV... {uploadProgress}%</span>
+              </div>
+              <div className="w-full max-w-md bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
             </div>
-          </button>
-        </>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center gap-3 text-gray-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition"
+            >
+              <Upload size={32} />
+              <div className="text-center">
+                <p className="font-medium">Upload Document</p>
+                <p className="text-sm">PDF, Word, or Image • Max 5MB</p>
+              </div>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

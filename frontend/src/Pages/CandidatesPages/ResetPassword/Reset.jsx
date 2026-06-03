@@ -6,6 +6,12 @@ import { toast } from 'react-toastify';
 import { Eye, EyeOff, Lock, CheckCircle, XCircle, KeyRound, ShieldCheck } from 'lucide-react';
 import resetBg from '../../../assets/reset_bg.png';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }
+};
+
 const ResetPassword = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -67,8 +73,12 @@ const ResetPassword = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="w-full flex items-center justify-center py-12 min-h-[calc(100vh-200px)] relative overflow-hidden rounded-2xl"
       style={{
         backgroundImage: `url(${resetBg})`,
         backgroundSize: 'cover',
@@ -273,7 +283,7 @@ const ResetPassword = () => {
 
         </form>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

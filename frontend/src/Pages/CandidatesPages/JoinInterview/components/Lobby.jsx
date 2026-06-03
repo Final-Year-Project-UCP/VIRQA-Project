@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Settings, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Settings, Volume2, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }
+};
 
 const Lobby = ({ onJoin, session }) => {
     const [isMicOn, setIsMicOn] = useState(true);
@@ -78,7 +85,13 @@ const Lobby = ({ onJoin, session }) => {
     const toggleMic = () => setIsMicOn(!isMicOn);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 lg:p-8 font-sans">
+        <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full flex items-center justify-center py-6 min-h-[calc(100vh-200px)]"
+        >
             <div className="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col lg:flex-row h-auto lg:h-[500px]">
 
                 {/* Left: Audio Check Visualization */}
@@ -181,7 +194,7 @@ const Lobby = ({ onJoin, session }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

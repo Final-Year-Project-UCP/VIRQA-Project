@@ -112,6 +112,7 @@ const InterviewHistory = () => {
     ];
 
     const pdfData = {
+      id: interview.aiId || interview.id || '',
       title: interview.title,
       date: interview.date,
       score: parseInt(interview.score) || 0,
@@ -123,7 +124,7 @@ const InterviewHistory = () => {
 
   if (sessionsLoading || resultsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
         <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Syncing Assessment History...</p>
       </div>
@@ -132,15 +133,18 @@ const InterviewHistory = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
-        <div className="max-w-8xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } }}
+        className="space-y-6 pb-8"
+      >
 
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
               Interview History
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">Your past & upcoming interviews</p>
+            <p className="text-sm sm:text-base text-gray-600 mt-2">Your past &amp; upcoming interviews</p>
           </div>
 
           {/* Search + Filter */}
@@ -298,8 +302,7 @@ const InterviewHistory = () => {
               </button>
             </div>
           )}
-        </div>
-      </div>
+      </motion.div>
 
       {/* Deep Dive Modal / Sub-view */}
       <AnimatePresence>

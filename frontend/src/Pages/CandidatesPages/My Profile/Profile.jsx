@@ -29,8 +29,12 @@ const MyProfile = () => {
     educations: [],
     documents: [],
     resumeUrl: '',
+    resumeFile: null,
     professionalBio: '',
     skills: [],
+    profilePhoto: '',
+    profilePhotoFile: null,
+    profilePhotoPreview: null,
   });
 
   const [tempProfile, setTempProfile] = useState(profile);
@@ -54,24 +58,64 @@ const MyProfile = () => {
         level: data.level || '',
         educations: data.educations || [],
         resumeUrl: data.resumeUrl || '',
-        documents: data.resumeUrl ? [{ name: 'Resume', url: data.resumeUrl }] : [],
+        documents: data.resumeUrl ? [{ id: 'resume', name: data.resumeName || 'Resume', url: data.resumeUrl, size: data.resumeSize || 'Cloudinary Hosted' }] : [],
         professionalBio: data.professionalBio || '',
         skills: data.skills || [],
+        profilePhoto: data.profilePhoto || '',
+        profilePhotoFile: null,
+        profilePhotoPreview: null,
+        resumeFile: null,
       };
       setProfile(formattedProfile);
-      setTempProfile(formattedProfile);
+      
+      setTempProfile(prev => {
+        // If editing, merge the latest uploaded resume/photo but preserve all other edited inputs
+        if (isEditing) {
+          return {
+            ...prev,
+            resumeUrl: formattedProfile.resumeUrl,
+            documents: formattedProfile.documents,
+            profilePhoto: formattedProfile.profilePhoto,
+          };
+        }
+        return formattedProfile;
+      });
     }
-  }, [profileResponse]);
+  }, [profileResponse, isEditing]);
 
   // Handle Updates
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      // Map frontend fields (like documents -> resumeUrl string) back to what backend wants
-      const payload = {
-        ...updatedData,
-        resumeUrl: updatedData.documents?.[0]?.url || updatedData.resumeUrl || ''
-      };
-      return api.patch('/user/profile', payload);
+      const formData = new FormData();
+      if (updatedData.fullName) formData.append('fullName', updatedData.fullName);
+      if (updatedData.phoneNumber !== undefined) formData.append('phoneNumber', updatedData.phoneNumber);
+      if (updatedData.professionalBio !== undefined) formData.append('professionalBio', updatedData.professionalBio);
+      if (updatedData.location !== undefined) formData.append('location', updatedData.location);
+      if (updatedData.jobTitle !== undefined) formData.append('jobTitle', updatedData.jobTitle);
+      if (updatedData.experience !== undefined) formData.append('experience', updatedData.experience);
+      if (updatedData.level !== undefined) formData.append('level', updatedData.level);
+      
+      formData.append('skills', JSON.stringify(updatedData.skills || []));
+      formData.append('educations', JSON.stringify(updatedData.educations || []));
+
+      // Send resume as a file if newly picked, otherwise keep the existing URL
+      if (updatedData.resumeFile instanceof File) {
+        formData.append('resume', updatedData.resumeFile);
+      } else {
+        // Preserve existing cloudinary URL (not a blob URL) or empty string (to clear)
+        const existingUrl = updatedData.resumeUrl || '';
+        if (!existingUrl.startsWith('blob:')) {
+          formData.append('resumeUrl', existingUrl);
+        }
+      }
+
+      if (updatedData.profilePhotoFile) {
+        formData.append('profilePhoto', updatedData.profilePhotoFile);
+      }
+
+      return api.patch('/user/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['candidateProfile']);
@@ -144,7 +188,7 @@ const MyProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <div className="text-center animate-pulse">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500 font-medium">Loading your profile...</p>
@@ -153,19 +197,21 @@ const MyProfile = () => {
     );
   }
 
+  const pageVariants = {
+    initial: { opacity: 0, y: 15 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+    exit: { opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-6 font-sans">
-      {/* Professional Header Banner */}
-      <div className="h-48 lg:h-64 bg-gradient-to-r from-slate-500 to-white-900 w-full relative overflow-hidden rounded-2xl">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]"></div>
-
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
-      </div>
-
-      <div className="max-w-8xl mx-auto relative -mt-20 z-10">
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="space-y-6"
+    >
+      <div className="relative z-10">
 
         <motion.div
           className="mb-8"
@@ -244,7 +290,7 @@ const MyProfile = () => {
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

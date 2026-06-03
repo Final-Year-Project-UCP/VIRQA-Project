@@ -95,12 +95,16 @@ const Results = () => {
   // --- Main List View ---
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans p-4 lg:p-6 pb-12">
-
-      {/* Shared Header (Visible on List View, Hidden/Changed on Detail View handled nicely via transitions) */}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } }}
+      exit={{ opacity: 0, y: -15, transition: { duration: 0.2, ease: 'easeIn' } }}
+      className="space-y-6 pb-8"
+    >
+      {/* Shared Header (Visible on List View) */}
       {!selectedInterview && (
-        <div className="bg-white max-w-8xl mx-auto border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="h-16 flex items-center justify-between px-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                 <BarChart2 size={20} />
@@ -124,7 +128,7 @@ const Results = () => {
         </div>
       )}
 
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div>
         <AnimatePresence mode="wait">
           {!selectedInterview ? (
             /* LIST VIEW */
@@ -195,9 +199,8 @@ const Results = () => {
             />
           )}
         </AnimatePresence>
-      </main>
-
-    </div>
+      </div>
+    </motion.div>
   );
 };
 

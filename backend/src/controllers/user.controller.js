@@ -5,7 +5,9 @@ import { ApiError } from "../utils/ApiError.js";
 import generateToken from "../utils/Auth.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { sendForgotPasswordOTP } from "../utils/Email.js";
-import ApiResponse from "../utils/ApiResponse.js"
+import ApiResponse from "../utils/ApiResponse.js";
+import { uploadOnCloudinary } from "../utils/FileUploadCloudinary.js";
+import { deleteDataFromCloudinary } from "../utils/FileRemovalCloudinary.js";
 const registerHandler = asyncHandler(async (req, res) => {
     const { fullName, email, password, organization } = req.body;
     if (!fullName && !email && !password && !organization) {
@@ -216,17 +218,70 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     // Update Role-specific fields
     if (user.role === 'candidate') {
-        if (skills !== undefined) user.skills = skills;
+        if (skills !== undefined) {
+            user.skills = typeof skills === 'string' ? JSON.parse(skills) : skills;
+        }
         if (experience !== undefined) user.experience = experience;
         if (level) user.level = level;
         if (jobTitle) user.jobTitle = jobTitle;
-        if (educations !== undefined) user.educations = educations;
+        if (educations !== undefined) {
+            user.educations = typeof educations === 'string' ? JSON.parse(educations) : educations;
+        }
+        
+        // Handle deletion of old resume if resumeUrl is explicitly cleared (set to empty)
+        if (resumeUrl === "" && user.resumeUrl) {
+            try {
+                await deleteDataFromCloudinary(user.resumeUrl);
+            } catch (err) {
+                console.log("Failed to delete old resume from Cloudinary:", err.message);
+            }
+            user.resumeName = "";
+            user.resumeSize = "";
+        }
         if (resumeUrl !== undefined) user.resumeUrl = resumeUrl;
     } else if (user.role === 'employee') {
         if (jobTitle) user.jobTitle = jobTitle;
         if (department) user.department = department;
     } else if (user.role === 'admin') {
         if (department) user.department = department;
+    }
+
+    // Handle profile photo upload
+    if (req.files?.profilePhoto?.[0]) {
+        const file = req.files.profilePhoto[0];
+        const oldProfileUrl = user.profilePhoto;
+
+        const url = await uploadOnCloudinary(file.path, "candidates/profilePhotos");
+        if (url) user.profilePhoto = url;
+
+        if (oldProfileUrl) {
+            try {
+                await deleteDataFromCloudinary(oldProfileUrl);
+            } catch (err) {
+                console.log("Failed to delete old profile photo:", err.message);
+            }
+        }
+    }
+
+    // Handle resume file upload
+    if (req.files?.resume?.[0]) {
+        const file = req.files.resume[0];
+        const oldResumeUrl = user.resumeUrl;
+
+        const url = await uploadOnCloudinary(file.path, "candidates/resumes");
+        if (url) {
+            user.resumeUrl = url;
+            user.resumeName = file.originalname;
+            user.resumeSize = `${(file.size / 1024).toFixed(1)} KB`;
+        }
+
+        if (oldResumeUrl) {
+            try {
+                await deleteDataFromCloudinary(oldResumeUrl);
+            } catch (err) {
+                console.log("Failed to delete old resume from Cloudinary:", err.message);
+            }
+        }
     }
 
     await user.save();
