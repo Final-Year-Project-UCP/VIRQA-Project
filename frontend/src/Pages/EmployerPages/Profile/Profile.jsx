@@ -228,7 +228,7 @@ const ProfileSettings = () => {
   // ---------------------------
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3 text-gray-500">
           <Loader2 size={32} className="animate-spin text-blue-600" />
           <p className="text-sm">Loading your profile...</p>
@@ -238,9 +238,8 @@ const ProfileSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-8xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
+    <div className="space-y-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
           <User size={28} /> Profile Settings
         </h1>
 
@@ -367,7 +366,6 @@ const ProfileSettings = () => {
             </form>
           </div>
         </div>
-      </div>
     </div>
   );
 };

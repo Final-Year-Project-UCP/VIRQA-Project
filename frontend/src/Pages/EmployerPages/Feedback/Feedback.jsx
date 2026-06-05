@@ -57,7 +57,7 @@ const Feedback = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-24">
                 <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
                 <p className="text-gray-500 font-medium">Loading feedback...</p>
             </div>
@@ -66,7 +66,7 @@ const Feedback = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="flex items-center justify-center py-24 p-4">
                 <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-sm w-full">
                     <MessageSquare className="w-16 h-16 text-red-300 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Failed to Load</h3>
@@ -77,13 +77,12 @@ const Feedback = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="max-w-8xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Candidate Feedback</h1>
-                    <p className="text-gray-600 mt-2">Review feedback submitted by candidates after their interviews</p>
-                </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900">Candidate Feedback</h1>
+                <p className="text-gray-600 mt-2">Review feedback submitted by candidates after their interviews</p>
+            </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -220,7 +219,6 @@ const Feedback = () => {
                         Showing {filteredFeedback.length} of {feedbackData.length} feedback entries
                     </div>
                 )}
-            </div>
         </div>
     );
 };

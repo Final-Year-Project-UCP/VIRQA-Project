@@ -156,7 +156,7 @@ const CreateInterview = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+            <div className="flex flex-col items-center justify-center py-24 p-4">
                 <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
                 <p className="text-gray-600 font-medium tracking-tight">Loading...</p>
             </div>
@@ -164,13 +164,13 @@ const CreateInterview = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="space-y-6 relative">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-50/50 to-transparent pointer-events-none" />
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute top-1/2 -left-24 w-72 h-72 bg-indigo-100/20 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="max-w-[1400px] mx-auto relative z-10">
+            <div className="relative z-10">
 
                 {/* ═══════════════ VIEW: LIST ═══════════════ */}
                 {currentView === 'list' && (
