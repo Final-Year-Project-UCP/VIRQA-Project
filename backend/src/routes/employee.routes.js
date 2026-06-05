@@ -3,14 +3,12 @@ import { verifyJwt } from "../middlewares/authMiddleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { handleProfile, activateAccount, getProfile, getDashboardStats } from "../controllers/employee.controller.js";
 import {
-    generateQuestions,
     createInterview,
     getMyInterviews,
     getInterviewById,
     updateInterview,
     addCandidateToSession,
     deleteInterview,
-    generateAIPrompt,
     getCandidateResult,
     getCandidateHistory
 } from "../controllers/interview.controller.js";
@@ -33,8 +31,6 @@ employeeRouter.post("/profile",
 employeeRouter.post("/activate-account", verifyJwt, activateAccount);
 
 // ── Interview Routes ──
-employeeRouter.post("/interview/generate-questions", verifyJwt, generateQuestions); // NEW: structured AI questions
-employeeRouter.post("/interview/generate-prompt", verifyJwt, generateAIPrompt);     // Legacy: system prompt
 employeeRouter.post("/interview/create", verifyJwt, createInterview);
 employeeRouter.get("/interviews", verifyJwt, getMyInterviews);
 employeeRouter.get("/interview/:id", verifyJwt, getInterviewById);

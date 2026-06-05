@@ -6,7 +6,6 @@ import { createNotification } from "../utils/notificationUtils.js";
 import { Candidate, User } from "../models/user.model.js";
 import { sendInterviewInvite, sendInterviewReschedule } from "../utils/Email.js";
 import crypto from "crypto";
-import openai from "../utils/openai.js";
 import { AIInterview } from "../models/aiInterview.model.js";
 
 // Helper function to handle candidate creation/finding and inviting
@@ -55,90 +54,7 @@ const processCandidate = async (email, { jobTitle, date, time, duration, created
     }
 };
 
-// @desc    Generate multiple AI interview questions from config
-// @route   POST /api/v1/employee/interview/generate-questions
-const generateQuestions = asyncHandler(async (req, res) => {
-    const { domain, skills, experienceLevel, difficulty, questionType, numberOfQuestions } = req.body;
-
-    if (!domain || !experienceLevel || !difficulty) {
-        throw new ApiError(400, "Domain, experience level, and difficulty are required");
-    }
-
-    const count = Math.min(parseInt(numberOfQuestions) || 5, 15); // cap at 15
-    const skillsText = Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "General";
-    const questionTypeText = questionType || "mixed (conceptual, problem-solving, scenario-based)";
-
-    const prompt = `You are a professional interviewer conducting a real job interview.
-
-Generate exactly ${count} unique interview questions based on:
-- Domain: ${domain}
-- Skills/Tags: ${skillsText}
-- Experience Level: ${experienceLevel}
-- Difficulty Level: ${difficulty}
-- Question Type: ${questionTypeText}
-
-STRICT RULES:
-1. Each question must be SHORT (maximum 20 words)
-2. Each question asks about ONE concept only
-3. Do NOT include explanations or examples
-4. Questions must be unique and varied – no repetition
-5. Make them sound natural and professional
-6. Vary the question patterns (what, how, why, explain, describe, etc.)
-
-Return ONLY a valid JSON array of question strings. No extra text, no numbering, no markdown.
-Example format: ["What is the difference between var and let?", "How does React virtual DOM work?"]`;
-
-    let response;
-    try {
-        response = await openai.chat.completions.create({
-            model: "llama-3.1-8b-instant",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are a professional technical interviewer. Always respond with ONLY a valid JSON array of strings. No extra text."
-                },
-                { role: "user", content: prompt }
-            ],
-            temperature: 0.85,
-            max_tokens: 900,
-        });
-    } catch (err) {
-        console.error("Groq API error:", err.message);
-        throw new ApiError(502, "AI service unavailable. Please try again.");
-    }
-
-    const content = response.choices[0].message.content.trim();
-
-    let questions = [];
-    try {
-        questions = JSON.parse(content);
-    } catch {
-        // Try to extract JSON array from the response
-        const match = content.match(/\[[\s\S]*\]/);
-        if (match) {
-            try {
-                questions = JSON.parse(match[0]);
-            } catch {
-                throw new ApiError(500, "Failed to parse AI response. Please try again.");
-            }
-        } else {
-            throw new ApiError(500, "AI returned an unexpected format. Please retry.");
-        }
-    }
-
-    if (!Array.isArray(questions) || questions.length === 0) {
-        throw new ApiError(500, "AI returned no valid questions. Please retry.");
-    }
-
-    // Sanitize – keep only strings, trim whitespace
-    questions = questions
-        .filter(q => typeof q === "string" && q.trim().length > 0)
-        .map(q => q.trim());
-
-    return res.status(200).json(new ApiResponse(200, { questions }, "Questions generated successfully"));
-});
-
-// @desc    Create a new interview session and invite candidates
+// @desc    Create a new live AI interview session and invite candidates
 // @route   POST /api/v1/employee/interview/create
 const createInterview = asyncHandler(async (req, res) => {
     const {
@@ -147,19 +63,11 @@ const createInterview = asyncHandler(async (req, res) => {
         skills,
         experienceLevel,
         difficulty,
-        questionType,
-        numberOfQuestions,
-        generatedQuestions,
-        selectedQuestions,
         scheduledDate,
         startTime,
         duration,
         showResultToCandidate,
         expiresAt,
-        generalQuestionCount,
-        scenarioQuestionCount,
-        answerTimeLimit,
-        // Legacy support
         jobTitle,
         jobDescription,
         candidateEmails,
@@ -209,13 +117,6 @@ const createInterview = asyncHandler(async (req, res) => {
         skills: Array.isArray(skills) ? skills : [],
         experienceLevel: experienceLevel || "Junior",
         difficulty: difficulty || "Medium",
-        generalQuestionCount: parseInt(generalQuestionCount) || 3,
-        scenarioQuestionCount: parseInt(scenarioQuestionCount) || 2,
-        answerTimeLimit: parseInt(answerTimeLimit) || 60,
-        questionType: questionType || "",
-        numberOfQuestions: (parseInt(generalQuestionCount) || 3) + (parseInt(scenarioQuestionCount) || 2),
-        generatedQuestions: Array.isArray(generatedQuestions) ? generatedQuestions : [],
-        selectedQuestions: Array.isArray(selectedQuestions) ? selectedQuestions : [],
         scheduledDate,
         startTime,
         duration: parseInt(duration) || 60,
@@ -358,40 +259,6 @@ const deleteInterview = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, null, "Interview deleted successfully"));
 });
 
-// @desc    Generate dynamic AI prompt for Interview Creation (Legacy)
-// @route   POST /api/v1/employee/interview/generate-prompt
-const generateAIPrompt = asyncHandler(async (req, res) => {
-    const { jobTitle, jobDescription, candidateCount } = req.body;
-
-    if (!jobTitle || !jobDescription) {
-        throw new ApiError(400, "Job title and description are required to generate prompt");
-    }
-
-    const systemPrompt = `You are an expert HR assistant. Based on the following job title and description, generate a detailed system prompt for an AI Interviewer Agent.
-    
-Job Title: ${jobTitle}
-Description: ${jobDescription}
-
-The output should purely be the 'System Prompt' string that configures the AI interviewer. 
-The prompt should instruct the AI interviewer to:
-1. Act exclusively as the interviewer for the ${jobTitle} role.
-2. Structure the interview flow covering introduction, technical skills based strictly on the description, and behavioral assessment.
-3. Be professional, direct, and assess actual competence.
-4. Conclude the interview effectively.
-(There will be ~${candidateCount || 0} candidates taking this interview.)`;
-
-    const response = await openai.chat.completions.create({
-        model: "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: systemPrompt }],
-        temperature: 0.7,
-        max_tokens: 1000,
-    });
-
-    const generatedPrompt = response.choices[0].message.content.trim();
-
-    return res.status(200).json(new ApiResponse(200, { generatedPrompt }, "AI Prompt generated successfully"));
-});
-
 // @desc    Get specific candidate's result for an interview session
 // @route   GET /api/v1/employee/interview/:sessionId/candidate/:candidateId/result
 const getCandidateResult = asyncHandler(async (req, res) => {
@@ -469,14 +336,12 @@ const getCandidateHistory = asyncHandler(async (req, res) => {
 });
 
 export {
-    generateQuestions,
     createInterview,
     getMyInterviews,
     getInterviewById,
     updateInterview,
     addCandidateToSession,
     deleteInterview,
-    generateAIPrompt,
     getCandidateResult,
     getCandidateHistory
 };

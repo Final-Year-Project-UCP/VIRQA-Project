@@ -36,35 +36,14 @@ const interviewSessionSchema = new mongoose.Schema({
         enum: ["Easy", "Medium", "Hard"],
         default: "Medium"
     },
-    generalQuestionCount: {
-        type: Number,
-        default: 3
-    },
-    scenarioQuestionCount: {
-        type: Number,
-        default: 2
-    },
-    answerTimeLimit: {
-        type: Number, // in seconds
-        default: 60
-    },
-    questionType: {
-        type: String,
-        enum: ["Conceptual", "Problem-solving", "Scenario-based", ""],
-        default: ""
-    },
-    numberOfQuestions: {
-        type: Number,
-        default: 5
-    },
-    generatedQuestions: {
-        type: [String],
-        default: []
-    },
-    selectedQuestions: {
-        type: [String],
-        default: []
-    },
+    // Legacy fields (pre–live interview); no longer set on new sessions
+    generalQuestionCount: { type: Number },
+    scenarioQuestionCount: { type: Number },
+    answerTimeLimit: { type: Number },
+    questionType: { type: String, default: "" },
+    numberOfQuestions: { type: Number },
+    generatedQuestions: { type: [String], default: [] },
+    selectedQuestions: { type: [String], default: [] },
 
     // ── Schedule ──
     scheduledDate: {

@@ -23,7 +23,7 @@ const adjustDifficulty = (currentDifficulty, overallScore) => {
 
 async function loadSessionData(interview) {
   if (!interview.interviewSessionId) {
-    return { interviewerName: "VIRQA AI", answerTimeLimit: 60 };
+    return { interviewerName: "VIRQA AI", durationMinutes: 30 };
   }
 
   const session = await InterviewSession.findById(interview.interviewSessionId).populate(
@@ -31,15 +31,13 @@ async function loadSessionData(interview) {
     "fullName"
   );
   if (!session) {
-    return { interviewerName: "VIRQA AI", answerTimeLimit: 60 };
+    return { interviewerName: "VIRQA AI", durationMinutes: 30 };
   }
 
   return {
     jobDescription: session.jobDescription,
     skills: session.skills,
-    generalQuestionCount: session.generalQuestionCount,
-    scenarioQuestionCount: session.scenarioQuestionCount,
-    answerTimeLimit: session.answerTimeLimit,
+    durationMinutes: session.duration || 30,
     interviewerName: session.createdBy?.fullName || "VIRQA AI",
   };
 }
@@ -52,14 +50,8 @@ async function emitInterviewerReply(socket, interview, sessionData, { resumeLast
 
   if (resumeLast && interview.questions.length > interview.answers.length) {
     replyText = interview.questions[interview.questions.length - 1].text;
-    socket.emit("ai-response-complete", {
-      questionText: replyText,
-      answerTimeLimit: sessionData.answerTimeLimit || 60,
-    });
-    socket.emit("next-question", {
-      questionText: replyText,
-      answerTimeLimit: sessionData.answerTimeLimit || 60,
-    });
+    socket.emit("ai-response-complete", { questionText: replyText });
+    socket.emit("next-question", { questionText: replyText });
     socket.emit("processing-status", { message: null });
     return replyText;
   }
@@ -75,10 +67,7 @@ async function emitInterviewerReply(socket, interview, sessionData, { resumeLast
   interview.questions.push({ text: replyText });
   await interview.save();
 
-  const payload = {
-    questionText: replyText,
-    answerTimeLimit: sessionData.answerTimeLimit || 60,
-  };
+  const payload = { questionText: replyText };
 
   socket.emit("ai-response-complete", payload);
   socket.emit("next-question", payload);

@@ -6,8 +6,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StepIndicator from '../../../components/interview/StepIndicator';
 import CandidateInfoStep from '../../../components/interview/CandidateInfoStep';
 import InterviewConfigStep from '../../../components/interview/InterviewConfigStep';
-import QuestionGenerationStep from '../../../components/interview/QuestionGenerationStep';
-import QuestionSelectionStep from '../../../components/interview/QuestionSelectionStep';
 import SchedulingStep from '../../../components/interview/SchedulingStep';
 import InterviewListView from '../../../components/interview/InterviewListView';
 import EmptyInterviewState from '../../../components/interview/EmptyInterviewState';
@@ -16,9 +14,9 @@ import { api } from '../../../config/api.js';
 import { getErrorMessage } from '../../../utils/errorParser.js';
 
 const STEPS = [
-    { title: 'Candidates',    subtitle: 'Name & Email' },
-    { title: 'Configuration', subtitle: 'AI Parameters' },
-    { title: 'Schedule',      subtitle: 'Date & Time' },
+    { title: 'Candidates',    subtitle: 'Invite participants' },
+    { title: 'Configuration', subtitle: 'Role, skills & difficulty' },
+    { title: 'Schedule',      subtitle: 'Session date & duration' },
 ];
 
 const defaultFormData = () => ({
@@ -30,20 +28,9 @@ const defaultFormData = () => ({
     skills: [],
     experienceLevel: 'Junior',
     difficulty: 'Medium',
-    questionType: '',
-    numberOfQuestions: 5,
-    generalQuestionCount: 3,
-    scenarioQuestionCount: 2,
-    answerTimeLimit: 60,
     jobDescription: '',
 
-    // Step 3 – Generated (No longer used in UI)
-    generatedQuestions: [],
-
-    // Step 4 – Selected (No longer used in UI)
-    selectedQuestions: [],
-
-    // Step 5 – Schedule
+    // Schedule
     startDate: '',
     startTime: '',
     duration: '60',
@@ -101,14 +88,7 @@ const CreateInterview = () => {
                 skills: payload.skills,
                 experienceLevel: payload.experienceLevel,
                 difficulty: payload.difficulty,
-                generalQuestionCount: payload.generalQuestionCount,
-                scenarioQuestionCount: payload.scenarioQuestionCount,
-                answerTimeLimit: payload.answerTimeLimit,
                 jobDescription: payload.jobDescription,
-                questionType: payload.questionType,
-                numberOfQuestions: payload.numberOfQuestions,
-                generatedQuestions: [],
-                selectedQuestions: [],
                 scheduledDate: payload.startDate,
                 startTime: payload.startTime,
                 duration: parseInt(payload.duration) || 60,
@@ -145,13 +125,7 @@ const CreateInterview = () => {
             skills: session.skills || [],
             experienceLevel: session.experienceLevel || 'Junior',
             difficulty: session.difficulty || 'Medium',
-            generalQuestionCount: session.generalQuestionCount || 3,
-            scenarioQuestionCount: session.scenarioQuestionCount || 2,
             jobDescription: session.jobDescription || '',
-            questionType: session.questionType || '',
-            numberOfQuestions: session.numberOfQuestions || 5,
-            generatedQuestions: [],
-            selectedQuestions: [],
             startDate: session.scheduledDate?.split('T')[0] || '',
             startTime: session.startTime || '',
             duration: session.duration?.toString() || '60',

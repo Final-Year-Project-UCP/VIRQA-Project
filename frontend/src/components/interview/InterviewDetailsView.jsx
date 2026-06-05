@@ -229,7 +229,7 @@ const InterviewDetailsView = ({ session, onBack, onEdit }) => {
                             { label: 'Expires', value: session.expiresAt ? new Date(session.expiresAt).toLocaleDateString() : 'N/A', icon: Target, color: 'text-orange-500', bg: 'bg-orange-50' },
                             { label: 'Visibility', value: session.showResultToCandidate ? 'Visible' : 'Hidden', icon: Eye, color: 'text-red-500', bg: 'bg-red-50' },
                             { label: 'Batch Size', value: session.candidates?.length || 0, icon: Users, color: 'text-purple-500', bg: 'bg-purple-50' },
-                            { label: 'Questions', value: selectedQuestions.length, icon: ListChecks, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                            { label: 'Format', value: 'Live AI', icon: ListChecks, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                         ].map((stat, i) => (
                             <div key={i} className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
                                 <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-3`}>

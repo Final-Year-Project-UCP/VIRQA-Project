@@ -135,15 +135,13 @@ const ActiveSession = ({ onLeave, session }) => {
                 });
 
                 newSocket.on("ai-response-chunk", ({ chunk }) => {
-                    setStatusMessage("Interviewer is speaking...");
+                    setStatusMessage("Interviewer is thinking...");
                     setChatHistory((prev) => {
                         const next = [...prev];
                         const idx = streamingIndexRef.current;
-                        if (idx === null || idx === undefined || !next[idx]?.isStreaming) {
+                        if (idx === null || idx === undefined || next[idx]?.sender !== "AI Interviewer" || !next[idx]?.isTyping) {
                             streamingIndexRef.current = next.length;
-                            next.push({ sender: "AI Interviewer", text: chunk, isStreaming: true });
-                        } else {
-                            next[idx] = { ...next[idx], text: next[idx].text + chunk };
+                            next.push({ sender: "AI Interviewer", text: "", isTyping: true });
                         }
                         return next;
                     });
@@ -151,23 +149,22 @@ const ActiveSession = ({ onLeave, session }) => {
 
                 newSocket.on("ai-response-complete", (data) => {
                     const aiQuestion = data.questionText;
-                    const limit = data.answerTimeLimit || 60;
                     setCurrentQuestion(aiQuestion);
-                    setMaxTimeLimit(limit);
                     setTimeLeft(null);
                     streamingIndexRef.current = null;
 
                     setChatHistory((prev) => {
                         const next = [...prev];
-                        const streamingIdx = next.findIndex((m) => m.isStreaming);
+                        const streamingIdx = next.findIndex((m) => m.isStreaming || m.isTyping);
                         if (streamingIdx >= 0) {
                             next[streamingIdx] = {
                                 sender: "AI Interviewer",
-                                text: aiQuestion,
+                                text: "",
+                                isTyping: true,
                                 isStreaming: false,
                             };
                         } else if (!next.some((m) => m.sender === "AI Interviewer" && m.text === aiQuestion)) {
-                            next.push({ sender: "AI Interviewer", text: aiQuestion });
+                            next.push({ sender: "AI Interviewer", text: "", isTyping: true });
                         }
                         return next;
                     });
@@ -179,7 +176,6 @@ const ActiveSession = ({ onLeave, session }) => {
                 newSocket.on("next-question", (data) => {
                     if (!data?.questionText) return;
                     setCurrentQuestion(data.questionText);
-                    setMaxTimeLimit(data.answerTimeLimit || 60);
                 });
 
                 newSocket.on("processing-status", (data) => {
@@ -268,7 +264,33 @@ const ActiveSession = ({ onLeave, session }) => {
 
     const speak = (text) => {
         if (!text?.trim()) return;
-        if (!window.speechSynthesis) return;
+
+        if (!window.speechSynthesis) {
+            setChatHistory((prev) => {
+                const next = [...prev];
+                const idx = next.map((c, i) => ({ c, i })).reverse().find(({ c }) => c.sender === "AI Interviewer")?.i;
+                if (idx !== undefined && idx >= 0) {
+                    next[idx] = {
+                        ...next[idx],
+                        text: text,
+                        isTyping: false,
+                        isStreaming: false
+                    };
+                } else {
+                    next.push({
+                        sender: "AI Interviewer",
+                        text: text,
+                        isTyping: false,
+                        isStreaming: false
+                    });
+                }
+                return next;
+            });
+            setStatusMessage("Listening...");
+            setTimeLeft(maxTimeLimit);
+            if (isMicOn) startRecording();
+            return;
+        }
 
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -283,13 +305,90 @@ const ActiveSession = ({ onLeave, session }) => {
         if (preferredVoice) utterance.voice = preferredVoice;
         utterance.rate = 1.05;
 
-        utterance.onstart = () => setAiSpeaking(true);
+        let speechStarted = false;
+
+        const finalizeChat = () => {
+            setChatHistory((prev) => {
+                const next = [...prev];
+                const idx = next.map((c, i) => ({ c, i })).reverse().find(({ c }) => c.sender === "AI Interviewer")?.i;
+                if (idx !== undefined && idx >= 0) {
+                    next[idx] = {
+                        ...next[idx],
+                        text: text,
+                        isTyping: false,
+                        isStreaming: false
+                    };
+                }
+                return next;
+            });
+        };
+
+        utterance.onstart = () => {
+            speechStarted = true;
+            setAiSpeaking(true);
+            setChatHistory((prev) => {
+                const next = [...prev];
+                const idx = next.map((c, i) => ({ c, i })).reverse().find(({ c }) => c.sender === "AI Interviewer")?.i;
+                if (idx !== undefined && idx >= 0) {
+                    next[idx] = {
+                        ...next[idx],
+                        text: "",
+                        isTyping: false,
+                        isStreaming: true
+                    };
+                }
+                return next;
+            });
+        };
+
+        utterance.onboundary = (event) => {
+            if (event.name === 'word') {
+                const wordIndex = event.charIndex;
+                let nextSpace = text.indexOf(' ', wordIndex);
+                if (nextSpace === -1) nextSpace = text.length;
+                const spokenText = text.substring(0, nextSpace);
+
+                setChatHistory((prev) => {
+                    const next = [...prev];
+                    const idx = next.map((c, i) => ({ c, i })).reverse().find(({ c }) => c.sender === "AI Interviewer")?.i;
+                    if (idx !== undefined && idx >= 0) {
+                        next[idx] = {
+                            ...next[idx],
+                            text: spokenText,
+                            isTyping: false,
+                            isStreaming: true
+                        };
+                    }
+                    return next;
+                });
+            }
+        };
+
         utterance.onend = () => {
+            finalizeChat();
             setAiSpeaking(false);
             setStatusMessage("Listening...");
             setTimeLeft(maxTimeLimit);
             if (isMicOn) startRecording();
         };
+
+        utterance.onerror = () => {
+            finalizeChat();
+            setAiSpeaking(false);
+            setStatusMessage("Listening...");
+            setTimeLeft(maxTimeLimit);
+            if (isMicOn) startRecording();
+        };
+
+        setTimeout(() => {
+            if (!speechStarted) {
+                finalizeChat();
+                setAiSpeaking(false);
+                setStatusMessage("Listening...");
+                setTimeLeft(maxTimeLimit);
+                if (isMicOn) startRecording();
+            }
+        }, 1500);
 
         window.speechSynthesis.speak(utterance);
     };
@@ -533,8 +632,18 @@ const ActiveSession = ({ onLeave, session }) => {
                                     ? 'bg-indigo-600/10 border border-indigo-500/20 text-indigo-100 rounded-2xl rounded-tr-none'
                                     : 'bg-slate-800/50 border border-white/5 text-slate-100 rounded-2xl rounded-tl-none font-medium'
                                 }`}>
-                                {chat.text}
-                                {chat.isStreaming && <span className="inline-block w-1.5 h-4 bg-indigo-500 animate-pulse ml-1 align-middle"></span>}
+                                {chat.isTyping ? (
+                                    <div className="flex gap-1.5 py-1">
+                                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
+                                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce delay-100"></span>
+                                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce delay-200"></span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {chat.text}
+                                        {chat.isStreaming && <span className="inline-block w-1.5 h-4 bg-indigo-500 animate-pulse ml-1 align-middle"></span>}
+                                    </>
+                                )}
                             </div>
                         </motion.div>
                     ))}
