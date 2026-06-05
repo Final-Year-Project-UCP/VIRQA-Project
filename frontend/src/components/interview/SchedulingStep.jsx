@@ -28,8 +28,6 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting 
 
     const today = new Date().toISOString().split('T')[0];
     const candidateCount = formData.candidates?.length || formData.candidateEmails?.length || 0;
-    const selectedCount = formData.selectedQuestions?.length || 0;
-
     return (
         <div className="max-w-3xl mx-auto space-y-6">
 
@@ -77,9 +75,9 @@ const SchedulingStep = ({ formData, setFormData, onBack, onSubmit, isSubmitting 
                     <div className="bg-white/70 rounded-xl p-3.5 shadow-sm">
                         <div className="flex items-center gap-2 mb-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                            <span className="text-xs text-gray-500 font-medium">Questions</span>
+                            <span className="text-xs text-gray-500 font-medium">Format</span>
                         </div>
-                        <p className="font-bold text-gray-800 text-sm">{selectedCount} selected</p>
+                        <p className="font-bold text-gray-800 text-sm">Live AI voice</p>
                     </div>
                     {formData.skills?.length > 0 && (
                         <div className="bg-white/70 rounded-xl p-3.5 shadow-sm">

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIRQA — Live Session &amp; Evaluation Pipeline Flow</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #4f46e5;
+      --accent-2: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #a855f7;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+    }
+
+    .sidebar-brand {
+      padding: 0 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-brand h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-brand p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-section {
+      padding: 0.75rem 1.25rem 0.25rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 0.45rem 1.25rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color: var(--text);
+      background: rgba(79, 70, 229, 0.08);
+      border-left-color: var(--accent-2);
+    }
+
+    /* ── Main ── */
+    .main { padding: 2.5rem 3rem 4rem; max-width: 1100px; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #111827 50%, #311042 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 60%, #e2e8f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .badge.indigo { color: #c7d2fe; border-color: rgba(99,102,241,0.3); }
+    .badge.green { color: #a7f3d0; border-color: rgba(16,185,129,0.3); }
+    .badge.purple { color: #f3e8ff; border-color: rgba(168,85,247,0.3); }
+    .badge.amber { color: #fef3c7; border-color: rgba(245,158,11,0.3); }
+
+    /* ── Sections ── */
+    section {
+      margin-bottom: 4.5rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    section h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      padding-bottom: 0.50rem;
+    }
+
+    section h2 .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 850;
+      flex-shrink: 0;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .callout {
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+      color: #c7d2fe;
+    }
+
+    .callout strong { color: #e0e7ff; }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 2rem 0 0.85rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    /* ── Diagrams ── */
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .mermaid { display: flex; justify-content: center; }
+
+    /* ── Code Blocks ── */
+    .code-block {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .code-block span.comment { color: #64748b; }
+    .code-block span.key { color: #f472b6; }
+    .code-block span.val { color: #a78bfa; }
+
+    code.inline {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #cbd5e1;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* ── Tables ── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    thead { background: var(--surface-2); }
+
+    th {
+      text-align: left;
+      padding: 0.8rem 1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(99, 102, 241, 0.04); }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .footer strong { color: var(--text); }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .main { padding: 1.5rem; }
+      .hero h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- ═══ SIDEBAR NAVIGATION ═══ -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2>VIRQA AI Portal</h2>
+        <p>Live Interview Pipeline Flow</p>
+      </div>
+
+      <div class="nav-section">Architectural Flows</div>
+      <a href="#overview">Session Loop Sequence</a>
+      <a href="#pipeline">Audio &amp; AI Pipeline</a>
+      <a href="#ttssync">TTS Word-Sync Mechanism</a>
+      <a href="#completion">End-of-Interview Logic</a>
+
+      <div class="nav-section">Developer Reference</div>
+      <a href="#contracts">Websocket Payload Contract</a>
+      <a href="#formulas">Scoring Formula Reference</a>
+    </nav>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main">
+
+      <!-- Hero Header -->
+      <header class="hero">
+        <h1>Live Interview Session &amp; AI Pipeline</h1>
+        <p class="subtitle">Complete Technical Lifecycle &amp; Evaluation Flow</p>
+        <div class="badge-row">
+          <span class="badge indigo">Socket.io WS Channels</span>
+          <span class="badge green">Groq Whisper large-v3</span>
+          <span class="badge purple">Groq llama-3.1-8b-instant</span>
+          <span class="badge amber">Real-Time boundary TTS Sync</span>
+        </div>
+      </header>
+
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:3rem;line-height:1.7;">
+        This document provides the exhaustive technical reference for the real-time AI interview interaction loop.
+        It details how voice audio is streamed to the backend, transcribed via Whisper, evaluated by Llama-3 in the background, 
+        and how the dynamic next question is generated and spoken back to the candidate with real-time text-to-speech visual synchronization.
+      </p>
+
+      <!-- ── SECTION 1: OVERVIEW ── -->
+      <section id="overview">
+        <h2><span class="num">1</span> Live Session Sequence Flow</h2>
+        <p class="section-desc">
+          The candidate interacts with the AI Interviewer over a real-time bi-directional WebSocket connection. 
+          The sequence diagram below displays the event loops during a single Q&amp;A cycle.
+        </p>
+        <div class="diagram">
+          <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Candidate as Candidate (Frontend)
+    participant Socket as Socket.io (Port 8000)
+    participant Backend as Node.js Backend
+    participant Whisper as Groq Whisper STT
+    participant LLM as Groq Llama-3.1 LLM
+    database DB as MongoDB
+
+    Note over Candidate: Candidate starts recording response
+    Candidate->>Socket: emit("send-audio", { audioBuffer, currentQuestionText })
+    Socket->>Backend: Receive Binary ArrayBuffer
+    Backend->>Candidate: emit("processing-status", "Transcribing...")
+    
+    Note over Backend: Audio Conversion & Transcription
+    Backend->>Whisper: POST /transcriptions (transient webm stream)
+    Whisper-->>Backend: Return transcribed text string
+    Backend->>Candidate: emit("transcription-result", { transcribedText })
+    
+    Note over Backend: Asynchronous Scoring starts in background
+    Backend->>LLM: evaluateAnswer(question, transcription)
+    Backend->>Candidate: emit("processing-status", "Evaluating...")
+    
+    par Next Turn Generation (Immediate)
+        Backend->>LLM: streamInterviewerReply(chatHistory, currentDifficulty)
+        LLM-->>Backend: Stream reply tokens
+        loop Generating pieces
+            Backend->>Candidate: emit("ai-response-chunk", { chunk })
+        end
+        Backend->>Candidate: emit("ai-response-complete", { questionText })
+    and Background Evaluation Finishes
+        LLM-->>Backend: JSON scores
+        Backend->>DB: Push answer & evaluation to AIInterview Document
+        Backend->>Candidate: emit("evaluation-result", { evaluation })
+    end
+
+    Note over Candidate: speechSynthesis plays audio & reveals text
+          </pre>
+        </div>
+      </section>
+
+      <!-- ── SECTION 2: AUDIO & AI PIPELINE ── -->
+      <section id="pipeline">
+        <h2><span class="num">2</span> Audio &amp; Evaluation Pipeline</h2>
+        <p class="section-desc">
+          When the candidate submits a voice answer, it passes sequentially through transcription (STT) 
+          and AI Evaluation services. Below is the technical state changes flow:
+        </p>
+        <div class="diagram">
+          <pre class="mermaid">
+flowchart TD
+    A([🎙️ Candidate finishes speaking]) --> B["Capture webm ArrayBuffer (Client)"]
+    B --> C["emit send-audio (WS)"]
+    C --> D["emit processing-status 'Transcribing...'"]
+    D --> E["Write buffer to transient file audio-{timestamp}.webm (Server)"]
+    E --> F["Groq Whisper API whisper-large-v3"]
+    F --> G["Delete temp file (finally block)"]
+    G --> H["emit transcription-result transcribedText"]
+    H --> I["Push to AIInterview.answers[] in database"]
+    I --> J["emit processing-status 'Evaluating...'"]
+    J --> K["Background evaluateAnswer (Groq Llama-3.1)"]
+    K --> L["Output: JSON evaluation metrics"]
+    L --> M["Push to AIInterview.scores[] in database"]
+    L --> N["emit evaluation-result evaluation JSON"]
+    L --> O["Run adjustDifficulty() engine"]
+    O --> P(["Update currentDifficulty for next Question"])
+
+    style A fill:#6366f1,color:#fff
+    style F fill:#f59e0b,color:#000
+    style K fill:#a855f7,color:#fff
+    style N fill:#10b981,color:#fff
+    style P fill:#3b82f6,color:#fff
+          </pre>
+        </div>
+      </section>
+
+      <!-- ── SECTION 3: TTS SYNC ── -->
+      <section id="ttssync">
+        <h2><span class="num">3</span> TTS Word-by-Word Synchronization</h2>
+        <p class="section-desc">
+          The candidate expects text to reveal on the screen synchronously as the AI voices the question. 
+          This is achieved via client-side Speech Synthesis events:
+        </p>
+        <div class="diagram">
+          <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant Server as Socket Server
+    participant Client as Candidate Client (ActiveSession.jsx)
+    participant Speech as window.speechSynthesis (Web API)
+    participant UI as Chat Thread UI
+
+    Server->>Client: emit("ai-response-chunk", { chunk })
+    Note over Client: Displays blinking typing bubble in bubble block
+    Server->>Client: emit("ai-response-complete", { questionText })
+    Client->>Client: Create SpeechSynthesisUtterance(questionText)
+    Client->>Speech: window.speechSynthesis.speak(utterance)
+
+    alt Speech Synthesis starts
+        Speech->>Client: utterance.onstart() event
+        Client->>UI: Remove typing bubble, set chat text to ""
+        loop On Boundary Word Event
+            Speech->>Client: utterance.onboundary(event) [event.name === 'word']
+            Client->>Client: Find charIndex & next whitespace index
+            Client->>Client: Slice text: questionText.substring(0, nextSpace)
+            Client->>UI: Update AI bubble text progressively (displays word-by-word)
+        end
+        Speech->>Client: utterance.onend() event
+        Client->>UI: Render full text, display answer countdown & start recording
+    else Fallback Trigger (speech synthesis blocked/fails to start within 1.5s)
+        Note over Client: Fallback timer setTimeout finishes
+        Client->>UI: Display full questionText immediately, start recording
+    end
+          </pre>
+        </div>
+      </section>
+
+      <!-- ── SECTION 4: COMPLETION ── -->
+      <section id="completion">
+        <h2><span class="num">4</span> End-of-Interview Report Logic</h2>
+        <p class="section-desc">
+          When the interview is completed (by the candidate ending the session or time limits), 
+          the system processes scores and generates final recommendation reports.
+        </p>
+        <div class="diagram">
+          <pre class="mermaid">
+flowchart TD
+    A([👤 Candidate Ends Session / Time Up]) --> B["Exit fullscreen mode"]
+    B --> C["emit 'interview-complete'"]
+    C --> D["Backend: Find AIInterview & calculate scores"]
+    
+    D --> E["🧮 Calculate Penalty Divisor
+    divisor = max(actualQuestionsCount, minExpectedQuestions)"]
+    E --> F["*minExpectedQuestions = max(5, min(10, duration / 6))"]
+    
+    F --> G["Aggregate metrics:
+    overallScore = sum(overall) / divisor
+    semanticScore = sum(semantic) / divisor
+    technicalScore = sum(technical) / divisor"]
+    
+    G --> H{overallScore > 70%?}
+    H -->|Yes| I["Recommended Verdict
+    finalReport: 'Highly recommended for next rounds'"]
+    H -->|No| J["Review Verdict
+    finalReport: 'Requires technical improvements'"]
+    
+    I --> K["Save finalReport & status = 'completed'"]
+    J --> K
+    K --> L["Update parent InterviewSession candidate status to Completed"]
+    L --> M["emit 'interview-completed-successfully'"]
+    M --> N(["Candidate redirected to Results Page Radar Chart"])
+
+    style A fill:#ef4444,color:#fff
+    style E fill:#a855f7,color:#fff
+    style N fill:#10b981,color:#fff
+          </pre>
+        </div>
+      </section>
+
+      <!-- ── SECTION 5: PAYLOAD CONTRACTS ── -->
+      <section id="contracts">
+        <h2><span class="num">5</span> WebSocket Payload Reference</h2>
+        <p class="section-desc">
+          Exact JSON object structures exchanged over Socket.io during the interview.
+        </p>
+
+        <h3>Client Emission: <code>send-audio</code></h3>
+        <div class="code-block">
+{
+  <span class="key">"interviewId"</span>: <span class="val">"650c1f1f1c9d440000a1b1c1"</span>,
+  <span class="key">"currentQuestionText"</span>: <span class="val">"What is the difference between virtual DOM and real DOM in React?"</span>,
+  <span class="key">"audioBuffer"</span>: <span class="val">&lt;ArrayBuffer (Binary webm data)&gt;</span>
+}
+        </div>
+
+        <h3>Server Emission: <code>evaluation-result</code></h3>
+        <div class="code-block">
+{
+  <span class="key">"evaluation"</span>: {
+    <span class="key">"semanticScore"</span>: <span class="val">85</span>,
+    <span class="key">"technicalScore"</span>: <span class="val">90</span>,
+    <span class="key">"overallScore"</span>: <span class="val">88</span>,
+    <span class="key">"feedback"</span>: <span class="val">"Candidate gave a highly structured answer explaining reconciliation."</span>,
+    <span class="key">"strengths"</span>: [<span class="val">"Clear explanation of virtual DOM"</span>, <span class="val">"Mentions reconciliation diffing"</span>],
+    <span class="key">"weaknesses"</span>: [<span class="val">"Missed details on batching state updates"</span>]
+  }
+}
+        </div>
+      </section>
+
+      <!-- ── SECTION 6: FORMULAS ── -->
+      <section id="formulas">
+        <h2><span class="num">6</span> Scoring Formulas Reference</h2>
+        <p class="section-desc">
+          Formulas used by the system to compile scores fairly and handle early exit cheats.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Score Type</th>
+                <th>Formula</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Minimum Expected Questions</strong></td>
+                <td>$$\max\left(5, \min\left(10, \text{round}\left(\frac{\text{Duration}}{6}\right)\right)\right)$$</td>
+                <td>Computes minimum required questions for a session (e.g. 5 questions for 30 minutes).</td>
+              </tr>
+              <tr>
+                <td><strong>Penalized Divisor</strong></td>
+                <td>$$\text{Divisor} = \max(\text{Questions Answered}, \text{Expected Questions})$$</td>
+                <td>Ensures that candidates who exit early get penalized for leaving unanswered questions blank.</td>
+              </tr>
+              <tr>
+                <td><strong>Overall Score</strong></td>
+                <td>$$\text{Score} = \text{round}\left( \frac{\sum \text{overallScore}_{\text{questions}}}{\text{Divisor}} \right)$$</td>
+                <td>Averages evaluated questions against the penalized divisor.</td>
+              </tr>
+              <tr>
+                <td><strong>Completeness Metric</strong></td>
+                <td>$$\max(0, \text{Overall Score} - 5)$$</td>
+                <td>Deducts 5 points from the overall score to compile the report visual map.</td>
+              </tr>
+              <tr>
+                <td><strong>Confidence Metric</strong></td>
+                <td>$$\max(0, \text{Overall Score} - 3)$$</td>
+                <td>Deducts 3 points from the overall score to reflect conversational confidence.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p><strong>VIRQA AI Interview Platform</strong></p>
+        <p>Final Year Project — University of Central Punjab (UCP) — F22</p>
+        <p>Built by Muhammad Ummar &nbsp;|&nbsp; Document v2.0</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ═══ MERMAID INITIALIZATION ═══ -->
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#1e1b4b',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#6366f1',
+        secondaryColor: '#111827',
+        tertiaryColor: '#0b1120',
+        fontFamily: 'Segoe UI, system-ui, sans-serif',
+        fontSize: '13px'
+      },
+      flowchart: { curve: 'basis', htmlLabels: true },
+      securityLevel: 'loose'
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+
+      // Highlight active nav link on scroll
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.sidebar a');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            navLinks.forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+
+      sections.forEach(s => observer.observe(s));
+    });
+  </script>
+</body>
+</html>

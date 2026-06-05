@@ -11,27 +11,33 @@ import { generateVirginReportPDF, generateVirginTranscriptPDF } from '../../util
 const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
     // data is the AIInterview document populated with interviewSessionId/createdBy
 
+    // Minimum expected questions based on session duration (min 5, max 10)
+    const duration = data?.interviewSessionId?.duration || 30;
+    const minExpectedQuestions = Math.max(5, Math.min(10, Math.round(duration / 6)));
+    const actualQuestionsCount = data?.scores?.length || 0;
+    const divisor = Math.max(actualQuestionsCount, minExpectedQuestions);
+
     const interview = {
         id: data?._id || '',
         title: data?.interviewSessionId?.domain || data?.interviewSessionId?.jobTitle || data?.role || 'Technical Interview',
         company: data?.interviewSessionId?.createdBy?.organization || "VIRQA AI",
         date: data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
-        score: Math.round((data?.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / (data?.scores?.length || 1)),
+        score: Math.round((data?.scores?.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) || 0) / divisor),
         rawScores: data?.scores || [],
         rawAnswers: data?.answers || []
     };
 
     const metricsData = [
-        { name: 'Semantic Accuracy', score: Math.round((data.scores?.reduce((acc, curr) => acc + (curr.semanticScore || 0), 0) || 0) / (data.scores?.length || 1)) },
-        { name: 'Technical Score', score: Math.round((data.scores?.reduce((acc, curr) => acc + (curr.technicalScore || 0), 0) || 0) / (data.scores?.length || 1)) },
+        { name: 'Semantic Accuracy', score: Math.round((data.scores?.reduce((acc, curr) => acc + (curr.semanticScore || 0), 0) || 0) / divisor) },
+        { name: 'Technical Score', score: Math.round((data.scores?.reduce((acc, curr) => acc + (curr.technicalScore || 0), 0) || 0) / divisor) },
         { name: 'Fluency', score: interview.score },
         { name: 'Completeness', score: Math.max(0, interview.score - 5) },
         { name: 'Confidence', score: Math.max(0, interview.score - 3) },
         { name: 'Topic Coverage', score: interview.score }
     ];
 
-    const allStrengths = [...new Set(data.scores?.flatMap(s => s.strengths || []) || [])];
-    const allWeaknesses = [...new Set(data.scores?.flatMap(s => s.weaknesses || []) || [])];
+    const allStrengths = [...new Set(data.scores?.flatMap(s => s.strengths || []) || [])].slice(0, 4);
+    const allWeaknesses = [...new Set(data.scores?.flatMap(s => s.weaknesses || []) || [])].slice(0, 4);
     const overallFeedback = data.scores?.map(s => s.feedback).join(' ') || "";
 
     const chartData = {
@@ -149,7 +155,7 @@ const ExecutiveAssessmentReport = ({ data, onBack, isEmployer = false }) => {
                             <Sparkles className="text-amber-500 w-6 h-6" />
                             AI Qualitative Feedback
                         </h3>
-                        <p className="text-slate-600 font-medium leading-relaxed italic border-l-4 border-indigo-500 pl-6 text-lg">
+                        <p className="text-slate-600 font-medium leading-relaxed italic border-l-4 border-indigo-500 pl-6 text-lg line-clamp-3">
                             "{overallFeedback || "The assessment indicates strong foundational knowledge and effective articulation of concepts."}"
                         </p>
 

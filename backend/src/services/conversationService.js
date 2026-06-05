@@ -2,6 +2,12 @@ import openai from "../utils/openai.js";
 
 const MODEL = "llama-3.1-8b-instant";
 
+/** Target exchanges from scheduled session length (~2 min per meaningful turn). */
+export const computeTargetTurns = (durationMinutes = 30) => {
+  const mins = Math.max(15, Math.min(120, Number(durationMinutes) || 30));
+  return Math.max(12, Math.min(45, Math.round(mins / 2)));
+};
+
 /**
  * Builds the system prompt for a fully dynamic, real-time interview conversation.
  */
@@ -16,6 +22,7 @@ export const buildSystemPrompt = (context) => {
     candidateName = "Candidate",
     turnCount = 0,
     targetTurns = 12,
+    sessionDurationMinutes = 30,
   } = context;
 
   const firstName = (candidateName || "Candidate").split(" ")[0];
@@ -63,7 +70,7 @@ ${levelGuide}
 - Output ONLY the words you would speak aloud (1–4 sentences, slightly longer only on turn 0).
 - Turn 0 (no prior candidate messages): briefly introduce yourself as ${interviewerName}, welcome ${firstName}, and open with a natural ice-breaker tied to the role or their day.
 - After turn 0: do NOT re-introduce yourself or say "Welcome" again.
-- Conversation depth so far: ~${turnCount} exchanges. Aim for roughly ${targetTurns} meaningful exchanges before closing; when near that, thank them and ask one final thoughtful question or invite closing thoughts.
+- Session length: ~${sessionDurationMinutes} minutes scheduled. Depth so far: ~${turnCount} exchanges (natural pace: ~${targetTurns} over the session). Do not rush — follow the conversation organically. When the discussion has been thorough for this session, wrap up warmly with a final question or closing thoughts.
 - Output plain speech only — no JSON, markdown, or labels.`;
 };
 
@@ -158,9 +165,8 @@ export const buildContextFromInterview = (interview, sessionData = {}) => {
     answer: ans.transcribedText,
   }));
 
-  const general = sessionData.generalQuestionCount ?? 3;
-  const scenario = sessionData.scenarioQuestionCount ?? 2;
-  const targetTurns = Math.max(8, 2 + general + scenario + 2);
+  const sessionDurationMinutes = sessionData.durationMinutes ?? 30;
+  const targetTurns = computeTargetTurns(sessionDurationMinutes);
 
   return {
     role: interview.role,
@@ -169,6 +175,7 @@ export const buildContextFromInterview = (interview, sessionData = {}) => {
     history,
     turnCount: interview.answers.length,
     targetTurns,
+    sessionDurationMinutes,
     candidateName: interview.candidateName || "Candidate",
     jobDescription: sessionData.jobDescription,
     skills: sessionData.skills,

@@ -18,14 +18,14 @@ Candidate's Answer: "${answer}"
    - Evaluate it based on communication clarity, enthusiasm, responsiveness, and how warmly they introduced themselves.
    - Award a high "technicalScore" and "overallScore" (between 90 and 100) automatically to reward their initial communication and ensure their technical average grade is not penalized by these non-technical greeting questions.
 
-Provide a highly objective evaluation of the candidate's answer.
+Provide a highly objective evaluation of the candidate's answer. Keep the "feedback" string extremely concise and limited to a maximum of 3 lines.
 Output the evaluation in pure JSON format exactly matching this structure (no markdown code blocks, just raw JSON):
 
 {
   "semanticScore": <number between 0-100 indicating relevance to the question>,
   "technicalScore": <number between 0-100 indicating technical accuracy>,
   "overallScore": <number between 0-100 resulting from a weighted average>,
-  "feedback": "<string, concise feedback explaining the evaluation>",
+  "feedback": "<string, concise feedback explaining the evaluation (strictly maximum 3 lines/sentences)>",
   "strengths": ["<string>", "<string>"],
   "weaknesses": ["<string>"]
 }

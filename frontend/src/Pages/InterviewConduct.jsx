@@ -85,25 +85,61 @@ const InterviewConduct = () => {
 
         newSocket.on("ai-response-chunk", ({ chunk }) => {
             streamingRef.current += chunk;
-            setCurrentQuestion(streamingRef.current);
+            setCurrentQuestion("Thinking...");
             setProcessingStatus("Interviewer is responding...");
         });
 
         newSocket.on("ai-response-complete", (data) => {
             streamingRef.current = "";
             const text = data.questionText;
-            setCurrentQuestion(text);
             setTranscription(null);
             setProcessingStatus(null);
 
             if (data.audioBase64 && audioRef.current) {
+                setCurrentQuestion(text);
                 audioRef.current.src = `data:audio/mp3;base64,${data.audioBase64}`;
                 audioRef.current.play().catch((e) => console.error("Audio playback failed:", e));
             } else if (window.speechSynthesis && text) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.05;
+
+                let speechStarted = false;
+
+                utterance.onstart = () => {
+                    speechStarted = true;
+                    setCurrentQuestion("");
+                };
+
+                utterance.onboundary = (event) => {
+                    if (event.name === 'word') {
+                        const wordIndex = event.charIndex;
+                        let nextSpace = text.indexOf(' ', wordIndex);
+                        if (nextSpace === -1) nextSpace = text.length;
+                        const spokenText = text.substring(0, nextSpace);
+                        setCurrentQuestion(spokenText);
+                    }
+                };
+
+                utterance.onend = () => {
+                    setCurrentQuestion(text);
+                };
+
+                utterance.onerror = () => {
+                    setCurrentQuestion(text);
+                };
+
+                // Fallback: if speech synthesis is active but doesn't send boundaries,
+                // or if it fails to start within 1.5 seconds, ensure the text is shown.
+                setTimeout(() => {
+                    if (!speechStarted) {
+                        setCurrentQuestion(text);
+                    }
+                }, 1500);
+
                 window.speechSynthesis.speak(utterance);
+            } else {
+                setCurrentQuestion(text);
             }
         });
 
