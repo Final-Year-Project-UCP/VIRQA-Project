@@ -2,14 +2,10 @@
 import SharedNotifications from "../../../components/common/Notifications/Notification.jsx";
 
 let EmployeeNotificationsPage = () => {
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-8xl mx-auto">
-        <SharedNotifications
-        />
-      </div>
+    <div className="space-y-6">
+      <SharedNotifications />
     </div>
   );
 }
-export default EmployeeNotificationsPage
+export default EmployeeNotificationsPage

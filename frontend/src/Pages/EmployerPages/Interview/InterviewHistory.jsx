@@ -121,10 +121,10 @@ const InterviewHistory = () => {
     // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div
-            className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 p-6"
+            className="space-y-6"
             onClick={() => setOpenDropdown(null)}
         >
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div>
 
                 {/* ── Header ── */}
                 <div className="flex items-start justify-between">

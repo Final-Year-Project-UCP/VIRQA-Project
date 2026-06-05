@@ -42,7 +42,7 @@ const EmployeeDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center py-24">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
         <p className="text-gray-500 font-medium tracking-wide">Syncing real-time workspace data...</p>
       </div>
@@ -51,7 +51,7 @@ const EmployeeDashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center py-24 p-4">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-red-100">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">⚠️</span>
@@ -70,11 +70,9 @@ const EmployeeDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-8xl mx-auto">
-
+    <div className="space-y-6">
         {/* Header */}
-        <div className="mb-6 flex justify-between items-end">
+        <div className="flex justify-between items-end">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Recruitment Dashboard</h1>
             <p className="text-gray-600">Real-time candidate pipeline and performance analytics</p>
@@ -248,7 +246,6 @@ const EmployeeDashboard = () => {
         <div className="mt-8 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
           Pipeline Analytics Engine • {filtered.length} active candidates
         </div>
-      </div>
     </div>
   );
 };

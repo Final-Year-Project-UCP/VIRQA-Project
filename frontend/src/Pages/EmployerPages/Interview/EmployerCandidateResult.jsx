@@ -19,7 +19,7 @@ const EmployerCandidateResult = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
                 <p className="text-gray-500 font-medium">Loading evaluation report…</p>
             </div>
@@ -28,7 +28,7 @@ const EmployerCandidateResult = () => {
 
     if (isError || !data) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4 p-6">
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <XCircle className="w-14 h-14 text-red-400" />
                 <h1 className="text-xl font-bold text-gray-700">Report Not Found</h1>
                 <p className="text-sm text-gray-400 max-w-sm text-center">
