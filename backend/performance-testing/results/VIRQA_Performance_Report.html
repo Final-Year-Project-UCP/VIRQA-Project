@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIRQA Performance Test Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root { --bg: #0f1117; --card: #1a1d2e; --border: #2d3148; --text: #e4e6eb; --muted: #8b8fa3; --accent: #6c63ff; --green: #2ecc71; --red: #e74c3c; --yellow: #f1c40f; --blue: #3498db; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; padding: 40px 20px 30px; border-bottom: 2px solid var(--border); margin-bottom: 30px; }
+  header h1 { font-size: 2.4em; background: linear-gradient(135deg, #6c63ff, #48c6ef); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { color: var(--muted); margin-top: 8px; font-size: 1.1em; }
+  .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .card h3 { font-size: 0.85em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .card .value { font-size: 2em; font-weight: 700; }
+  .card .sub { font-size: 0.85em; color: var(--muted); margin-top: 4px; }
+  .grade-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9em; color: #fff; }
+  section { margin-bottom: 40px; }
+  section h2 { font-size: 1.5em; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); display: inline-block; }
+  .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .test-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .test-card h3 { color: var(--accent); margin-bottom: 12px; font-size: 1.15em; }
+  .test-card .desc { color: var(--muted); font-size: 0.9em; margin-bottom: 16px; }
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric { background: rgba(108,99,255,0.08); border-radius: 8px; padding: 10px 14px; }
+  .metric .label { font-size: 0.75em; color: var(--muted); text-transform: uppercase; }
+  .metric .val { font-size: 1.2em; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+  th { background: rgba(108,99,255,0.15); font-weight: 600; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; color: var(--muted); }
+  tr:hover { background: rgba(108,99,255,0.05); }
+  .badge { padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; color: #fff; }
+  code { background: rgba(108,99,255,0.15); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; }
+  .chart-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .chart-container h3 { margin-bottom: 16px; color: var(--accent); }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .info-box { background: rgba(108,99,255,0.08); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 20px; }
+  .info-box h4 { color: var(--accent); margin-bottom: 4px; }
+  .info-box p { color: var(--muted); font-size: 0.9em; }
+  .spike-phases { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  footer { text-align: center; padding: 30px; color: var(--muted); font-size: 0.85em; border-top: 1px solid var(--border); margin-top: 40px; }
+  @media (max-width: 768px) { .charts-grid, .spike-phases { grid-template-columns: 1fr; } .metrics-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>VIRQA Performance Test Report</h1>
+  <p>Comprehensive Performance Analysis — Load, Stress, Spike, Endurance &amp; Breakpoint Testing</p>
+  <p style="margin-top:4px;">Generated: <strong>6/19/2026, 10:34:10 PM</strong> &nbsp;|&nbsp; Target: <strong>http://localhost:9090</strong></p>
+</header>
+
+<!-- ============ OVERALL SUMMARY ============ -->
+<div class="summary-cards">
+  <div class="card">
+    <h3>Total Requests</h3>
+    <div class="value">312,912</div>
+    <div class="sub">Across all test suites</div>
+  </div>
+  <div class="card">
+    <h3>Load Test Grade</h3>
+    <div class="value"><span class="grade-badge" style="background:#2ecc71">EXCELLENT</span></div>
+    <div class="sub">P95 Latency: 0ms | Errors: 0</div>
+  </div>
+  <div class="card">
+    <h3>Peak Throughput</h3>
+    <div class="value">4,127.07</div>
+    <div class="sub">Requests per second (avg)</div>
+  </div>
+  <div class="card">
+    <h3>Total Errors</h3>
+    <div class="value" style="color:var(--green)">0</div>
+    <div class="sub">Across all tests</div>
+  </div>
+  <div class="card">
+    <h3>Stress Test Grade</h3>
+    <div class="value"><span class="grade-badge" style="background:#2ecc71">EXCELLENT</span></div>
+    <div class="sub">P95: 0ms | 200 connections</div>
+  </div>
+  <div class="card">
+    <h3>Endurance Grade</h3>
+    <div class="value"><span class="grade-badge" style="background:#2ecc71">EXCELLENT</span></div>
+    <div class="sub">60s sustained at 80 connections</div>
+  </div>
+</div>
+
+<!-- ============ TEST 1: LOAD TEST ============ -->
+<section>
+  <h2>1. Load Test</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Validate system behavior under <strong>normal expected traffic</strong> — 50 concurrent users for 30 seconds hitting all major API endpoints.</p>
+  </div>
+  <div class="test-grid">
+    <div class="test-card">
+      <h3>Configuration</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Connections</div><div class="val">50</div></div>
+        <div class="metric"><div class="label">Duration</div><div class="val">30s</div></div>
+        <div class="metric"><div class="label">Pipelining</div><div class="val">1</div></div>
+        <div class="metric"><div class="label">Endpoints</div><div class="val">13</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <h3>Results</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Total Requests</div><div class="val">32,339</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">1,077.97 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">46.03ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">P99 Latency</div><div class="val">142ms</div></div>
+        <div class="metric"><div class="label">Max Latency</div><div class="val">176ms</div></div>
+        <div class="metric"><div class="label">2xx Responses</div><div class="val">32,339</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val" style="color:var(--green)">0</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST 2: STRESS TEST ============ -->
+<section>
+  <h2>2. Stress Test</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Determine how the system behaves under <strong>extreme load</strong> — 200 concurrent connections for 30 seconds. Identifies the breaking point and error rate under pressure.</p>
+  </div>
+  <div class="test-grid">
+    <div class="test-card">
+      <h3>Configuration</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Connections</div><div class="val">200</div></div>
+        <div class="metric"><div class="label">Duration</div><div class="val">30s</div></div>
+        <div class="metric"><div class="label">Pipelining</div><div class="val">1</div></div>
+        <div class="metric"><div class="label">Endpoints</div><div class="val">13</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <h3>Results</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Total Requests</div><div class="val">112,384</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">3,746.7 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">52.92ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">P99 Latency</div><div class="val">150ms</div></div>
+        <div class="metric"><div class="label">Max Latency</div><div class="val">223ms</div></div>
+        <div class="metric"><div class="label">2xx Responses</div><div class="val">112,384</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val" style="color:var(--green)">0</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST 3: SPIKE TEST ============ -->
+<section>
+  <h2>3. Spike Test</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Test system <strong>resilience to sudden traffic bursts</strong> — simulates viral events or deadline rushes. Three phases: Calm → Spike → Recovery.</p>
+  </div>
+  <div class="spike-phases">
+    <div class="test-card">
+      <h3>Phase 1: Calm (5 conn, 10s)</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Requests</div><div class="val">1,062</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">106.2 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">46.77ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val">0</div></div>
+        <div class="metric"><div class="label">2xx</div><div class="val">1,062</div></div>
+      </div>
+    </div>
+    <div class="test-card" style="border-color: var(--red);">
+      <h3 style="color: var(--red);">Phase 2: SPIKE (300 conn, 15s)</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Requests</div><div class="val">61,897</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">4,127.07 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">72.27ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val" style="color:var(--green)">0</div></div>
+        <div class="metric"><div class="label">2xx</div><div class="val">61,897</div></div>
+      </div>
+    </div>
+    <div class="test-card" style="border-color: var(--green);">
+      <h3 style="color: var(--green);">Phase 3: Recovery (10 conn, 10s)</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Requests</div><div class="val">2,136</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">213.6 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">46.4ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val">0</div></div>
+        <div class="metric"><div class="label">2xx</div><div class="val">2,136</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST 4: ENDURANCE ============ -->
+<section>
+  <h2>4. Endurance (Soak) Test</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Verify system <strong>stability over extended periods</strong> — 80 concurrent connections sustained for 60 seconds. Detects memory leaks, resource exhaustion, and degradation over time.</p>
+  </div>
+  <div class="test-grid">
+    <div class="test-card">
+      <h3>Configuration</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Connections</div><div class="val">80</div></div>
+        <div class="metric"><div class="label">Duration</div><div class="val">60s</div></div>
+        <div class="metric"><div class="label">Pipelining</div><div class="val">1</div></div>
+        <div class="metric"><div class="label">Endpoints</div><div class="val">13</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <h3>Results</h3>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Total Requests</div><div class="val">103,094</div></div>
+        <div class="metric"><div class="label">Throughput</div><div class="val">1,718.24 req/s</div></div>
+        <div class="metric"><div class="label">Avg Latency</div><div class="val">46.11ms</div></div>
+        <div class="metric"><div class="label">P95 Latency</div><div class="val">0ms</div></div>
+        <div class="metric"><div class="label">P99 Latency</div><div class="val">143ms</div></div>
+        <div class="metric"><div class="label">Max Latency</div><div class="val">203ms</div></div>
+        <div class="metric"><div class="label">2xx Responses</div><div class="val">103,094</div></div>
+        <div class="metric"><div class="label">Errors</div><div class="val" style="color:var(--green)">0</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST 5: BREAKPOINT ============ -->
+<section>
+  <h2>5. Breakpoint Test</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Identify the <strong>maximum throughput ceiling</strong> by progressively increasing connections from 10 to 250 and measuring latency degradation.</p>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Connections</th><th>Throughput (req/s)</th><th>Avg Latency (ms)</th><th>P95 Latency (ms)</th><th>P99 Latency (ms)</th><th>Errors</th><th>Mean RPS</th></tr>
+    </thead>
+    <tbody><tr>
+      <td>10</td>
+      <td>211.7</td>
+      <td>46.9</td>
+      <td>0</td>
+      <td>144</td>
+      <td>0</td>
+      <td>211.7</td>
+    </tr><tr>
+      <td>50</td>
+      <td>1,077.6</td>
+      <td>45.99</td>
+      <td>0</td>
+      <td>144</td>
+      <td>0</td>
+      <td>1,077.6</td>
+    </tr><tr>
+      <td>100</td>
+      <td>2,114.81</td>
+      <td>46.83</td>
+      <td>0</td>
+      <td>144</td>
+      <td>0</td>
+      <td>2,114.81</td>
+    </tr><tr>
+      <td>150</td>
+      <td>2,962.8</td>
+      <td>50.14</td>
+      <td>0</td>
+      <td>147</td>
+      <td>0</td>
+      <td>2,962.8</td>
+    </tr><tr>
+      <td>250</td>
+      <td>4,127.8</td>
+      <td>60.09</td>
+      <td>0</td>
+      <td>154</td>
+      <td>0</td>
+      <td>4,127.8</td>
+    </tr></tbody>
+  </table>
+
+  <div class="charts-grid" style="margin-top:20px;">
+    <div class="chart-container">
+      <h3>Throughput vs Connections</h3>
+      <canvas id="bpThroughputChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>P95 Latency vs Connections</h3>
+      <canvas id="bpLatencyChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST 6: ENDPOINT BREAKDOWN ============ -->
+<section>
+  <h2>6. Individual Endpoint Benchmark</h2>
+  <div class="info-box">
+    <h4>Objective</h4>
+    <p>Benchmark each API endpoint individually with 30 concurrent connections for 10 seconds to identify <strong>slow or problematic endpoints</strong>.</p>
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Method</th><th>Path</th><th>Throughput</th><th>Avg (ms)</th><th>P50 (ms)</th><th>P95 (ms)</th><th>P99 (ms)</th><th>Errors</th><th>Grade</th></tr>
+      </thead>
+      <tbody><tr>
+      <td><strong>Health Check</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/</code></td>
+      <td>4,861.28</td>
+      <td>5.63</td>
+      <td>5</td>
+      <td>0</td>
+      <td>12</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>User Login</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/user/login</code></td>
+      <td>682.9</td>
+      <td>43.62</td>
+      <td>43</td>
+      <td>0</td>
+      <td>70</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>User Register</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/user/register</code></td>
+      <td>529.21</td>
+      <td>56.22</td>
+      <td>57</td>
+      <td>0</td>
+      <td>90</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Get Profile</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/user/profile</code></td>
+      <td>955.5</td>
+      <td>30.98</td>
+      <td>32</td>
+      <td>0</td>
+      <td>50</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>My Interviews</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/candidate/my-interviews</code></td>
+      <td>638.9</td>
+      <td>46.62</td>
+      <td>48</td>
+      <td>0</td>
+      <td>72</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>My Results</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/candidate/my-results</code></td>
+      <td>551.21</td>
+      <td>54</td>
+      <td>54</td>
+      <td>0</td>
+      <td>81</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Start AI Interview</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/ai-interview/start</code></td>
+      <td>283.7</td>
+      <td>105.23</td>
+      <td>104</td>
+      <td>0</td>
+      <td>157</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Employee Dashboard</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/employee/dashboard</code></td>
+      <td>715.9</td>
+      <td>41.58</td>
+      <td>41</td>
+      <td>0</td>
+      <td>63</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Employee Interviews</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/employee/interviews</code></td>
+      <td>604.21</td>
+      <td>49.21</td>
+      <td>49</td>
+      <td>0</td>
+      <td>72</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Admin Stats</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/admin/stats</code></td>
+      <td>487.5</td>
+      <td>61.16</td>
+      <td>63</td>
+      <td>0</td>
+      <td>90</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Admin Users</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/admin/users</code></td>
+      <td>549.4</td>
+      <td>54.21</td>
+      <td>55</td>
+      <td>0</td>
+      <td>81</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Notifications</strong></td>
+      <td><code>GET</code></td>
+      <td><code>/api/v1/notifications</code></td>
+      <td>1,090.5</td>
+      <td>27.04</td>
+      <td>29</td>
+      <td>0</td>
+      <td>40</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr><tr>
+      <td><strong>Submit Feedback</strong></td>
+      <td><code>POST</code></td>
+      <td><code>/api/v1/feedback</code></td>
+      <td>885.6</td>
+      <td>33.51</td>
+      <td>32</td>
+      <td>0</td>
+      <td>49</td>
+      <td>0</td>
+      <td><span class="badge" style="background:#2ecc71">EXCELLENT</span></td>
+    </tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ METHODOLOGY ============ -->
+<section>
+  <h2>Testing Methodology</h2>
+  <div class="test-grid">
+    <div class="test-card">
+      <h3>Tool</h3>
+      <p>Tests executed using <strong>autocannon</strong> — a fast, low-overhead HTTP/1.1 benchmarking tool written in Node.js. It uses minimal resources on the client side to ensure accurate measurements.</p>
+    </div>
+    <div class="test-card">
+      <h3>Test Environment</h3>
+      <p><strong>OS:</strong> Windows 25H2<br>
+      <strong>Runtime:</strong> Node.js<br>
+      <strong>Server:</strong> Express.js (Mock with simulated latency 5-150ms)<br>
+      <strong>Network:</strong> localhost (loopback)</p>
+    </div>
+    <div class="test-card">
+      <h3>Grading Criteria</h3>
+      <p><span class="badge" style="background:var(--green)">EXCELLENT</span> P95 &lt; 200ms, 0 errors<br>
+      <span class="badge" style="background:var(--blue)">GOOD</span> P95 &lt; 500ms<br>
+      <span class="badge" style="background:var(--yellow)">FAIR</span> P95 &lt; 1000ms<br>
+      <span class="badge" style="background:#e67e22">POOR</span> P95 &gt; 1000ms<br>
+      <span class="badge" style="background:var(--red)">FAIL</span> Error rate &gt; 5%</p>
+    </div>
+    <div class="test-card">
+      <h3>Endpoints Tested</h3>
+      <p><code>GET /</code><br><code>POST /api/v1/user/login</code><br><code>POST /api/v1/user/register</code><br><code>GET /api/v1/user/profile</code><br><code>GET /api/v1/candidate/my-interviews</code><br><code>GET /api/v1/candidate/my-results</code><br><code>POST /api/v1/ai-interview/start</code><br><code>GET /api/v1/employee/dashboard</code><br><code>GET /api/v1/employee/interviews</code><br><code>GET /api/v1/admin/stats</code><br><code>GET /api/v1/admin/users</code><br><code>GET /api/v1/notifications</code><br><code>POST /api/v1/feedback</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECOMMENDATIONS ============ -->
+<section>
+  <h2>Recommendations</h2>
+  <div class="test-card" style="margin-bottom:20px;">
+    <h3>Performance Optimization Suggestions</h3>
+    <ul style="padding-left:20px; line-height:2;">
+      <li>Implement <strong>Redis caching</strong> for frequently accessed data (dashboard stats, notifications)</li>
+      <li>Add <strong>database indexing</strong> on frequently queried fields (userId, interviewId)</li>
+      <li>Use <strong>connection pooling</strong> for MongoDB (already default in Mongoose)</li>
+      <li>Implement <strong>rate limiting</strong> to protect against traffic spikes</li>
+      <li>Add <strong>response compression</strong> (gzip/brotli) for large payloads</li>
+      <li>Consider <strong>horizontal scaling</strong> with a load balancer for production traffic</li>
+      <li>Optimize <strong>AI interview endpoints</strong> which have higher inherent latency</li>
+      <li>Implement <strong>CDN</strong> for static assets and media files</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>VIRQA Performance Test Report — Auto-generated by Performance Testing Suite</p>
+  <p>Project: VIRQA (Virtual Interview & Recruitment Quality Assurance) | Final Year Project — UCP</p>
+</footer>
+
+</div>
+
+<script>
+// Breakpoint Throughput Chart
+new Chart(document.getElementById('bpThroughputChart'), {
+  type: 'line',
+  data: {
+    labels: [10,50,100,150,250],
+    datasets: [{
+      label: 'Throughput (req/s)',
+      data: [211.7,1077.6,2114.81,2962.8,4127.8],
+      borderColor: '#6c63ff',
+      backgroundColor: 'rgba(108,99,255,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 6,
+      pointBackgroundColor: '#6c63ff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#e4e6eb' } } },
+    scales: {
+      x: { title: { display: true, text: 'Concurrent Connections', color: '#8b8fa3' }, ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(45,49,72,0.5)' } },
+      y: { title: { display: true, text: 'Requests/second', color: '#8b8fa3' }, ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(45,49,72,0.5)' } }
+    }
+  }
+});
+
+// Breakpoint Latency Chart
+new Chart(document.getElementById('bpLatencyChart'), {
+  type: 'line',
+  data: {
+    labels: [10,50,100,150,250],
+    datasets: [{
+      label: 'P95 Latency (ms)',
+      data: [0,0,0,0,0],
+      borderColor: '#e74c3c',
+      backgroundColor: 'rgba(231,76,60,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 6,
+      pointBackgroundColor: '#e74c3c',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#e4e6eb' } } },
+    scales: {
+      x: { title: { display: true, text: 'Concurrent Connections', color: '#8b8fa3' }, ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(45,49,72,0.5)' } },
+      y: { title: { display: true, text: 'Latency (ms)', color: '#8b8fa3' }, ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(45,49,72,0.5)' } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
